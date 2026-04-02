@@ -1,0 +1,26 @@
+created:
+    - database/factories/CareerFactory.php
+    - database/factories/CategoryFactory.php
+    - database/factories/UserFactory.php
+    - database/factories/ThesisFactory.php
+    - database/factories/ThesisFileFactory.php
+    - database/factories/TagFactory.php
+    - database/migrations/2026_03_29_211507_create_careers_table.php
+    - database/migrations/2026_03_29_211508_create_categories_table.php
+    - database/migrations/2026_03_29_211509_create_users_table.php
+    - database/migrations/2026_03_29_211510_create_theses_table.php
+    - database/migrations/2026_03_29_211511_create_thesis_files_table.php
+    - database/migrations/2026_03_29_211512_create_tags_table.php
+    - app/Models/Career.php
+    - app/Models/Category.php
+    - app/Models/User.php
+    - app/Models/Thesis.php
+    - app/Models/ThesisFile.php
+    - app/Models/Tag.php
+models:
+    Career: { name: string }
+    Category: { name: string }
+    User: { full_name: string, email: 'string:unique', password: string, career_id: id }
+    Thesis: { title: string, abstract: text, tutor: text, repo_url: 'string:nullable', demo_url: 'string:nullable', user_id: id, category_id: id }
+    ThesisFile: { thesis_id: id, file_path: string, is_primary: boolean }
+    Tag: { name: string }

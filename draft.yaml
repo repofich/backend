@@ -1,0 +1,30 @@
+models:
+  Career:
+    name: string
+
+  Category:
+    name: string
+   
+  User:
+    full_name: string
+    email: string:unique
+    password: string
+    career_id: id
+
+  Thesis:
+    title: string
+    abstract: text
+    tutor: text
+    repo_url: string:nullable
+    demo_url: string:nullable
+    user_id: id
+    category_id: id
+
+  ThesisFile:
+    thesis_id: id
+    file_path: string
+    is_primary: boolean
+
+  Tag:
+    name: string
+    
