@@ -48,4 +48,12 @@ class Thesis extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function tags(): BelongsTo
+    {
+        return $this->belongsTo(Tag::class);
+    }
+    public function files(): BelongsTo
+    {
+        return $this->belongsTo(ThesisFile::class);
+    }
 }
