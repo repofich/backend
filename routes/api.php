@@ -18,7 +18,8 @@ Route::post('/login', function () {
 });
 
 Route::get('/thesis', [ThesisController::class, 'index']);
-Route::get('/thesis/search/{search}', [ThesisController::class, 'search']);
+#Route::get('/thesis/search/{search}', [ThesisController::class, 'search']);
+Route::get('/thesis/search', [ThesisController::class, 'search']);
 Route::get('/thesis/{id}', [ThesisController::class, 'show']);
 Route::post('/thesis', [ThesisController::class, 'store']);
 Route::put('/thesis/{id}', [ThesisController::class, 'update']);
