@@ -26,3 +26,4 @@ Route::get('/thesis/{id}', [ThesisController::class, 'show']);
 Route::post('/thesis', [ThesisController::class, 'store']);
 Route::put('/thesis/{id}', [ThesisController::class, 'update']);
 Route::delete('/thesis/{id}', [ThesisController::class, 'destroy']);
+Route::get('/thesis/stats', [ThesisController::class, 'stats']);

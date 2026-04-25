@@ -83,4 +83,25 @@ class ThesisController extends Controller
     return response()->json($query->get());
 }
 
+public function stats()
+{
+
+    $byCareer = \App\Models\Thesis::selectRaw('category_id, COUNT(*) as total')
+        ->groupBy('category_id')
+        ->with('category')
+        ->get();
+
+   
+    $withCode = \App\Models\Thesis::whereNotNull('repo_url')->count();
+
+  
+    $total = \App\Models\Thesis::count();
+
+    return response()->json([
+        'total' => $total,
+        'with_code' => $withCode,
+        'by_career' => $byCareer
+    ]);
+}
+
 }
