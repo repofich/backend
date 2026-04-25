@@ -33,6 +33,19 @@ class ThesisController extends Controller
      #   return \App\Models\Thesis::with(['user', 'category', 'tags', 'files'])->where('title', 'like', '%'.$search.'%')->get();
     #}
 
+    public function featured(){
+    return \App\Models\Thesis::with(['user', 'category', 'tags', 'files'])
+        ->where('featured', true)
+        ->get();
+    }
+
+    public function recent(){
+    return \App\Models\Thesis::with(['user', 'category', 'tags', 'files'])
+        ->latest()
+        ->take(10)
+        ->get();
+    }
+
     public function search(Request $request)
 {
     $query = \App\Models\Thesis::with(['user', 'category', 'tags', 'files']);

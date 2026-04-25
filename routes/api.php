@@ -19,6 +19,8 @@ Route::post('/login', function () {
 
 Route::get('/thesis', [ThesisController::class, 'index']);
 #Route::get('/thesis/search/{search}', [ThesisController::class, 'search']);
+Route::get('/thesis/featured', [ThesisController::class, 'featured']);
+Route::get('/thesis/recent', [ThesisController::class, 'recent']);
 Route::get('/thesis/search', [ThesisController::class, 'search']);
 Route::get('/thesis/{id}', [ThesisController::class, 'show']);
 Route::post('/thesis', [ThesisController::class, 'store']);
