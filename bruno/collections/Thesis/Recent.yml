@@ -5,11 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{url}}/api/thesis/search?title=sistema"
-  params:
-    - name: title
-      value: sistema
-      type: query
+  url: "{{url}}/api/thesis/recent"
   auth: inherit
 
 settings:

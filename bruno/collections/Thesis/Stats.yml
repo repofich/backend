@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{url}}/api/thesis/featured"
+  url: "{{url}}/api/thesis/stats"
   auth: inherit
 
 settings:
