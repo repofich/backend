@@ -20,6 +20,7 @@ class User extends Model
         'email',
         'password',
         'career_id',
+        'user_type',
     ];
 
     /**

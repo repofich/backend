@@ -17,6 +17,7 @@ class UserFactory extends Factory
             'email' => fake()->safeEmail(),
             'password' => fake()->password(),
             'career_id' => Career::factory(),
+            'user_type' => 'user',
         ];
     }
 }

@@ -1,0 +1,14 @@
+opencollection: 1.0.0
+info:
+  name: "repofich"
+  type: workspace
+
+collections:
+  - name: "Thesis"
+    path: "collections/Thesis"
+
+specs:
+
+docs: ''
+
+activeEnvironmentUid: 1hwaqy700000000000000
