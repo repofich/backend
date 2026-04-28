@@ -1,0 +1,19 @@
+info:
+  name: Search
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{url}}/api/thesis/search?title=Inteligencia"
+  params:
+    - name: title
+      value: Inteligencia
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -15,11 +15,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            CareerSeeder::class,
+            CategorySeeder::class,
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $career = \App\Models\Career::first();
+
+        \App\Models\User::create([
+            'full_name' => 'Administrador',
+            'email' => 'admin@admin.com',
+            'password' => bcrypt('admin'),
+            'career_id' => $career->id,
+            'user_type' => 'admin',
+        ]);
+
+        $this->call([
+            ThesisSeeder::class,
         ]);
     }
 }
