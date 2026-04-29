@@ -56,16 +56,27 @@ public function search(Request $request)
 
         $query->where(function ($q) use ($search) {
             $q->where('title', 'like', '%' . $search . '%')
+              ->orWhere('abstract', 'like', '%' . $search . '%')
               ->orWhereHas('user', function ($q2) use ($search) {
-                  $q2->where('name', 'like', '%' . $search . '%');
-              })
-              ->orWhereHas('tags', function ($q2) use ($search) {
-                  $q2->where('name', 'like', '%' . $search . '%');
+                  $q2->where('full_name', 'like', '%' . $search . '%');
               })
               ->orWhereHas('category', function ($q2) use ($search) {
                   $q2->where('name', 'like', '%' . $search . '%');
               });
         });
+    }
+    if ($request->filled('year')) {
+        $query->whereYear('created_at', $request->year);
+    }
+
+    if ($request->filled('career')) {
+        $query->whereHas('category', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->career . '%');
+        });
+    }
+
+    if ($request->filled('type')) {
+        $query->where('type', $request->type);
     }
 
     return response()->json($query->get());
@@ -73,16 +84,10 @@ public function search(Request $request)
 
 public function stats()
 {
+    $byCareer = \App\Models\Category::withCount('theses')->get();
 
-    $byCareer = \App\Models\Thesis::selectRaw('category_id, COUNT(*) as total')
-        ->groupBy('category_id')
-        ->with('category')
-        ->get();
-
-   
     $withCode = \App\Models\Thesis::whereNotNull('repo_url')->count();
 
-  
     $total = \App\Models\Thesis::count();
 
     return response()->json([
