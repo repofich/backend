@@ -46,34 +46,33 @@ class ThesisController extends Controller
         ->get();
     }
 
-    public function search(Request $request)
+
+public function search(Request $request)
 {
     $query = \App\Models\Thesis::with(['user', 'category', 'tags', 'files']);
 
-    if ($request->filled('title')) {
-        $query->where('title', 'like', '%' . $request->title . '%');
-    }
+    if ($request->filled('query')) {
+        $search = $request->input('query');
 
-    if ($request->filled('author')) {
-        $query->whereHas('user', function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->author . '%');
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', '%' . $search . '%')
+              ->orWhere('abstract', 'like', '%' . $search . '%')
+              ->orWhereHas('user', function ($q2) use ($search) {
+                  $q2->where('full_name', 'like', '%' . $search . '%');
+              })
+              ->orWhereHas('category', function ($q2) use ($search) {
+                  $q2->where('name', 'like', '%' . $search . '%');
+              });
         });
     }
-
-    if ($request->filled('keyword')) {
-        $query->whereHas('tags', function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->keyword . '%');
-        });
+    if ($request->filled('year')) {
+        $query->whereYear('created_at', $request->year);
     }
 
     if ($request->filled('career')) {
         $query->whereHas('category', function ($q) use ($request) {
             $q->where('name', 'like', '%' . $request->career . '%');
         });
-    }
-
-    if ($request->filled('year')) {
-        $query->whereYear('created_at', $request->year);
     }
 
     if ($request->filled('type')) {
@@ -85,16 +84,10 @@ class ThesisController extends Controller
 
 public function stats()
 {
+    $byCareer = \App\Models\Category::withCount('theses')->get();
 
-    $byCareer = \App\Models\Thesis::selectRaw('category_id, COUNT(*) as total')
-        ->groupBy('category_id')
-        ->with('category')
-        ->get();
-
-   
     $withCode = \App\Models\Thesis::whereNotNull('repo_url')->count();
 
-  
     $total = \App\Models\Thesis::count();
 
     return response()->json([

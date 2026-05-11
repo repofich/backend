@@ -29,4 +29,8 @@ class Category extends Model
             'id' => 'integer',
         ];
     }
+    public function theses()
+{
+    return $this->hasMany(\App\Models\Thesis::class);
+}
 }
