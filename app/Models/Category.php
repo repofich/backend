@@ -30,7 +30,7 @@ class Category extends Model
         ];
     }
     public function theses()
-{
-    return $this->hasMany(\App\Models\Thesis::class);
-}
+    {
+        return $this->hasMany(\App\Models\Thesis::class);
+    }
 }

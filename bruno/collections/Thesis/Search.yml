@@ -5,9 +5,9 @@ info:
 
 http:
   method: GET
-  url: "{{url}}/api/thesis/search?title=Inteligencia"
+  url: "{{url}}/api/thesis/search?query=Inteligencia"
   params:
-    - name: title
+    - name: query
       value: Inteligencia
       type: query
   auth: inherit
