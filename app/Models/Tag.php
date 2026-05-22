@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Tag extends Model
 {
@@ -28,5 +29,10 @@ class Tag extends Model
         return [
             'id' => 'integer',
         ];
+    }
+
+    public function theses(): BelongsToMany
+    {
+        return $this->belongsToMany(Thesis::class);
     }
 }

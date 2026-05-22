@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Thesis extends Model
 {
@@ -48,12 +50,12 @@ class Thesis extends Model
     {
         return $this->belongsTo(Category::class);
     }
-    public function tags(): BelongsTo
+    public function tags(): BelongsToMany
     {
-        return $this->belongsTo(Tag::class);
+        return $this->belongsToMany(Tag::class);
     }
-    public function files(): BelongsTo
+    public function files(): HasMany
     {
-        return $this->belongsTo(ThesisFile::class);
+        return $this->hasMany(ThesisFile::class);
     }
 }

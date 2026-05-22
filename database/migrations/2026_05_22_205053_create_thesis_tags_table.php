@@ -10,12 +10,12 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('thesis_tags', function (Blueprint $table) {
-        $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
-        $table->foreignId('tag_id')->constrained('tags')->cascadeOnDelete();
-    });
-}
+    {
+        Schema::create('thesis_tags', function (Blueprint $table) {
+            $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
+            $table->foreignId('tag_id')->constrained('tags')->cascadeOnDelete();
+        });
+    }
 
     /**
      * Reverse the migrations.
