@@ -1,0 +1,26 @@
+meta {
+  name: Show User
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8000/api/users/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns user", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.have.property("id");
+  });
+}

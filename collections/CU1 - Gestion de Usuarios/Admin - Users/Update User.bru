@@ -1,0 +1,33 @@
+meta {
+  name: Update User
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:8000/api/users/3
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "full_name": "Tutor Actualizado",
+    "user_type": "tutor"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Name updated", function() {
+    expect(res.body.user.full_name).to.equal("Tutor Actualizado");
+  });
+}

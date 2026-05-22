@@ -1,0 +1,22 @@
+meta {
+  name: Delete User Photo
+  type: http
+  seq: 9
+}
+
+delete {
+  url: http://localhost:8000/api/users/6/photo
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Update User Curriculum
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:8000/api/users/6/curriculum
+  body: multipartForm
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:multipart-form {
+  curriculum: @file(C:\path\to\curriculum.pdf)
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has curriculum_url", function() {
+    expect(res.body).to.have.property("curriculum_url");
+  });
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Update User Photo
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:8000/api/users/6/photo
+  body: multipartForm
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:multipart-form {
+  photo: @file(C:\path\to\photo.jpg)
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has photo_url", function() {
+    expect(res.body).to.have.property("photo_url");
+  });
+}

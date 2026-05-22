@@ -1,0 +1,22 @@
+meta {
+  name: Logout
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8000/api/logout
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+}

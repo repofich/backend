@@ -1,0 +1,12 @@
+opencollection: 1.0.0
+info:
+  name: "Proyecto Laravel"
+  type: workspace
+
+collections:
+  - name: "CU1 - Gestion de Usuarios"
+    path: "collections/CU1 - Gestion de Usuarios"
+
+specs:
+
+docs: ''

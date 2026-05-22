@@ -1,0 +1,29 @@
+meta {
+  name: Login - inválido
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8000/api/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "estudiante@test.com",
+    "password": "wrongpassword"
+  }
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

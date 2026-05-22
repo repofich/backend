@@ -1,0 +1,36 @@
+meta {
+  name: Create User
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8000/api/users
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "full_name": "Nuevo Tutor",
+    "email": "nuevotutor@test.com",
+    "password": "password",
+    "user_type": "tutor",
+    "career_id": 1
+  }
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.status).to.equal(201);
+  });
+  test("Correct user_type", function() {
+    expect(res.body.user.user_type).to.equal("tutor");
+  });
+}

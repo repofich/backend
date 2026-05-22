@@ -1,0 +1,27 @@
+meta {
+  name: List Users - filtro por rol
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8000/api/users?user_type=tutor
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("All returned are tutors", function() {
+    res.body.data.forEach(function(user) {
+      expect(user.user_type).to.equal("tutor");
+    });
+  });
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Login con CI
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8000/api/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "ci": "12345678",
+    "password": "password"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has token", function() {
+    expect(res.body).to.have.property("token");
+  });
+}

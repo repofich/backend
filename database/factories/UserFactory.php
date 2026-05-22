@@ -4,20 +4,22 @@ namespace Database\Factories;
 
 use App\Models\Career;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
 class UserFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     */
+    protected static ?string $password;
+
     public function definition(): array
     {
         return [
-            'full_name' => fake()->word(),
-            'email' => fake()->safeEmail(),
-            'password' => fake()->password(),
+            'ci' => fake()->unique()->numerify('##########'),
+            'registration_number' => fake()->unique()->numerify('2024-####'),
+            'full_name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'password' => static::$password ??= Hash::make('password'),
             'career_id' => Career::factory(),
-            'user_type' => 'user',
+            'user_type' => 'estudiante',
         ];
     }
 }
