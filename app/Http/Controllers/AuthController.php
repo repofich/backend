@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CurriculumRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\PhotoRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UniversityValidationService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -38,7 +40,7 @@ class AuthController extends Controller
             'user_type' => 'estudiante',
         ]);
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'token' => $token,
@@ -48,17 +50,22 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)
-            ->orWhere('ci', $request->ci)
-            ->first();
+        $credentials = $request->only('email', 'password');
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$token = JWTAuth::attempt($credentials)) {
+            $user = User::where('ci', $request->ci)->first();
+            if ($user && Hash::check($request->password, $user->password)) {
+                $token = JWTAuth::fromUser($user);
+            }
+        }
+
+        if (!$token) {
             return response()->json([
                 'message' => 'Credenciales inválidas.',
             ], 401);
         }
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $user = auth('api')->user();
 
         return response()->json([
             'token' => $token,
@@ -66,23 +73,23 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json(['message' => 'Sesión cerrada correctamente.']);
     }
 
-    public function me(Request $request): UserResource
+    public function me(): UserResource
     {
-        $request->user()->load('career');
+        $user = auth('api')->user()->load('career');
 
-        return new UserResource($request->user());
+        return new UserResource($user);
     }
 
     public function updateMyPhoto(PhotoRequest $request): JsonResponse
     {
-        $user = $request->user();
+        $user = auth('api')->user();
 
         if ($user->photo_path) {
             \Storage::disk('public')->delete($user->photo_path);
@@ -99,7 +106,7 @@ class AuthController extends Controller
 
     public function updateMyCurriculum(CurriculumRequest $request): JsonResponse
     {
-        $user = $request->user();
+        $user = auth('api')->user();
 
         if ($user->curriculum_pdf_path) {
             \Storage::disk('public')->delete($user->curriculum_pdf_path);

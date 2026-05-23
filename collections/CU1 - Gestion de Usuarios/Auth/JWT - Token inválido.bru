@@ -1,0 +1,25 @@
+meta {
+  name: JWT - Token inválido
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://localhost:8000/api/me
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer token-invalido-falso-123
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+  test("Error message", function() {
+    expect(res.body).to.have.property("message");
+  });
+}

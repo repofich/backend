@@ -1,0 +1,39 @@
+meta {
+  name: JWT - Flujo completo
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:8000/api/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "estudiante@test.com",
+    "password": "password"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Token es un JWT (3 partes separadas por punto)", function() {
+    var parts = res.body.token.split(".");
+    expect(parts.length).to.equal(3);
+  });
+  test("Payload decodificable", function() {
+    var payload = JSON.parse(atob(res.body.token.split(".")[1]));
+    expect(payload).to.have.property("sub");
+    expect(payload).to.have.property("iat");
+    expect(payload).to.have.property("exp");
+  });
+}
