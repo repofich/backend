@@ -1,0 +1,36 @@
+meta {
+  name: Login - intentos restantes
+  type: http
+  seq: 16
+}
+
+post {
+  url: http://localhost:8000/api/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+# Envía una credencial inválida para verificar que se devuelven los intentos restantes.
+body:json {
+  {
+    "email": "estudiante@test.com",
+    "password": "password_incorrecta"
+  }
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+  test("Has remaining_attempts", function() {
+    expect(res.body).to.have.property("remaining_attempts");
+  });
+  test("Remaining attempts is a number", function() {
+    expect(res.body.remaining_attempts).to.be.a("number");
+  });
+}

@@ -15,6 +15,9 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
+    private const MAX_LOGIN_ATTEMPTS = 5;
+    private const LOCKOUT_MINUTES = 15;
+
     public function __construct(
         private readonly UniversityValidationService $validationService
     ) {}
@@ -50,22 +53,54 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $credentials = $request->only('email', 'password');
-
-        if (!$token = JWTAuth::attempt($credentials)) {
+        $user = null;
+        if ($request->filled('email')) {
+            $user = User::where('email', $request->email)->first();
+        } elseif ($request->filled('ci')) {
             $user = User::where('ci', $request->ci)->first();
-            if ($user && Hash::check($request->password, $user->password)) {
-                $token = JWTAuth::fromUser($user);
-            }
         }
 
-        if (!$token) {
+        if (!$user) {
             return response()->json([
                 'message' => 'Credenciales inválidas.',
             ], 401);
         }
 
-        $user = auth('api')->user();
+        if ($user->locked_until && now()->lessThan($user->locked_until)) {
+            $minutes = now()->diffInMinutes($user->locked_until) + 1;
+
+            return response()->json([
+                'message' => "Cuenta bloqueada. Intente nuevamente en {$minutes} minutos.",
+                'locked_until' => $user->locked_until,
+            ], 423);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            $user->increment('failed_login_attempts');
+
+            $remaining = self::MAX_LOGIN_ATTEMPTS - $user->fresh()->failed_login_attempts;
+
+            if ($remaining <= 0) {
+                $user->update(['locked_until' => now()->addMinutes(self::LOCKOUT_MINUTES)]);
+
+                return response()->json([
+                    'message' => 'Cuenta bloqueada por demasiados intentos fallidos. Intente nuevamente en ' . self::LOCKOUT_MINUTES . ' minutos.',
+                    'locked_until' => $user->fresh()->locked_until,
+                ], 423);
+            }
+
+            return response()->json([
+                'message' => 'Credenciales inválidas.',
+                'remaining_attempts' => $remaining,
+            ], 401);
+        }
+
+        $token = JWTAuth::fromUser($user);
+
+        $user->update([
+            'failed_login_attempts' => 0,
+            'locked_until' => null,
+        ]);
 
         return response()->json([
             'token' => $token,
