@@ -1,0 +1,37 @@
+meta {
+  name: Register - email duplicado
+  type: http
+  seq: 12
+}
+
+post {
+  url: http://localhost:8000/api/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "ci": "99999999",
+    "registration_number": "2024-9999",
+    "full_name": "Usuario Duplicado",
+    "email": "estudiante@test.com",
+    "password": "Test@1234",
+    "password_confirmation": "Test@1234",
+    "career_id": 1
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Email error message", function() {
+    expect(res.body.errors).to.have.property("email");
+  });
+}

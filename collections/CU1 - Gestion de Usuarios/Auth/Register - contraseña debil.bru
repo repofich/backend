@@ -1,0 +1,37 @@
+meta {
+  name: Register - contraseña débil
+  type: http
+  seq: 13
+}
+
+post {
+  url: http://localhost:8000/api/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "ci": "88888888",
+    "registration_number": "2024-8888",
+    "full_name": "Usuario Password Debil",
+    "email": "passworddebil@test.com",
+    "password": "solominusculas1",
+    "password_confirmation": "solominusculas1",
+    "career_id": 1
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Password error message", function() {
+    expect(res.body.errors).to.have.property("password");
+  });
+}

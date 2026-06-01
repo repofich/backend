@@ -1,0 +1,46 @@
+meta {
+  name: Register - datos inválidos
+  type: http
+  seq: 14
+}
+
+post {
+  url: http://localhost:8000/api/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "ci": "77777777",
+    "registration_number": "2024-7777",
+    "full_name": "",
+    "email": "email-invalido",
+    "password": "Abc1@",
+    "password_confirmation": "Abc1@",
+    "career_id": 999
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Full name error", function() {
+    expect(res.body.errors).to.have.property("full_name");
+  });
+  test("Email error", function() {
+    expect(res.body.errors).to.have.property("email");
+  });
+  test("Password too short error", function() {
+    expect(res.body.errors).to.have.property("password");
+  });
+  test("Career_id error", function() {
+    expect(res.body.errors).to.have.property("career_id");
+  });
+}
