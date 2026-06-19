@@ -27,15 +27,17 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/users/{user}/photo', [UserController::class, 'deletePhoto']);
         Route::delete('/users/{user}/curriculum', [UserController::class, 'deleteCurriculum']);
     });
+
+    // Thesis (authenticated)
+    Route::post('/thesis', [ThesisController::class, 'store']);
+    Route::put('/thesis/{thesis}', [ThesisController::class, 'update']);
+    Route::delete('/thesis/{thesis}', [ThesisController::class, 'destroy']);
 });
 
-// Theses
+// Thesis (public)
 Route::get('/thesis', [ThesisController::class, 'index']);
 Route::get('/thesis/featured', [ThesisController::class, 'featured']);
 Route::get('/thesis/recent', [ThesisController::class, 'recent']);
 Route::get('/thesis/search', [ThesisController::class, 'search']);
-Route::post('/thesis', [ThesisController::class, 'store']);
-Route::put('/thesis/{id}', [ThesisController::class, 'update']);
-Route::delete('/thesis/{id}', [ThesisController::class, 'destroy']);
 Route::get('/thesis/stats', [ThesisController::class, 'stats']);
-Route::get('/thesis/{id}', [ThesisController::class, 'show']);
+Route::get('/thesis/{thesis}', [ThesisController::class, 'show']);

@@ -1,0 +1,21 @@
+meta {
+  name: Delete Thesis - sin token
+  type: http
+  seq: 6
+}
+
+delete {
+  url: http://localhost:8000/api/thesis/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

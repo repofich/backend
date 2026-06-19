@@ -33,6 +33,6 @@ class Tag extends Model
 
     public function theses(): BelongsToMany
     {
-        return $this->belongsToMany(Thesis::class);
+        return $this->belongsToMany(Thesis::class, 'thesis_tags');
     }
 }

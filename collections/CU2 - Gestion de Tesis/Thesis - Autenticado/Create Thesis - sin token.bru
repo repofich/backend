@@ -1,0 +1,32 @@
+meta {
+  name: Create Thesis - sin token
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8000/api/thesis
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "title": "Tesis sin autenticación",
+    "abstract": "No debería crearse",
+    "tutor": "Dr. Test",
+    "user_id": 1,
+    "category_id": 1
+  }
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

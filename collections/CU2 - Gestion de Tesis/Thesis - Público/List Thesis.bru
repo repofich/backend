@@ -1,0 +1,31 @@
+meta {
+  name: List Thesis
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/api/thesis
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns collection", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+  test("Each thesis has id and title", function() {
+    res.body.data.forEach(function(t) {
+      expect(t).to.have.property("id");
+      expect(t).to.have.property("title");
+    });
+  });
+}

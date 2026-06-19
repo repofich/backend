@@ -1,0 +1,25 @@
+meta {
+  name: Search by career
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8000/api/thesis/search?career=Ingenier%C3%ADa
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns collection", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+}

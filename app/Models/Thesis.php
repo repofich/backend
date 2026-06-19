@@ -25,19 +25,17 @@ class Thesis extends Model
         'demo_url',
         'user_id',
         'category_id',
+        'featured',
+        'type',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'id' => 'integer',
             'user_id' => 'integer',
             'category_id' => 'integer',
+            'featured' => 'boolean',
         ];
     }
 
@@ -52,7 +50,7 @@ class Thesis extends Model
     }
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(Tag::class, 'thesis_tags');
     }
     public function files(): HasMany
     {

@@ -1,0 +1,30 @@
+meta {
+  name: Search by type
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8000/api/thesis/search?type=proyecto
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns collection", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+  test("All results match type", function() {
+    res.body.data.forEach(function(t) {
+      expect(t.type).to.equal("proyecto");
+    });
+  });
+}

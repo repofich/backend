@@ -1,0 +1,32 @@
+meta {
+  name: Stats
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:8000/api/thesis/stats
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has stats structure", function() {
+    expect(res.body).to.have.property("total");
+    expect(res.body).to.have.property("with_code");
+    expect(res.body).to.have.property("by_career");
+  });
+  test("Total is a number", function() {
+    expect(res.body.total).to.be.a("number");
+  });
+  test("By career is an array", function() {
+    expect(res.body.by_career).to.be.an("array");
+  });
+}

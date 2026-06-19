@@ -1,0 +1,28 @@
+meta {
+  name: Update Thesis - sin token
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "title": "No debería actualizarse"
+  }
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

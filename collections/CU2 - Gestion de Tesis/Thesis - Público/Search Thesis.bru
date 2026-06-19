@@ -1,0 +1,32 @@
+meta {
+  name: Search Thesis
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8000/api/thesis/search?query=sistema
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns collection", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+  test("Results match query", function() {
+    res.body.data.forEach(function(t) {
+      var matches = t.title.toLowerCase().indexOf("sistema") >= 0 ||
+                    t.abstract.toLowerCase().indexOf("sistema") >= 0;
+      expect(matches).to.equal(true);
+    });
+  });
+}

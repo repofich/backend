@@ -2,119 +2,138 @@
 
 namespace App\Http\Controllers;
 
-use App;
+use App\Http\Requests\StoreThesisRequest;
+use App\Http\Requests\UpdateThesisRequest;
+use App\Http\Resources\ThesisResource;
+use App\Models\Category;
+use App\Models\Thesis;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ThesisController extends Controller
 {
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
-        return \App\Models\Thesis::with([
-            "user",
-            "category",
-            "tags",
-            "files",
-        ])->get();
+        $theses = Thesis::with(['user', 'category', 'tags', 'files'])->latest()->get();
+
+        return ThesisResource::collection($theses);
     }
 
-    public function show($id)
+    public function show(Thesis $thesis): ThesisResource
     {
-        return \App\Models\Thesis::with([
-            "user",
-            "category",
-            "tags",
-            "files",
-        ])->findorfail($id);
+        $thesis->load(['user', 'category', 'tags', 'files']);
+
+        return new ThesisResource($thesis);
     }
-    public function store(Request $request)
+
+    public function store(StoreThesisRequest $request): JsonResponse
     {
-        $thesis = \App\Models\Thesis::create($request->all());
-        return response()->json($thesis, 201);
+        $thesis = Thesis::create($request->validated());
+
+        if ($request->has('tags')) {
+            $thesis->tags()->sync($request->tags);
+        }
+
+        $thesis->load(['user', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Tesis creada.',
+            'thesis' => new ThesisResource($thesis),
+        ], 201);
     }
-    public function update(Request $request, $id)
+
+    public function update(UpdateThesisRequest $request, Thesis $thesis): JsonResponse
     {
-        $thesis = \App\Models\Thesis::findOrFail($id);
-        $thesis->update($request->all());
-        return $thesis;
+        $thesis->update($request->validated());
+
+        if ($request->has('tags')) {
+            $thesis->tags()->sync($request->tags);
+        }
+
+        $thesis->load(['user', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Tesis actualizada.',
+            'thesis' => new ThesisResource($thesis),
+        ]);
     }
-    public function destroy($id)
+
+    public function destroy(Thesis $thesis): JsonResponse
     {
-        $thesis = \App\Models\Thesis::findOrFail($id);
+        $thesis->tags()->detach();
+        $thesis->files()->delete();
         $thesis->delete();
-        return response()->json(["message" => "Deleted"]);
-    }
-    #public function search($search){
-    #   return \App\Models\Thesis::with(['user', 'category', 'tags', 'files'])->where('title', 'like', '%'.$search.'%')->get();
-    #}
 
-    public function featured()
+        return response()->json(['message' => 'Tesis eliminada.']);
+    }
+
+    public function featured(): AnonymousResourceCollection
     {
-        return \App\Models\Thesis::with(["user", "category", "tags", "files"])
-            ->where("featured", true)
+        $theses = Thesis::with(['user', 'category', 'tags', 'files'])
+            ->where('featured', true)
+            ->latest()
             ->get();
+
+        return ThesisResource::collection($theses);
     }
 
-    public function recent()
+    public function recent(): AnonymousResourceCollection
     {
-        return \App\Models\Thesis::with(["user", "category", "tags", "files"])
+        $theses = Thesis::with(['user', 'category', 'tags', 'files'])
             ->latest()
             ->take(10)
             ->get();
+
+        return ThesisResource::collection($theses);
     }
 
-    public function search(Request $request)
+    public function search(Request $request): AnonymousResourceCollection
     {
-        $query = \App\Models\Thesis::with([
-            "user",
-            "category",
-            "tags",
-            "files",
-        ]);
+        $query = Thesis::with(['user', 'category', 'tags', 'files']);
 
-        if ($request->filled("query")) {
-            $search = $request->input("query");
+        if ($request->filled('query')) {
+            $search = $request->input('query');
 
             $query->where(function ($q) use ($search) {
-                $q->where("title", "like", "%" . $search . "%")
-                    ->orWhere("abstract", "like", "%" . $search . "%")
-                    ->orWhereHas("user", function ($q2) use ($search) {
-                        $q2->where("full_name", "like", "%" . $search . "%");
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('abstract', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('full_name', 'like', '%' . $search . '%');
                     })
-                    ->orWhereHas("category", function ($q2) use ($search) {
-                        $q2->where("name", "like", "%" . $search . "%");
+                    ->orWhereHas('category', function ($q2) use ($search) {
+                        $q2->where('name', 'like', '%' . $search . '%');
                     });
             });
         }
-        if ($request->filled("year")) {
-            $query->whereYear("created_at", $request->year);
+
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
         }
 
-        if ($request->filled("career")) {
-            $query->whereHas("category", function ($q) use ($request) {
-                $q->where("name", "like", "%" . $request->career . "%");
+        if ($request->filled('career')) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->career . '%');
             });
         }
 
-        if ($request->filled("type")) {
-            $query->where("type", $request->type);
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
         }
 
-        return response()->json($query->get());
+        return ThesisResource::collection($query->get());
     }
 
-    public function stats()
+    public function stats(): JsonResponse
     {
-        $byCareer = \App\Models\Category::withCount("theses")->get();
-
-        $withCode = \App\Models\Thesis::whereNotNull("repo_url")->count();
-
-        $total = \App\Models\Thesis::count();
+        $byCareer = Category::withCount('theses')->get();
+        $withCode = Thesis::whereNotNull('repo_url')->count();
+        $total = Thesis::count();
 
         return response()->json([
-            "total" => $total,
-            "with_code" => $withCode,
-            "by_career" => $byCareer,
+            'total' => $total,
+            'with_code' => $withCode,
+            'by_career' => $byCareer,
         ]);
     }
 }

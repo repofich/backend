@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "CU2 - Gestion de Tesis",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
