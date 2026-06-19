@@ -87,7 +87,7 @@ class PageController
 
     public function register()
     {
-        $careers = CareerResource::collection(Career::all());
+        $careers = Career::all()->toArray();
 
         return Inertia::render('Register', [
             'careers' => $careers,

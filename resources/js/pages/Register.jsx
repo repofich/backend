@@ -40,7 +40,7 @@ export default function Register({ careers }) {
 			([k, v]) => k !== 'career_id' ? !String(v).trim() : !v
 		);
 		if (missing.length > 0) {
-			setError('Completa todos los campos');
+			setError('ci', 'Completa todos los campos');
 			return;
 		}
 		if (data.password !== data.password_confirmation) {
