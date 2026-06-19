@@ -1,0 +1,28 @@
+meta {
+  name: Remove Tutor
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:8000/api/thesis/1/tutor
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.equal("Tutor removido.");
+  });
+  test("Tutor removed", function() {
+    expect(res.body.thesis.tutor_id).to.equal(null);
+  });
+}

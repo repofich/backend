@@ -1,0 +1,36 @@
+meta {
+  name: Assign Tutor
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1/tutor
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "user_id": 4
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.equal("Tutor asignado.");
+  });
+  test("Tutor assigned", function() {
+    expect(res.body.thesis.tutor_id).to.equal(4);
+    expect(res.body.thesis.tutor_user).to.have.property("id");
+  });
+}

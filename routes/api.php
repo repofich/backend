@@ -32,6 +32,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/thesis', [ThesisController::class, 'store']);
     Route::put('/thesis/{thesis}', [ThesisController::class, 'update']);
     Route::delete('/thesis/{thesis}', [ThesisController::class, 'destroy']);
+    Route::put('/thesis/{thesis}/tutor', [ThesisController::class, 'assignTutor']);
+    Route::delete('/thesis/{thesis}/tutor', [ThesisController::class, 'removeTutor']);
 });
 
 // Thesis (public)

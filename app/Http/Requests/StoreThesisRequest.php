@@ -17,6 +17,7 @@ class StoreThesisRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'abstract' => ['required', 'string'],
             'tutor' => ['required', 'string', 'max:255'],
+            'tutor_id' => ['nullable', 'integer', 'exists:users,id'],
             'repo_url' => ['nullable', 'string', 'url', 'max:2048'],
             'demo_url' => ['nullable', 'string', 'url', 'max:2048'],
             'user_id' => ['required', 'integer', 'exists:users,id'],

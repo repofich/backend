@@ -27,6 +27,7 @@ class Thesis extends Model
         'category_id',
         'featured',
         'type',
+        'tutor_id',
     ];
 
     protected function casts(): array
@@ -35,6 +36,7 @@ class Thesis extends Model
             'id' => 'integer',
             'user_id' => 'integer',
             'category_id' => 'integer',
+            'tutor_id' => 'integer',
             'featured' => 'boolean',
         ];
     }
@@ -42,6 +44,11 @@ class Thesis extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tutor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tutor_id');
     }
 
     public function category(): BelongsTo

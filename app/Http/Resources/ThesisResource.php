@@ -14,6 +14,8 @@ class ThesisResource extends JsonResource
             'title' => $this->title,
             'abstract' => $this->abstract,
             'tutor' => $this->tutor,
+            'tutor_id' => $this->tutor_id,
+            'tutor_user' => new UserResource($this->whenLoaded('tutor')),
             'repo_url' => $this->repo_url,
             'demo_url' => $this->demo_url,
             'featured' => $this->featured,

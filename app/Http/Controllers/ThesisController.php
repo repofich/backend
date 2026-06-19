@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateThesisRequest;
 use App\Http\Resources\ThesisResource;
 use App\Models\Category;
 use App\Models\Thesis;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -15,14 +16,14 @@ class ThesisController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        $theses = Thesis::with(['user', 'category', 'tags', 'files'])->latest()->get();
+        $theses = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])->latest()->get();
 
         return ThesisResource::collection($theses);
     }
 
     public function show(Thesis $thesis): ThesisResource
     {
-        $thesis->load(['user', 'category', 'tags', 'files']);
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
         return new ThesisResource($thesis);
     }
@@ -35,7 +36,7 @@ class ThesisController extends Controller
             $thesis->tags()->sync($request->tags);
         }
 
-        $thesis->load(['user', 'category', 'tags', 'files']);
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
         return response()->json([
             'message' => 'Tesis creada.',
@@ -51,7 +52,7 @@ class ThesisController extends Controller
             $thesis->tags()->sync($request->tags);
         }
 
-        $thesis->load(['user', 'category', 'tags', 'files']);
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
         return response()->json([
             'message' => 'Tesis actualizada.',
@@ -68,9 +69,43 @@ class ThesisController extends Controller
         return response()->json(['message' => 'Tesis eliminada.']);
     }
 
+    public function assignTutor(Request $request, Thesis $thesis): JsonResponse
+    {
+        $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+
+        if ($user->user_type !== 'tutor') {
+            return response()->json([
+                'message' => 'El usuario seleccionado no es un tutor.',
+            ], 422);
+        }
+
+        $thesis->update(['tutor_id' => $user->id]);
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Tutor asignado.',
+            'thesis' => new ThesisResource($thesis),
+        ]);
+    }
+
+    public function removeTutor(Thesis $thesis): JsonResponse
+    {
+        $thesis->update(['tutor_id' => null]);
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Tutor removido.',
+            'thesis' => new ThesisResource($thesis),
+        ]);
+    }
+
     public function featured(): AnonymousResourceCollection
     {
-        $theses = Thesis::with(['user', 'category', 'tags', 'files'])
+        $theses = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])
             ->where('featured', true)
             ->latest()
             ->get();
@@ -80,7 +115,7 @@ class ThesisController extends Controller
 
     public function recent(): AnonymousResourceCollection
     {
-        $theses = Thesis::with(['user', 'category', 'tags', 'files'])
+        $theses = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])
             ->latest()
             ->take(10)
             ->get();
@@ -90,7 +125,7 @@ class ThesisController extends Controller
 
     public function search(Request $request): AnonymousResourceCollection
     {
-        $query = Thesis::with(['user', 'category', 'tags', 'files']);
+        $query = Thesis::with(['user', 'tutor', 'category', 'tags', 'files']);
 
         if ($request->filled('query')) {
             $search = $request->input('query');

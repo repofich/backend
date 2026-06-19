@@ -17,6 +17,7 @@ class UpdateThesisRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'abstract' => ['sometimes', 'string'],
             'tutor' => ['sometimes', 'string', 'max:255'],
+            'tutor_id' => ['nullable', 'integer', 'exists:users,id'],
             'repo_url' => ['nullable', 'string', 'url', 'max:2048'],
             'demo_url' => ['nullable', 'string', 'url', 'max:2048'],
             'user_id' => ['sometimes', 'integer', 'exists:users,id'],
