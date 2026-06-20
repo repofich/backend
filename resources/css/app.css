@@ -1,11 +1,70 @@
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@import "tailwindcss";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+	--color-primary: #233f99;
+	--color-primary-light: #3a5bbf;
+	--color-primary-dark: #1a2f73;
+
+	--color-bg-page: #ececec;
+	--color-bg-header: #f4f4f4;
+	--color-bg-search: #d9d9d9;
+	--color-bg-input: #efefef;
+	--color-bg-card: #ffffff;
+
+	--color-text-primary: #1e1e1e;
+	--color-text-secondary: #2d2d2d;
+	--color-text-muted: #777777;
+	--color-text-on-primary: #ffffff;
+
+	--color-filter-bg: #e60000;
+	--color-filter-text: #ffffff;
+
+	--color-card-bg: #e5e7eb;
+	--color-card-img: #d1d5db;
+	--color-card-heading: #1f2933;
+	--color-card-label: #6b7280;
+	--color-card-value: #1f2933;
+	--color-input-bg: #efefef;
+	--color-input-text: #1f2933;
+	--color-input-placeholder: #9ca3af;
+	--color-error: #e60000;
+
+	--font-family-card-title: Merriweather, Georgia, serif;
+	--font-family-card-meta: "Open Sans", Arial, sans-serif;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+	* {
+		box-sizing: border-box;
+	}
+
+	body {
+		margin: 0;
+		font-family: Georgia, serif;
+	}
+}
+
+@layer components {
+	.dark {
+		--color-bg-page: #121212;
+		--color-bg-header: #1e1e1e;
+		--color-bg-search: #2a2a2a;
+		--color-bg-input: #353535;
+		--color-bg-card: #252525;
+
+		--color-text-primary: #e4e4e4;
+		--color-text-secondary: #aaaaaa;
+		--color-text-muted: #777777;
+
+		--color-card-bg: #2a2a2a;
+		--color-card-img: #3a3a3a;
+		--color-card-heading: #f3f4f6;
+		--color-card-label: #9ca3af;
+		--color-card-value: #e5e7eb;
+		--color-input-bg: #353535;
+		--color-input-text: #e5e7eb;
+		--color-input-placeholder: #6b7280;
+	}
 }
