@@ -12,4 +12,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [PageController::class, 'register'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/crear-proyecto', [PageController::class, 'createProject']);
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -93,4 +93,9 @@ class PageController
             'careers' => $careers,
         ]);
     }
+
+    public function createProject()
+    {
+        return Inertia::render('CreateProject');
+    }
 }
