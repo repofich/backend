@@ -1,0 +1,32 @@
+meta {
+  name: Update Thesis Status - Status invalido
+  type: http
+  seq: 9
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1/status
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "status": "inexistente"
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Validation error", function() {
+    expect(res.body.errors).to.have.property("status");
+  });
+}

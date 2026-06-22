@@ -1,0 +1,35 @@
+meta {
+  name: Update Thesis Status - Rechazado
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1/status
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "status": "rechazado"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.include("actualizado");
+  });
+  test("Status updated to rechazado", function() {
+    expect(res.body.thesis.status).to.equal("rechazado");
+  });
+}
