@@ -1,0 +1,36 @@
+meta {
+  name: Login - Vicedecano
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8000/api/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "vicedecano@test.com",
+    "password": "password"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Tiene token", function() {
+    expect(res.body).to.have.property("token");
+  });
+}
+
+vars {
+  vicedecano_token: res.body.token
+}

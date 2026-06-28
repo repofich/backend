@@ -8,6 +8,8 @@ collections:
     path: "collections/CU1 - Gestion de Usuarios"
   - name: "CU2 - Gestion de Tesis"
     path: "collections/CU2 - Gestion de Tesis"
+  - name: "CU4 - Evaluacion y Retroalimentacion"
+    path: "collections/CU4 - Evaluacion y Retroalimentacion"
 
 specs:
 

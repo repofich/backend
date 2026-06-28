@@ -1,0 +1,25 @@
+meta {
+  name: Eliminar evaluación
+  type: http
+  seq: 8
+}
+
+delete {
+  url: http://localhost:8000/api/thesis/1/evaluations/{{evaluation_id}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{tribunal_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Mensaje de eliminación", function() {
+    expect(res.body.message).to.equal("Evaluación eliminada.");
+  });
+}

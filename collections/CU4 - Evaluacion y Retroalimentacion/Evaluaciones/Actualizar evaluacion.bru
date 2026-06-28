@@ -1,0 +1,38 @@
+meta {
+  name: Actualizar evaluación
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1/evaluations/{{evaluation_id}}
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{tribunal_token}}
+}
+
+body:json {
+  {
+    "score": 95,
+    "comments": "Excelente trabajo, se recomienda aprobar.",
+    "recommendation": "aprobar"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Mensaje de actualización", function() {
+    expect(res.body.message).to.equal("Evaluación actualizada.");
+  });
+  test("Datos actualizados", function() {
+    expect(res.body.evaluation.score).to.equal(95);
+    expect(res.body.evaluation.comments).to.equal("Excelente trabajo, se recomienda aprobar.");
+  });
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Asignar evaluador - no es tribunal
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:8000/api/thesis/1/evaluator
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{vicedecano_token}}
+}
+
+body:json {
+  {
+    "user_id": 4
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Mensaje de error", function() {
+    expect(res.body.message).to.equal("El usuario seleccionado no es un tribunal.");
+  });
+}

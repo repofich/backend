@@ -1,0 +1,34 @@
+meta {
+  name: Crear evaluación - duplicada
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8000/api/thesis/1/evaluations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{tribunal_token}}
+}
+
+body:json {
+  {
+    "score": 90,
+    "comments": "Segunda evaluación (no debería permitirse).",
+    "recommendation": "observar"
+  }
+}
+
+tests {
+  test("Status 409", function() {
+    expect(res.status).to.equal(409);
+  });
+  test("Mensaje de duplicado", function() {
+    expect(res.body.message).to.equal("Ya evaluaste esta tesis.");
+  });
+}

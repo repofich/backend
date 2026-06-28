@@ -1,0 +1,25 @@
+meta {
+  name: Listar evaluaciones - vacío
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/api/thesis/1/evaluations
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{director_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Lista vacía", function() {
+    expect(res.body.data).to.be.an("array").that.is.empty;
+  });
+}

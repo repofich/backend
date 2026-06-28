@@ -29,6 +29,7 @@ class Thesis extends Model
         'type',
         'status',
         'tutor_id',
+        'assigned_evaluator_id',
     ];
 
     protected function casts(): array
@@ -38,6 +39,7 @@ class Thesis extends Model
             'user_id' => 'integer',
             'category_id' => 'integer',
             'tutor_id' => 'integer',
+            'assigned_evaluator_id' => 'integer',
             'featured' => 'boolean',
             'status' => 'string',
         ];
@@ -64,5 +66,15 @@ class Thesis extends Model
     public function files(): HasMany
     {
         return $this->hasMany(ThesisFile::class);
+    }
+
+    public function assignedEvaluator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_evaluator_id');
+    }
+
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(Evaluation::class);
     }
 }

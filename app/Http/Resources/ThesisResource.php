@@ -25,6 +25,8 @@ class ThesisResource extends JsonResource
             'category' => new CategoryResource($this->whenLoaded('category')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'files' => ThesisFileResource::collection($this->whenLoaded('files')),
+            'assigned_evaluator' => new UserResource($this->whenLoaded('assignedEvaluator')),
+            'evaluations' => EvaluationResource::collection($this->whenLoaded('evaluations')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

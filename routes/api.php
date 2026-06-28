@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ThesisController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,21 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/thesis/{thesis}', [ThesisController::class, 'destroy']);
     Route::put('/thesis/{thesis}/tutor', [ThesisController::class, 'assignTutor']);
     Route::delete('/thesis/{thesis}/tutor', [ThesisController::class, 'removeTutor']);
+
+    // Asignación de evaluador (vicedecano, director)
+    Route::middleware('role:vicedecano,director')->group(function () {
+        Route::post('/thesis/{thesis}/evaluator', [EvaluationController::class, 'assignEvaluator']);
+        Route::delete('/thesis/{thesis}/evaluator', [EvaluationController::class, 'removeEvaluator']);
+    });
+
+    // Evaluaciones (tribunal, director)
+    Route::middleware('role:tribunal,director')->group(function () {
+        Route::get('/thesis/{thesis}/evaluations', [EvaluationController::class, 'index']);
+        Route::get('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'show']);
+        Route::post('/thesis/{thesis}/evaluations', [EvaluationController::class, 'store']);
+        Route::put('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'update']);
+        Route::delete('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'destroy']);
+    });
 });
 
 // Thesis (public)

@@ -1,0 +1,28 @@
+meta {
+  name: Remover evaluador
+  type: http
+  seq: 9
+}
+
+delete {
+  url: http://localhost:8000/api/thesis/1/evaluator
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{vicedecano_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Mensaje de remoción", function() {
+    expect(res.body.message).to.equal("Evaluador removido.");
+  });
+  test("Evaluador queda null", function() {
+    expect(res.body.thesis.assigned_evaluator).to.be.null;
+  });
+}

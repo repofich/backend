@@ -1,0 +1,31 @@
+meta {
+  name: Sin permisos
+  type: http
+  seq: 13
+}
+
+post {
+  url: http://localhost:8000/api/thesis/1/evaluations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{estudiante_token}}
+}
+
+body:json {
+  {
+    "score": 80,
+    "comments": "Intento de estudiante.",
+    "recommendation": "aprobar"
+  }
+}
+
+tests {
+  test("Status 403", function() {
+    expect(res.status).to.equal(403);
+  });
+}

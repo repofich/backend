@@ -1,0 +1,36 @@
+meta {
+  name: Asignar evaluador
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8000/api/thesis/1/evaluator
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{vicedecano_token}}
+}
+
+body:json {
+  {
+    "user_id": 5
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Mensaje de asignación", function() {
+    expect(res.body.message).to.equal("Evaluador asignado.");
+  });
+  test("Evaluador asignado en tesis", function() {
+    expect(res.body.thesis.assigned_evaluator).to.have.property("id");
+    expect(res.body.thesis.assigned_evaluator.id).to.equal(5);
+  });
+}

@@ -1,0 +1,53 @@
+meta {
+  name: Crear evaluación - exitoso
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8000/api/thesis/1/evaluations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{tribunal_token}}
+}
+
+body:json {
+  {
+    "score": 85,
+    "comments": "Buen trabajo, cumple con los requisitos.",
+    "recommendation": "aprobar"
+  }
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.status).to.equal(201);
+  });
+  test("Mensaje de registro", function() {
+    expect(res.body.message).to.equal("Evaluación registrada.");
+  });
+  test("Tiene evaluación con datos", function() {
+    expect(res.body.evaluation).to.have.property("id");
+    expect(res.body.evaluation.score).to.equal(85);
+    expect(res.body.evaluation.recommendation).to.equal("aprobar");
+    expect(res.body.evaluation.comments).to.equal("Buen trabajo, cumple con los requisitos.");
+  });
+  test("Tiene evaluador", function() {
+    expect(res.body.evaluation.evaluator).to.have.property("id");
+  });
+  test("Tiene submitted_at", function() {
+    expect(res.body.evaluation.submitted_at).to.not.be.null;
+  });
+  test("Tesis actualizada a aprobado", function() {
+    expect(res.body.evaluation).to.have.property("thesis_id");
+  });
+}
+
+vars {
+  evaluation_id: res.body.evaluation.id
+}
