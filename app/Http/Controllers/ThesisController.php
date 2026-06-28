@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreThesisRequest;
 use App\Http\Requests\UpdateThesisRequest;
+use App\Http\Requests\UpdateThesisStatusRequest;
 use App\Http\Resources\ThesisResource;
 use App\Models\Category;
 use App\Models\Thesis;
@@ -157,6 +158,17 @@ class ThesisController extends Controller
         }
 
         return ThesisResource::collection($query->get());
+    }
+
+    public function updateStatus(UpdateThesisStatusRequest $request, Thesis $thesis): JsonResponse
+    {
+        $thesis->update(['status' => $request->status]);
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Estado de la tesis actualizado a ' . $request->status . '.',
+            'thesis' => new ThesisResource($thesis),
+        ]);
     }
 
     public function stats(): JsonResponse

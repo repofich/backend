@@ -27,6 +27,7 @@ class Thesis extends Model
         'category_id',
         'featured',
         'type',
+        'status',
         'tutor_id',
     ];
 
@@ -38,6 +39,7 @@ class Thesis extends Model
             'category_id' => 'integer',
             'tutor_id' => 'integer',
             'featured' => 'boolean',
+            'status' => 'string',
         ];
     }
 

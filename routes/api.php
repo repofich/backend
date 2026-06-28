@@ -28,6 +28,10 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/users/{user}/curriculum', [UserController::class, 'deleteCurriculum']);
     });
 
+    // Thesis status (vicedecano, director, admin)
+    Route::put('/thesis/{thesis}/status', [ThesisController::class, 'updateStatus'])
+        ->middleware('role:vicedecano,director,admin');
+
     // Thesis (authenticated)
     Route::post('/thesis', [ThesisController::class, 'store']);
     Route::put('/thesis/{thesis}', [ThesisController::class, 'update']);

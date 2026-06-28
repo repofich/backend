@@ -1,0 +1,29 @@
+meta {
+  name: Update Thesis Status - Sin permisos
+  type: http
+  seq: 11
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1/status
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "status": "aprobado"
+  }
+}
+
+tests {
+  test("Status 403", function() {
+    expect(res.status).to.equal(403);
+  });
+}

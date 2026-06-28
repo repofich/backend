@@ -1,0 +1,28 @@
+meta {
+  name: Update Thesis Status - Sin token
+  type: http
+  seq: 10
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1/status
+  body: json
+  auth: noauth
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "status": "aprobado"
+  }
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

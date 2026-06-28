@@ -20,6 +20,7 @@ class ThesisResource extends JsonResource
             'demo_url' => $this->demo_url,
             'featured' => $this->featured,
             'type' => $this->type,
+            'status' => $this->status,
             'user' => new UserResource($this->whenLoaded('user')),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
