@@ -1,0 +1,32 @@
+meta {
+  name: Update status - rechazar tesis
+  type: http
+  seq: 18
+}
+
+put {
+  url: http://localhost:8000/api/thesis/2/status
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "status": "rechazado"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Estado rechazado", function() {
+    expect(res.body.thesis.status).to.equal("rechazado");
+  });
+}

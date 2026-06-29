@@ -33,6 +33,10 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/thesis/{thesis}/status', [ThesisController::class, 'updateStatus'])
         ->middleware('role:vicedecano,director,admin');
 
+    // Student submit (borrador/en_revision, observado/en_revision)
+    Route::post('/thesis/{thesis}/submit', [ThesisController::class, 'submit'])
+        ->middleware('role:estudiante');
+
     // Thesis (authenticated)
     Route::post('/thesis', [ThesisController::class, 'store']);
     Route::put('/thesis/{thesis}', [ThesisController::class, 'update']);
@@ -62,4 +66,5 @@ Route::get('/thesis/featured', [ThesisController::class, 'featured']);
 Route::get('/thesis/recent', [ThesisController::class, 'recent']);
 Route::get('/thesis/search', [ThesisController::class, 'search']);
 Route::get('/thesis/stats', [ThesisController::class, 'stats']);
+Route::get('/thesis/published', [ThesisController::class, 'published']);
 Route::get('/thesis/{thesis}', [ThesisController::class, 'show']);

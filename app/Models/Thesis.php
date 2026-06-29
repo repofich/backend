@@ -30,6 +30,8 @@ class Thesis extends Model
         'status',
         'tutor_id',
         'assigned_evaluator_id',
+        'published_at',
+        'observations',
     ];
 
     protected function casts(): array
@@ -42,6 +44,8 @@ class Thesis extends Model
             'assigned_evaluator_id' => 'integer',
             'featured' => 'boolean',
             'status' => 'string',
+            'published_at' => 'datetime',
+            'observations' => 'string',
         ];
     }
 
@@ -76,5 +80,19 @@ class Thesis extends Model
     public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class);
+    }
+
+    public static array $transitions = [
+        'borrador'    => ['en_revision'],
+        'en_revision' => ['observado', 'aprobado', 'rechazado'],
+        'observado'   => ['en_revision'],
+        'aprobado'    => ['publicado'],
+        'publicado'   => [],
+        'rechazado'   => ['borrador'],
+    ];
+
+    public function canTransitionTo(string $newStatus): bool
+    {
+        return in_array($newStatus, self::$transitions[$this->status] ?? []);
     }
 }

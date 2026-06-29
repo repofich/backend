@@ -162,13 +162,68 @@ class ThesisController extends Controller
 
     public function updateStatus(UpdateThesisStatusRequest $request, Thesis $thesis): JsonResponse
     {
-        $thesis->update(['status' => $request->status]);
+        if (!$thesis->canTransitionTo($request->status)) {
+            return response()->json([
+                'message' => 'Transición de estado no válida de ' . $thesis->status . ' a ' . $request->status . '.',
+            ], 422);
+        }
+
+        $data = ['status' => $request->status];
+
+        if ($request->status === 'publicado') {
+            $data['published_at'] = now();
+        }
+
+        if ($request->status !== 'publicado' && $thesis->published_at) {
+            $data['published_at'] = null;
+        }
+
+        $thesis->update($data);
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
         return response()->json([
             'message' => 'Estado de la tesis actualizado a ' . $request->status . '.',
             'thesis' => new ThesisResource($thesis),
         ]);
+    }
+
+    public function submit(Request $request, Thesis $thesis): JsonResponse
+    {
+        if ($thesis->user_id !== auth()->id()) {
+            return response()->json(['message' => 'No eres el autor de esta tesis.'], 403);
+        }
+
+        $allowed = ['borrador' => 'en_revision', 'observado' => 'en_revision'];
+
+        if (!isset($allowed[$thesis->status])) {
+            return response()->json([
+                'message' => 'No puedes enviar esta tesis en su estado actual (' . $thesis->status . ').',
+            ], 422);
+        }
+
+        $thesis->update(['status' => $allowed[$thesis->status]]);
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Tesis enviada a revisión.',
+            'thesis' => new ThesisResource($thesis),
+        ]);
+    }
+
+    public function published(Request $request): AnonymousResourceCollection
+    {
+        $query = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])
+            ->where('status', 'publicado');
+
+        if ($request->filled('status')) {
+            $allowed = ['publicado', 'aprobado', 'en_revision', 'observado', 'borrador', 'rechazado'];
+
+            if (in_array($request->status, $allowed)) {
+                $query->where('status', $request->status);
+            }
+        }
+
+        return ThesisResource::collection($query->latest('published_at')->get());
     }
 
     public function stats(): JsonResponse

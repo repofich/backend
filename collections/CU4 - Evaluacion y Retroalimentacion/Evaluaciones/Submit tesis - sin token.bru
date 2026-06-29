@@ -1,0 +1,26 @@
+meta {
+  name: Submit tesis - sin token
+  type: http
+  seq: 19
+}
+
+post {
+  url: http://localhost:8000/api/thesis/1/submit
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

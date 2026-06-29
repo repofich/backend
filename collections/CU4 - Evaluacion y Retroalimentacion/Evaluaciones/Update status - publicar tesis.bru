@@ -1,0 +1,35 @@
+meta {
+  name: Update status - publicar tesis
+  type: http
+  seq: 16
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1/status
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "status": "publicado"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Estado publicado", function() {
+    expect(res.body.thesis.status).to.equal("publicado");
+  });
+  test("Tiene published_at", function() {
+    expect(res.body.thesis.published_at).to.not.be.null;
+  });
+}

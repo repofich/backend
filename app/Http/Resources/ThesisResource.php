@@ -15,7 +15,10 @@ class ThesisResource extends JsonResource
             'abstract' => $this->abstract,
             'tutor' => $this->tutor,
             'tutor_id' => $this->tutor_id,
-            'tutor_user' => new UserResource($this->whenLoaded('tutor')),
+            'tutor_user' => $this->when(
+                $this->resource->relationLoaded('tutor'),
+                fn() => new UserResource($this->resource->getRelation('tutor'))
+            ),
             'repo_url' => $this->repo_url,
             'demo_url' => $this->demo_url,
             'featured' => $this->featured,
@@ -27,6 +30,8 @@ class ThesisResource extends JsonResource
             'files' => ThesisFileResource::collection($this->whenLoaded('files')),
             'assigned_evaluator' => new UserResource($this->whenLoaded('assignedEvaluator')),
             'evaluations' => EvaluationResource::collection($this->whenLoaded('evaluations')),
+            'published_at' => $this->published_at,
+            'observations' => $this->observations,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

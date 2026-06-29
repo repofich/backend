@@ -1,0 +1,32 @@
+meta {
+  name: Update status - transición inválida
+  type: http
+  seq: 15
+}
+
+put {
+  url: http://localhost:8000/api/thesis/2/status
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "status": "publicado"
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Mensaje de transición inválida", function() {
+    expect(res.body.message).to.include("Transición de estado no válida");
+  });
+}

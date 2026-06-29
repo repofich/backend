@@ -1,0 +1,30 @@
+meta {
+  name: Submit tesis - no autor
+  type: http
+  seq: 21
+}
+
+post {
+  url: http://localhost:8000/api/thesis/1/submit
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{estudiante_token}}
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("Status 403", function() {
+    expect(res.status).to.equal(403);
+  });
+  test("Mensaje de no autor", function() {
+    expect(res.body.message).to.equal("No eres el autor de esta tesis.");
+  });
+}

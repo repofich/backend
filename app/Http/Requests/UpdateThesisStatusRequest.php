@@ -14,7 +14,7 @@ class UpdateThesisStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'string', 'in:revision,aprobado,rechazado,observado'],
+            'status' => ['required', 'string', 'in:borrador,en_revision,observado,aprobado,publicado,rechazado'],
         ];
     }
 }
