@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Inertia;
 
 use App\Http\Resources\CareerResource;
+use App\Http\Resources\ThesisResource;
 use App\Models\Career;
 use App\Models\Thesis;
 use Illuminate\Http\Request;
@@ -107,6 +108,15 @@ class PageController
         return Inertia::render('Payments', [
             'stripe_key' => config('stripe.key'),
             'jwt_token' => $token,
+        ]);
+    }
+
+    public function thesisDetail(Thesis $thesis)
+    {
+        $thesis->load(['user.career', 'tutor', 'category', 'tags', 'files', 'assignedEvaluator', 'evaluations.evaluator']);
+
+        return Inertia::render('ThesisDetail', [
+            'thesis' => ThesisResource::make($thesis)->resolve(),
         ]);
     }
 }

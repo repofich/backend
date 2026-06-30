@@ -16,4 +16,6 @@ Route::get('/crear-proyecto', [PageController::class, 'createProject']);
 
 Route::get('/pagos', [PageController::class, 'payments'])->middleware('auth');
 
+Route::get('/tesis/{thesis}', [PageController::class, 'thesisDetail']);
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

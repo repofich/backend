@@ -64,7 +64,7 @@ export default function Home({ publicaciones, filterOptions, filters }) {
 	}, [query, activeFilters, loadPublicaciones]);
 
 	const handleCardClick = useCallback((pub) => {
-		// TODO: navigate to detail
+		router.visit(`/tesis/${pub.id}`);
 	}, []);
 
 	return (
