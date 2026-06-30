@@ -1,0 +1,45 @@
+meta {
+  name: Create Payment Intent - Contado
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/api/payments/intent
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "amount": 52222,
+    "currency": "bob",
+    "concept": "Registro de tesis",
+    "payment_type": "contado"
+  }
+}
+
+vars:pre-request {
+  token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzgyNjc5MDY0LCJleHAiOjE3ODI2ODI2NjQsIm5iZiI6MTc4MjY3OTA2NCwianRpIjoiQTR0M05zQnJkVnVpVVVBSiIsInN1YiI6IjYiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.kq9MtDykyzMQ4TnSjKGHCIjQQI2T1e9a86WG0KtxjNg
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has client_secret", function() {
+    expect(res.body).to.have.property("client_secret");
+  });
+  test("Payment status is pending", function() {
+    expect(res.body.payment.status).to.equal("pending");
+  });
+  test("Payment type is contado", function() {
+    expect(res.body.payment.payment_type).to.equal("contado");
+  });
+}

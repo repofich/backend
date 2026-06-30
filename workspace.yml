@@ -10,6 +10,8 @@ collections:
     path: "collections/CU2 - Gestion de Tesis"
   - name: "CU4 - Evaluacion y Retroalimentacion"
     path: "collections/CU4 - Evaluacion y Retroalimentacion"
+  - name: "CU7 - Pagos"
+    path: "collections/CU7 - Pagos"
 
 specs:
 

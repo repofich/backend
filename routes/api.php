@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ThesisController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,12 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/users/{user}/photo', [UserController::class, 'deletePhoto']);
         Route::delete('/users/{user}/curriculum', [UserController::class, 'deleteCurriculum']);
     });
+
+    // Payments
+    Route::post('/payments/intent', [PaymentController::class, 'store']);
+    Route::post('/payments/confirm', [PaymentController::class, 'confirm']);
+    Route::get('/payments', [PaymentController::class, 'index']);
+    Route::get('/payments/{payment}', [PaymentController::class, 'show']);
 
     // Thesis status (vicedecano, director, admin)
     Route::put('/thesis/{thesis}/status', [ThesisController::class, 'updateStatus'])

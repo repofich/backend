@@ -1,0 +1,44 @@
+meta {
+  name: Create Payment Intent - Credito
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8000/api/payments/intent
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "amount": 100000,
+    "currency": "bob",
+    "concept": "Inscripcion tesis",
+    "payment_type": "credito"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has client_secret", function() {
+    expect(res.body).to.have.property("client_secret");
+  });
+  test("Payment status is pending", function() {
+    expect(res.body.payment.status).to.equal("pending");
+  });
+  test("Total installments is 2", function() {
+    expect(res.body.payment.total_installments).to.equal(2);
+  });
+  test("Amount is half of total", function() {
+    expect(res.body.payment.amount).to.equal(50000);
+  });
+}
