@@ -1,0 +1,35 @@
+meta {
+  name: Confirm Payment
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8000/api/payments/confirm
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "stripe_payment_intent_id": "pi_XXX"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Payment status is succeeded", function() {
+    expect(res.body.payment.status).to.equal("succeeded");
+  });
+  test("Has paid_at", function() {
+    expect(res.body.payment.paid_at).to.not.be.null;
+  });
+}

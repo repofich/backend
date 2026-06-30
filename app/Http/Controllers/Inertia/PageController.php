@@ -98,4 +98,15 @@ class PageController
     {
         return Inertia::render('CreateProject');
     }
+
+    public function payments()
+    {
+        $user = auth()->user();
+        $token = $user ? auth('api')->login($user) : null;
+
+        return Inertia::render('Payments', [
+            'stripe_key' => config('stripe.key'),
+            'jwt_token' => $token,
+        ]);
+    }
 }

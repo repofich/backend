@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "CU7 - Pagos",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

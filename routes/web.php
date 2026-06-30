@@ -14,4 +14,6 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/crear-proyecto', [PageController::class, 'createProject']);
 
+Route::get('/pagos', [PageController::class, 'payments'])->middleware('auth');
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -43,11 +43,14 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 					)}
 
 					<div className="py-1">
-						<div className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+						<div onClick={() => { router.visit('/'); setOpen(false) }} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 							Publicaciones
 						</div>
 						<div className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 							Perfil
+						</div>
+						<div onClick={() => { router.visit('/pagos'); setOpen(false) }} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+							Pagos
 						</div>
 					</div>
 

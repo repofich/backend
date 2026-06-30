@@ -1,0 +1,27 @@
+meta {
+  name: Show Payment
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8000/api/payments/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has payment data", function() {
+    expect(res.body).to.have.property("id");
+    expect(res.body).to.have.property("amount");
+    expect(res.body).to.have.property("status");
+  });
+}
