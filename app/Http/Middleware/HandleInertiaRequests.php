@@ -24,6 +24,7 @@ class HandleInertiaRequests extends Middleware
                     ? new UserResource($request->user())
                     : null,
             ],
+            'page_visits' => $request->attributes->get('page_visits'),
         ];
     }
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+CreateProject.layout = null;
+
 export default function CreateProject() {
     const [formData, setFormData] = useState({
         nombre: "",
