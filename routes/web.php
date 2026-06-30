@@ -13,6 +13,9 @@ Route::get('/register', [PageController::class, 'register'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/crear-proyecto', [PageController::class, 'createProject']);
+Route::post('/crear-proyecto', [App\Http\Controllers\Inertia\ThesisController::class, 'store'])->middleware('auth');
+
+Route::get('/mis-proyectos', [PageController::class, 'myProjects'])->middleware('auth');
 
 Route::get('/pagos', [PageController::class, 'payments'])->middleware('auth');
 

@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Inertia;
 use App\Http\Resources\CareerResource;
 use App\Http\Resources\ThesisResource;
 use App\Models\Career;
+use App\Models\Category;
 use App\Models\Thesis;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class PageController
@@ -97,7 +100,28 @@ class PageController
 
     public function createProject()
     {
-        return Inertia::render('CreateProject');
+        $categories = Category::all();
+        $tutors = User::where('user_type', 'tutor')->get(['id', 'full_name']);
+        $types = Thesis::whereNotNull('type')->distinct()->pluck('type');
+
+        return Inertia::render('CreateProject', [
+            'categories' => $categories,
+            'tutors' => $tutors,
+            'types' => $types,
+        ]);
+    }
+
+    public function myProjects()
+    {
+        $proyectos = Thesis::with('category')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get()
+            ->toArray();
+
+        return Inertia::render('MyProjects', [
+            'proyectos' => $proyectos,
+        ]);
     }
 
     public function payments()

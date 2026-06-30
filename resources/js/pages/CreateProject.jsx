@@ -1,154 +1,108 @@
-import { useState } from "react";
+import { useForm } from '@inertiajs/react';
+import Header from '../components/Header';
 
 CreateProject.layout = null;
 
-export default function CreateProject() {
-    const [formData, setFormData] = useState({
-        nombre: "",
-        descripcion: "",
-        tutor: "",
+export default function CreateProject({ categories, tutors, types }) {
+    const { data, setData, post, processing, errors } = useForm({
+        title: '',
+        abstract: '',
+        tutor: '',
+        tutor_id: '',
+        category_id: '',
+        type: '',
     });
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        console.log("Proyecto enviado:", formData);
-
-        // Aquí irá la llamada a la API
-        // axios.post('/api/projects', formData)
+        post('/crear-proyecto');
     };
 
+    const input = (key, label, placeholder, type = 'text') => (
+        <div className="flex flex-col gap-1.5">
+            <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
+                {label}
+            </label>
+            <input
+                type={type}
+                value={data[key]}
+                onChange={(e) => setData(key, e.target.value)}
+                placeholder={placeholder}
+                className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder"
+            />
+            {errors[key] && (
+                <span className="text-error text-[11px] font-card-meta">{errors[key]}</span>
+            )}
+        </div>
+    );
+
+    const select = (key, label, options, placeholder) => (
+        <div className="flex flex-col gap-1.5">
+            <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
+                {label}
+            </label>
+            <select
+                value={data[key]}
+                onChange={(e) => setData(key, e.target.value)}
+                className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta cursor-pointer appearance-none"
+            >
+                <option value="">{placeholder}</option>
+                {options?.map((opt) => (
+                    <option key={opt.id || opt} value={opt.id || opt}>
+                        {opt.name || opt.full_name || opt}
+                    </option>
+                ))}
+            </select>
+            {errors[key] && (
+                <span className="text-error text-[11px] font-card-meta">{errors[key]}</span>
+            )}
+        </div>
+    );
+
     return (
-        <div className="min-h-screen bg-[#d9d9d9]">
-
-            {/* ENCABEZADO */}
-            <div className="bg-white px-10 py-6">
-                <div className="flex items-center gap-6">
-
-                    <img
-                        src="/logo.png"
-                        alt="Logo"
-                        className="w-24 h-24 object-contain"
-                    />
-
-                    <div>
-                        <h1 className="text-5xl font-serif text-gray-900">
-                            Repositorio Institucional
-                        </h1>
-
-                        <h2 className="text-5xl font-serif text-gray-900">
-                            Facultad Integral del Chaco
-                        </h2>
-
-                        <p className="text-xl mt-2 text-gray-700">
-                            Universidad Autónoma Gabriel René Moreno
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* FORMULARIO */}
-            <div className="flex justify-center py-16">
-
-                <div className="bg-[#e5e5e5] rounded-3xl p-12 w-full max-w-5xl">
-
-                    <h2 className="text-5xl font-serif mb-12 text-gray-900">
+        <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
+            <Header />
+            <div className="flex-1 flex items-center justify-center px-4 py-8">
+                <div className="w-full max-w-[800px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
+                    <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-8">
                         Crear un nuevo proyecto
-                    </h2>
+                    </h1>
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {input('title', 'Nombre del Proyecto', 'Nombre del Proyecto')}
+                            {select('type', 'Tipo de Proyecto', types, 'Seleccionar tipo')}
+                            {select('category_id', 'Categoría / Carrera', categories, 'Seleccionar categoría')}
+                            {input('tutor', 'Sugerencia de Revisor o Tutor', 'Nombre del tutor')}
+                            {select('tutor_id', 'Seleccionar Tutor (opcional)', tutors, 'Seleccionar tutor')}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-
-                            {/* NOMBRE */}
-                            <div>
-                                <label className="block mb-3 text-xl text-gray-800">
-                                    Nombre del Proyecto
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="nombre"
-                                    value={formData.nombre}
-                                    onChange={handleChange}
-                                    placeholder="Nombre del Proyecto"
-                                    className="w-full bg-white rounded-2xl px-5 py-4 text-lg outline-none"
-                                />
-                            </div>
-
-                            {/* TUTOR */}
-                            <div>
-                                <label className="block mb-3 text-xl text-gray-800">
-                                    Sugerencia de Revisor o Tutor
-                                </label>
-
-                                <select
-                                    name="tutor"
-                                    value={formData.tutor}
-                                    onChange={handleChange}
-                                    className="w-full bg-white rounded-2xl px-5 py-4 text-lg outline-none"
-                                >
-                                    <option value="">
-                                        Seleccione un docente
-                                    </option>
-
-                                    <option value="1">
-                                        Ing. Juan Pérez
-                                    </option>
-
-                                    <option value="2">
-                                        Lic. María López
-                                    </option>
-
-                                    <option value="3">
-                                        Ing. Carlos Rojas
-                                    </option>
-                                </select>
-                            </div>
-
-                            {/* DESCRIPCIÓN */}
-                            <div>
-                                <label className="block mb-3 text-xl text-gray-800">
+                            <div className="flex flex-col gap-1.5 md:col-span-2">
+                                <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
                                     Descripción
                                 </label>
-
                                 <textarea
-                                    name="descripcion"
-                                    value={formData.descripcion}
-                                    onChange={handleChange}
-                                    placeholder="Descripción"
+                                    value={data.abstract}
+                                    onChange={(e) => setData('abstract', e.target.value)}
+                                    placeholder="Descripción del proyecto"
                                     rows="4"
-                                    className="w-full bg-white rounded-2xl px-5 py-4 text-lg outline-none resize-none"
+                                    className="w-full rounded-[12px] border-none outline-none px-4 py-3 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder resize-none"
                                 />
+                                {errors.abstract && (
+                                    <span className="text-error text-[11px] font-card-meta">{errors.abstract}</span>
+                                )}
                             </div>
-
-                            {/* BOTÓN */}
-                            <div className="flex items-end">
-
-                                <button
-                                    type="submit"
-                                    className="w-full bg-[#2340A5] hover:bg-[#1c3385] text-white text-2xl py-5 rounded-2xl transition"
-                                >
-                                    CREAR PROYECTO
-                                </button>
-
-                            </div>
-
                         </div>
 
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full h-[50px] sm:h-[58px] rounded-[14px] border-none bg-primary text-text-on-primary text-[16px] sm:text-[18px] font-[600] cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-card-meta"
+                        >
+                            {processing ? 'CREANDO PROYECTO...' : 'CREAR PROYECTO'}
+                        </button>
                     </form>
-
                 </div>
-
             </div>
-
         </div>
     );
 }
