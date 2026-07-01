@@ -12,6 +12,12 @@ collections:
     path: "collections/CU4 - Evaluacion y Retroalimentacion"
   - name: "CU7 - Pagos"
     path: "collections/CU7 - Pagos"
+  - name: "CU8 - Reportes"
+    path: "bruno/collections/CU8 - Reportes"
+  - name: "CU7 - Pagos"
+    path: "bruno/collections/CU7 - Pagos"
+  - name: "CU1 - Gestion de Usuarios"
+    path: "bruno/collections/CU1 - Gestion de Usuarios"
 
 specs:
 

@@ -1,0 +1,33 @@
+meta {
+  name: Payments
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8000/api/reports/payments
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns data array", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+  test("Each item has period, total_amount and total_count", function() {
+    if (res.body.data.length > 0) {
+      expect(res.body.data[0]).to.have.property("period");
+      expect(res.body.data[0]).to.have.property("total_amount");
+      expect(res.body.data[0]).to.have.property("total_count");
+    }
+  });
+}

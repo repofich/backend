@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ThesisController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +65,15 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/thesis/{thesis}/evaluations', [EvaluationController::class, 'store']);
         Route::put('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'update']);
         Route::delete('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'destroy']);
+    });
+
+    // Reports (vicedecano, director)
+    Route::middleware('role:vicedecano,director')->prefix('reports')->group(function () {
+        Route::get('/theses-by-career', [ReportController::class, 'thesesByCareer']);
+        Route::get('/theses-by-status', [ReportController::class, 'thesesByStatus']);
+        Route::get('/theses-by-year', [ReportController::class, 'thesesByYear']);
+        Route::get('/payments', [ReportController::class, 'payments']);
+        Route::get('/users-by-role', [ReportController::class, 'usersByRole']);
     });
 });
 
