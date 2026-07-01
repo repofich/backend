@@ -19,6 +19,9 @@ Route::get('/mis-proyectos', [PageController::class, 'myProjects'])->middleware(
 
 Route::get('/pagos', [PageController::class, 'payments'])->middleware('auth');
 
+Route::get('/perfil', [PageController::class, 'profile'])->middleware('auth');
+Route::post('/perfil', [App\Http\Controllers\Inertia\ProfileController::class, 'update'])->middleware('auth');
+
 Route::get('/tesis/{thesis}', [PageController::class, 'thesisDetail']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -1,28 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
 import { router, useForm } from '@inertiajs/react';
-import { FaMoon, FaSun } from 'react-icons/fa';
-import Header from '../components/Header';
 
 export default function Register({ careers }) {
-	const [isDark, setIsDark] = useState(false);
-
-	useEffect(() => {
-		const theme = localStorage.getItem('theme');
-		if (theme === 'dark') {
-			setIsDark(true);
-			document.documentElement.classList.add('dark');
-		}
-	}, []);
-
-	const toggleTheme = useCallback(() => {
-		setIsDark((prev) => {
-			const next = !prev;
-			document.documentElement.classList.toggle('dark', next);
-			localStorage.setItem('theme', next ? 'dark' : 'light');
-			return next;
-		});
-	}, []);
-
 	const { data, setData, post, processing, errors, setError } = useForm({
 		ci: '',
 		registration_number: '',
@@ -67,16 +45,6 @@ export default function Register({ careers }) {
 
 	return (
 		<div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
-			<Header />
-
-			<button
-				onClick={toggleTheme}
-				className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 bg-bg-card border border-gray-200 dark:border-[#3a3a3a] w-[40px] h-[40px] rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-shadow text-text-primary text-lg"
-				aria-label="Toggle theme"
-			>
-				{isDark ? <FaSun /> : <FaMoon />}
-			</button>
-
 			<div className="flex-1 flex items-center justify-center px-4 py-8">
 				<div className="w-full max-w-[560px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
 					<h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-8">

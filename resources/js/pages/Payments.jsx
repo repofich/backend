@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import PaymentForm from '../components/PaymentForm';
-import Header from '../components/Header';
 
 export default function Payments({ stripe_key, jwt_token }) {
   const [amount, setAmount] = useState('');
@@ -20,16 +19,13 @@ export default function Payments({ stripe_key, jwt_token }) {
 
     return (
       <div className="min-h-screen bg-bg-page font-[Georgia,serif]">
-        <Header>
+        <div className="max-w-md mx-auto px-4 py-10">
           <button
             onClick={() => router.visit('/')}
-            className="bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
+            className="mb-4 bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
           >
             Inicio
           </button>
-        </Header>
-
-        <div className="max-w-md mx-auto px-4 py-10">
           <div className="bg-card-bg rounded-[20px] p-8">
             <h2 className="text-card-heading text-2xl font-bold text-center mb-2">Confirmar Pago</h2>
             <p className="text-card-label text-sm text-center mb-8">
@@ -61,16 +57,13 @@ export default function Payments({ stripe_key, jwt_token }) {
 
   return (
     <div className="min-h-screen bg-bg-page font-[Georgia,serif]">
-      <Header>
+      <div className="max-w-md mx-auto px-4 py-10">
         <button
           onClick={() => router.visit('/')}
-          className="bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
+          className="mb-4 bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
         >
           Inicio
         </button>
-      </Header>
-
-      <div className="max-w-md mx-auto px-4 py-10">
         <div className="bg-card-bg rounded-[20px] p-8">
           <h1 className="text-card-heading text-2xl font-bold text-center mb-8">Pagos</h1>
 

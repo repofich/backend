@@ -1,7 +1,6 @@
 import { router } from '@inertiajs/react';
 import { FiFile, FiPaperclip, FiExternalLink } from 'react-icons/fi';
 import { FaGithub } from 'react-icons/fa';
-import Header from '../components/Header';
 import Portada from '../components/Portada';
 
 const statusLabels = {
@@ -27,16 +26,13 @@ export default function ThesisDetail({ thesis }) {
 
   return (
     <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
-      <Header>
+      <div className="max-w-[1100px] mx-auto w-full px-4 py-8">
         <button
           onClick={() => router.visit('/')}
-          className="bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
+          className="mb-4 bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
         >
           Volver
         </button>
-      </Header>
-
-      <div className="max-w-[1100px] mx-auto w-full px-4 py-8">
         <div className="border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden">
           <div className="md:grid md:grid-cols-[280px_1fr]">
             <Portada

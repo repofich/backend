@@ -1,13 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { router, usePage } from '@inertiajs/react';
-import Header from '../components/Header';
-import GlobalMenu from '../components/GlobalMenu';
+import { useState, useCallback } from 'react';
+import { router } from '@inertiajs/react';
 import SearchBar from '../components/SearchBar';
 import PublicationCard from '../components/PublicationCard';
 
 export default function Home({ publicaciones, filterOptions, filters }) {
-	const { auth } = usePage().props;
-	const [isDark, setIsDark] = useState(false);
 	const [query, setQuery] = useState(filters?.query || '');
 	const [activeFilters, setActiveFilters] = useState({
 		año: filters?.year || '',
@@ -15,23 +11,6 @@ export default function Home({ publicaciones, filterOptions, filters }) {
 		tipo: filters?.type || '',
 	});
 	const [loading, setLoading] = useState(false);
-
-	useEffect(() => {
-		const theme = localStorage.getItem('theme');
-		if (theme === 'dark') {
-			setIsDark(true);
-			document.documentElement.classList.add('dark');
-		}
-	}, []);
-
-	const toggleTheme = useCallback(() => {
-		setIsDark((prev) => {
-			const next = !prev;
-			document.documentElement.classList.toggle('dark', next);
-			localStorage.setItem('theme', next ? 'dark' : 'light');
-			return next;
-		});
-	}, []);
 
 	const loadPublicaciones = useCallback((filtros) => {
 		setLoading(true);
@@ -69,19 +48,6 @@ export default function Home({ publicaciones, filterOptions, filters }) {
 
 	return (
 		<div className="min-h-screen bg-bg-page font-[Georgia,serif]">
-			<Header>
-				{auth.user ? (
-					<GlobalMenu isDark={isDark} onToggleTheme={toggleTheme} />
-				) : (
-					<button
-						onClick={() => router.visit('/login')}
-						className="bg-primary text-text-on-primary border-none px-4 sm:px-8 h-[36px] sm:h-[56px] md:h-[70px] rounded-[10px] sm:rounded-[16px] md:rounded-[20px] text-[11px] sm:text-[14px] md:text-[18px] cursor-pointer font-[500] hover:bg-primary-light transition-colors whitespace-nowrap"
-					>
-						INICIAR SESION
-					</button>
-				)}
-			</Header>
-
 			<SearchBar
 				query={query}
 				onQueryChange={handleQueryChange}

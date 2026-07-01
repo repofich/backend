@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Inertia;
 
-use App\Http\Resources\CareerResource;
 use App\Http\Resources\ThesisResource;
+use App\Http\Resources\UserResource;
 use App\Models\Career;
 use App\Models\Category;
 use App\Models\Thesis;
@@ -132,6 +132,17 @@ class PageController
         return Inertia::render('Payments', [
             'stripe_key' => config('stripe.key'),
             'jwt_token' => $token,
+        ]);
+    }
+
+    public function profile()
+    {
+        $user = Auth::user()->load('career');
+        $careers = Career::all()->toArray();
+
+        return Inertia::render('Profile', [
+            'user' => UserResource::make($user)->resolve(),
+            'careers' => $careers,
         ]);
     }
 

@@ -1,5 +1,4 @@
 import { router } from '@inertiajs/react';
-import Header from '../components/Header';
 import Table from '../components/Table';
 
 export default function MyProjects({ proyectos }) {
@@ -21,8 +20,6 @@ export default function MyProjects({ proyectos }) {
 
     return (
         <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
-            <Header />
-
             <div className="flex-1 max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <h1 className="m-0 text-card-heading text-[22px] sm:text-[26px] font-card-meta">
