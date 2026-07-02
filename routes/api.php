@@ -17,8 +17,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/me/photo', [AuthController::class, 'updateMyPhoto']);
     Route::post('/me/curriculum', [AuthController::class, 'updateMyCurriculum']);
 
-    // Admin
-    Route::middleware('role:vicedecano,director')->group(function () {
+    // Users (admin)
+    Route::middleware('role:admin')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{user}', [UserController::class, 'show']);
@@ -28,6 +28,8 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/users/{user}/curriculum', [UserController::class, 'updateCurriculum']);
         Route::delete('/users/{user}/photo', [UserController::class, 'deletePhoto']);
         Route::delete('/users/{user}/curriculum', [UserController::class, 'deleteCurriculum']);
+        Route::post('/users/{user}/toggle-active', [UserController::class, 'toggleActive']);
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword']);
     });
 
     // Payments
@@ -51,8 +53,8 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/thesis/{thesis}/tutor', [ThesisController::class, 'assignTutor']);
     Route::delete('/thesis/{thesis}/tutor', [ThesisController::class, 'removeTutor']);
 
-    // Asignación de evaluador (vicedecano, director)
-    Route::middleware('role:vicedecano,director')->group(function () {
+    // Asignación de evaluador (vicedecano, director, admin)
+    Route::middleware('role:vicedecano,director,admin')->group(function () {
         Route::post('/thesis/{thesis}/evaluator', [EvaluationController::class, 'assignEvaluator']);
         Route::delete('/thesis/{thesis}/evaluator', [EvaluationController::class, 'removeEvaluator']);
     });

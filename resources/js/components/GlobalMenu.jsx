@@ -74,6 +74,15 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 							</div>
 						)}
 
+						{user?.user_type === 'admin' && (
+							<div
+								onClick={() => { router.visit('/admin/usuarios'); setOpen(false) }}
+								className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
+							>
+								Admin Usuarios
+							</div>
+						)}
+
 						<div
 							onClick={() => { router.visit('/perfil'); setOpen(false) }}
 							className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"

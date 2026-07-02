@@ -17,7 +17,7 @@ class StoreUserRequest extends FormRequest
             'full_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'user_type' => ['required', 'string', 'in:vicedecano,director,tutor,tribunal,estudiante'],
+            'user_type' => ['required', 'string', 'in:admin,vicedecano,director,tutor,tribunal,docente'],
             'career_id' => ['required', 'integer', 'exists:careers,id'],
             'ci' => ['nullable', 'string', 'max:20', 'unique:users,ci'],
             'registration_number' => ['nullable', 'string', 'max:50', 'unique:users,registration_number'],

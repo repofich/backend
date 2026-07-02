@@ -9,17 +9,28 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $users = User::with('career')
-            ->when(request('user_type'), fn($q, $type) => $q->where('user_type', $type))
-            ->when(request('career_id'), fn($q, $id) => $q->where('career_id', $id))
+            ->when($request->filled('query'), function ($q) use ($request) {
+                $s = $request->query;
+                $q->where(function ($q2) use ($s) {
+                    $q2->where('full_name', 'like', '%' . $s . '%')
+                        ->orWhere('email', 'like', '%' . $s . '%')
+                        ->orWhere('ci', 'like', '%' . $s . '%');
+                });
+            })
+            ->when($request->filled('user_type'), fn($q, $type) => $q->where('user_type', $type))
+            ->when($request->filled('career_id'), fn($q, $id) => $q->where('career_id', $id))
+            ->when($request->filled('is_active'), fn($q, $active) => $q->where('is_active', $active === 'true' || $active === '1'))
+            ->latest()
             ->get();
 
         return UserResource::collection($users);
@@ -128,5 +139,28 @@ class UserController extends Controller
         }
 
         return response()->json(['message' => 'Currículum eliminado.']);
+    }
+
+    public function toggleActive(User $user): JsonResponse
+    {
+        $user->update(['is_active' => !$user->is_active]);
+
+        return response()->json([
+            'message' => $user->is_active ? 'Usuario activado.' : 'Usuario desactivado.',
+            'user' => new UserResource($user->fresh()->load('career')),
+        ]);
+    }
+
+    public function resetPassword(Request $request, User $user): JsonResponse
+    {
+        $request->validate([
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $user->update(['password' => Hash::make($request->password)]);
+
+        return response()->json([
+            'message' => 'Contraseña restablecida.',
+        ]);
     }
 }

@@ -293,4 +293,110 @@ class PageController
             'jwt_token' => $token,
         ]);
     }
+
+    public function adminUsers(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->user_type !== 'admin') {
+            abort(403);
+        }
+
+        $query = User::with('career');
+
+        if ($request->filled('query')) {
+            $s = $request->query;
+            $query->where(function ($q) use ($s) {
+                $q->where('full_name', 'like', '%' . $s . '%')
+                    ->orWhere('email', 'like', '%' . $s . '%')
+                    ->orWhere('ci', 'like', '%' . $s . '%');
+            });
+        }
+
+        if ($request->filled('user_type')) {
+            $query->where('user_type', $request->user_type);
+        }
+
+        $users = $query->latest()->get();
+
+        $userTypes = [
+            'estudiante' => 'Estudiante',
+            'docente' => 'Docente',
+            'tutor' => 'Tutor',
+            'tribunal' => 'Tribunal',
+            'director' => 'Director',
+            'vicedecano' => 'Vicedecano',
+            'admin' => 'Administrador',
+        ];
+
+        $careers = Career::all();
+        $token = auth('api')->login($user);
+
+        return Inertia::render('AdminUsers', [
+            'users' => UserResource::collection($users)->resolve(),
+            'filters' => $request->only(['query', 'user_type']),
+            'filterOptions' => [
+                'user_types' => $userTypes,
+            ],
+            'jwt_token' => $token,
+        ]);
+    }
+
+    public function createUser()
+    {
+        $user = Auth::user();
+
+        if ($user->user_type !== 'admin') {
+            abort(403);
+        }
+
+        $careers = Career::all();
+        $userTypes = [
+            'docente' => 'Docente',
+            'tutor' => 'Tutor',
+            'tribunal' => 'Tribunal',
+            'director' => 'Director',
+            'vicedecano' => 'Vicedecano',
+            'admin' => 'Administrador',
+        ];
+
+        $token = auth('api')->login($user);
+
+        return Inertia::render('CreateUser', [
+            'careers' => $careers,
+            'user_types' => $userTypes,
+            'jwt_token' => $token,
+        ]);
+    }
+
+    public function editUser(User $user)
+    {
+        $authUser = Auth::user();
+
+        if ($authUser->user_type !== 'admin') {
+            abort(403);
+        }
+
+        $user->load('career');
+
+        $careers = Career::all();
+        $userTypes = [
+            'estudiante' => 'Estudiante',
+            'docente' => 'Docente',
+            'tutor' => 'Tutor',
+            'tribunal' => 'Tribunal',
+            'director' => 'Director',
+            'vicedecano' => 'Vicedecano',
+            'admin' => 'Administrador',
+        ];
+
+        $token = auth('api')->login($authUser);
+
+        return Inertia::render('EditUser', [
+            'user' => UserResource::make($user)->resolve(),
+            'careers' => $careers,
+            'user_types' => $userTypes,
+            'jwt_token' => $token,
+        ]);
+    }
 }

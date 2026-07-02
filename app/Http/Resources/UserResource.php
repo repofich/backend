@@ -19,6 +19,7 @@ class UserResource extends JsonResource
             'career' => new CareerResource($this->whenLoaded('career')),
             'photo_url' => $this->photo_url,
             'curriculum_url' => $this->curriculum_url,
+            'is_active' => $this->is_active,
             'email_verified_at' => $this->email_verified_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

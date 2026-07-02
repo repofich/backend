@@ -33,6 +33,9 @@ Route::post('/perfil', [App\Http\Controllers\Inertia\ProfileController::class, '
 Route::get('/mis-evaluaciones', [PageController::class, 'misEvaluaciones'])->middleware('auth');
 Route::get('/evaluar/{thesis}', [PageController::class, 'evaluarTesis'])->middleware('auth');
 Route::get('/admin/tesis', [PageController::class, 'adminTesis'])->middleware('auth');
+Route::get('/admin/usuarios', [PageController::class, 'adminUsers'])->middleware('auth');
+Route::get('/admin/usuarios/crear', [PageController::class, 'createUser'])->middleware('auth');
+Route::get('/admin/usuarios/{user}/editar', [PageController::class, 'editUser'])->middleware('auth');
 
 Route::get('/tesis/{thesis}', [PageController::class, 'thesisDetail']);
 

@@ -16,8 +16,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'full_name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,' . $this->route('user')],
-            'password' => ['sometimes', 'string', 'min:8'],
-            'user_type' => ['sometimes', 'string', 'in:vicedecano,director,tutor,tribunal,estudiante'],
+            'user_type' => ['sometimes', 'string', 'in:admin,vicedecano,director,tutor,tribunal,docente,estudiante'],
             'career_id' => ['sometimes', 'integer', 'exists:careers,id'],
             'ci' => ['sometimes', 'string', 'max:20', 'unique:users,ci,' . $this->route('user')],
             'registration_number' => ['sometimes', 'string', 'max:50', 'unique:users,registration_number,' . $this->route('user')],
