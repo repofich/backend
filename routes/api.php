@@ -63,11 +63,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/thesis', [ThesisController::class, 'store']);
     Route::put('/thesis/{thesis}', [ThesisController::class, 'update']);
     Route::delete('/thesis/{thesis}', [ThesisController::class, 'destroy']);
-    Route::put('/thesis/{thesis}/tutor', [ThesisController::class, 'assignTutor']);
-    Route::delete('/thesis/{thesis}/tutor', [ThesisController::class, 'removeTutor']);
 
-    // Asignación de evaluador (vicedecano, director)
+    // Asignación de tutor y evaluador (vicedecano, director)
     Route::middleware('role:vicedecano,director')->group(function () {
+        Route::put('/thesis/{thesis}/tutor', [ThesisController::class, 'assignTutor']);
+        Route::delete('/thesis/{thesis}/tutor', [ThesisController::class, 'removeTutor']);
+        Route::get('/thesis/{thesis}/tutor/history', [ThesisController::class, 'tutorHistory']);
         Route::post('/thesis/{thesis}/evaluator', [EvaluationController::class, 'assignEvaluator']);
         Route::delete('/thesis/{thesis}/evaluator', [EvaluationController::class, 'removeEvaluator']);
     });

@@ -82,6 +82,11 @@ class Thesis extends Model
         return $this->hasMany(Evaluation::class);
     }
 
+    public function assignmentLogs(): HasMany
+    {
+        return $this->hasMany(TutorAssignmentLog::class);
+    }
+
     public static array $transitions = [
         'borrador'    => ['en_revision'],
         'en_revision' => ['observado', 'aprobado', 'rechazado'],

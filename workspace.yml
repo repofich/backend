@@ -20,6 +20,8 @@ collections:
     path: "bruno/collections/CU1 - Gestion de Usuarios"
   - name: "CU5 - Carreras y Configuracion"
     path: "bruno/collections/CU5 - Carreras y Configuracion"
+  - name: "CU2 - Gestion de Tesis"
+    path: "bruno/collections/CU2 - Gestion de Tesis"
 
 specs:
 
