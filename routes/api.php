@@ -64,6 +64,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/thesis/{thesis}/evaluations', [EvaluationController::class, 'store']);
         Route::put('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'update']);
         Route::delete('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'destroy']);
+        Route::post('/evaluations/{evaluation}/file', [EvaluationController::class, 'uploadFile']);
     });
 });
 

@@ -168,6 +168,15 @@ class ThesisController extends Controller
             ], 422);
         }
 
+        if ($request->status === 'publicado') {
+            $hasValidScore = $thesis->evaluations()->where('score', '>=', 60)->exists();
+            if (!$hasValidScore) {
+                return response()->json([
+                    'message' => 'No se puede publicar la tesis. Debe tener al menos una evaluación con nota igual o superior a 60.',
+                ], 422);
+            }
+        }
+
         $data = ['status' => $request->status];
 
         if ($request->status === 'publicado') {

@@ -20,4 +20,29 @@ class UpdateEvaluationRequest extends FormRequest
             'file_path' => ['sometimes', 'nullable', 'string', 'max:2048'],
         ];
     }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if (!$this->has('recommendation')) {
+                return;
+            }
+
+            $score = $this->input('score');
+            if ($score === null || $score === '') {
+                return;
+            }
+
+            $score = (int) $score;
+            $rec = $this->input('recommendation');
+
+            if ($score >= 60 && $rec !== 'aprobar') {
+                $validator->errors()->add('recommendation', 'La nota es 60 o superior. La recomendación debe ser "Aprobar".');
+            }
+
+            if ($score < 60 && $rec === 'aprobar') {
+                $validator->errors()->add('recommendation', 'La nota es menor a 60. No se puede aprobar la tesis.');
+            }
+        });
+    }
 }

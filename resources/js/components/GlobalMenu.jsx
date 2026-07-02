@@ -55,6 +55,25 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 						>
 							Mis Proyectos
 						</div>
+
+						{(user?.user_type === 'tribunal' || user?.user_type === 'director') && (
+							<div
+								onClick={() => { router.visit('/mis-evaluaciones'); setOpen(false) }}
+								className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
+							>
+								Mis Evaluaciones
+							</div>
+						)}
+
+						{(user?.user_type === 'vicedecano' || user?.user_type === 'director' || user?.user_type === 'admin') && (
+							<div
+								onClick={() => { router.visit('/admin/tesis'); setOpen(false) }}
+								className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
+							>
+								Admin Tesis
+							</div>
+						)}
+
 						<div
 							onClick={() => { router.visit('/perfil'); setOpen(false) }}
 							className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"

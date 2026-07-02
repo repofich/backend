@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
 
 class EvaluationController extends Controller
 {
@@ -120,6 +121,31 @@ class EvaluationController extends Controller
         return response()->json([
             'message' => 'Evaluador removido.',
             'thesis' => new ThesisResource($thesis),
+        ]);
+    }
+
+    public function uploadFile(Request $request, Evaluation $evaluation): JsonResponse
+    {
+        if (auth()->id() !== $evaluation->evaluator_id) {
+            return response()->json(['message' => 'No eres el evaluador de esta evaluación.'], 403);
+        }
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:pdf', 'max:10240'],
+        ]);
+
+        if ($evaluation->file_path) {
+            Storage::disk('public')->delete($evaluation->file_path);
+        }
+
+        $path = $request->file('file')->store('evaluations/' . $evaluation->thesis_id, 'public');
+
+        $evaluation->update(['file_path' => $path]);
+        $evaluation->load('evaluator');
+
+        return response()->json([
+            'message' => 'Archivo subido.',
+            'evaluation' => new EvaluationResource($evaluation),
         ]);
     }
 
