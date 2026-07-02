@@ -4,27 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Career extends Model
+class Format extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'knowledge_areas',
+        'type',
+        'content',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
             'id' => 'integer',
-            'knowledge_areas' => 'array',
+            'is_active' => 'boolean',
         ];
-    }
-
-    public function users(): HasMany
-    {
-        return $this->hasMany(User::class);
     }
 }

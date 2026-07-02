@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CareerController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\FormatController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ThesisController;
@@ -29,6 +31,18 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/users/{user}/curriculum', [UserController::class, 'updateCurriculum']);
         Route::delete('/users/{user}/photo', [UserController::class, 'deletePhoto']);
         Route::delete('/users/{user}/curriculum', [UserController::class, 'deleteCurriculum']);
+
+        // Careers
+        Route::post('/careers', [CareerController::class, 'store']);
+        Route::put('/careers/{career}', [CareerController::class, 'update']);
+        Route::delete('/careers/{career}', [CareerController::class, 'destroy']);
+
+        // Formats
+        Route::get('/formats', [FormatController::class, 'index']);
+        Route::post('/formats', [FormatController::class, 'store']);
+        Route::get('/formats/{format}', [FormatController::class, 'show']);
+        Route::put('/formats/{format}', [FormatController::class, 'update']);
+        Route::delete('/formats/{format}', [FormatController::class, 'destroy']);
     });
 
     // Payments
@@ -76,6 +90,10 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/users-by-role', [ReportController::class, 'usersByRole']);
     });
 });
+
+// Careers (public)
+Route::get('/careers', [CareerController::class, 'index']);
+Route::get('/careers/{career}', [CareerController::class, 'show']);
 
 // Thesis (public)
 Route::get('/thesis', [ThesisController::class, 'index']);

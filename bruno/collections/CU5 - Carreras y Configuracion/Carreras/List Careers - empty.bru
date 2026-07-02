@@ -1,0 +1,25 @@
+meta {
+  name: List Careers - empty
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8000/api/careers
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns empty array", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array").that.is.empty;
+  });
+}

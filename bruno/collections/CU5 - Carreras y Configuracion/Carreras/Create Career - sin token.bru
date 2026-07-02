@@ -1,0 +1,28 @@
+meta {
+  name: Create Career - sin token
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8000/api/careers
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Ingeniería sin Auth"
+  }
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Create Format - sin token
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8000/api/formats
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Formato sin Auth",
+    "type": "portada",
+    "content": "test"
+  }
+}
+
+tests {
+  test("Status 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

@@ -1,0 +1,35 @@
+meta {
+  name: List Formats
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/api/formats
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns collection", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+  test("Each format has id, name, type, content, is_active", function() {
+    res.body.data.forEach(function(f) {
+      expect(f).to.have.property("id");
+      expect(f).to.have.property("name");
+      expect(f).to.have.property("type");
+      expect(f).to.have.property("content");
+      expect(f).to.have.property("is_active");
+    });
+  });
+}

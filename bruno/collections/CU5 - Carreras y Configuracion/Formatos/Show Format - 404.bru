@@ -1,0 +1,22 @@
+meta {
+  name: Show Format - 404
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8000/api/formats/9999
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.status).to.equal(404);
+  });
+}

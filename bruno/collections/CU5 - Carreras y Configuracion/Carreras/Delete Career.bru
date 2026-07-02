@@ -1,0 +1,25 @@
+meta {
+  name: Delete Career
+  type: http
+  seq: 11
+}
+
+delete {
+  url: http://localhost:8000/api/careers/3
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.equal("Carrera eliminada.");
+  });
+}

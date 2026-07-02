@@ -1,0 +1,38 @@
+meta {
+  name: Update Format
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:8000/api/formats/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "name": "Portada - Actualizada",
+    "content": "<h1>{{title}}</h1><p>{{author}}</p>",
+    "is_active": false
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.equal("Formato actualizado.");
+  });
+  test("Returns updated format", function() {
+    expect(res.body.format.name).to.equal("Portada - Actualizada");
+    expect(res.body.format.is_active).to.equal(false);
+  });
+}

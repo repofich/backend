@@ -1,0 +1,39 @@
+meta {
+  name: Create Career
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8000/api/careers
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "name": "Ingeniería Informática",
+    "knowledge_areas": ["Desarrollo de Software", "Redes", "Inteligencia Artificial"]
+  }
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.status).to.equal(201);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.equal("Carrera creada.");
+  });
+  test("Returns career with knowledge_areas", function() {
+    expect(res.body.career).to.have.property("id");
+    expect(res.body.career.name).to.equal("Ingeniería Informática");
+    expect(res.body.career.knowledge_areas).to.be.an("array");
+    expect(res.body.career.knowledge_areas).to.include("Desarrollo de Software");
+  });
+}

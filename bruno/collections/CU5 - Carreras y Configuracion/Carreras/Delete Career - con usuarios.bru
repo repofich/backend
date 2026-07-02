@@ -1,0 +1,25 @@
+meta {
+  name: Delete Career - con usuarios
+  type: http
+  seq: 12
+}
+
+delete {
+  url: http://localhost:8000/api/careers/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 409", function() {
+    expect(res.status).to.equal(409);
+  });
+  test("Conflict message", function() {
+    expect(res.body.message).to.equal("No se puede eliminar la carrera porque tiene usuarios asociados.");
+  });
+}

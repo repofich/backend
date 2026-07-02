@@ -18,6 +18,8 @@ collections:
     path: "bruno/collections/CU7 - Pagos"
   - name: "CU1 - Gestion de Usuarios"
     path: "bruno/collections/CU1 - Gestion de Usuarios"
+  - name: "CU5 - Carreras y Configuracion"
+    path: "bruno/collections/CU5 - Carreras y Configuracion"
 
 specs:
 

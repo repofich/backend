@@ -1,0 +1,32 @@
+meta {
+  name: List Careers
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/api/careers
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns collection", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+  test("Each career has id, name, knowledge_areas", function() {
+    res.body.data.forEach(function(c) {
+      expect(c).to.have.property("id");
+      expect(c).to.have.property("name");
+      expect(c).to.have.property("knowledge_areas");
+    });
+  });
+}
