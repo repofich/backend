@@ -1,0 +1,32 @@
+meta {
+  name: Thesis by Status
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8000/api/reports/theses-by-status
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns data array", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.be.an("array");
+  });
+  test("Each item has status and total", function() {
+    if (res.body.data.length > 0) {
+      expect(res.body.data[0]).to.have.property("status");
+      expect(res.body.data[0]).to.have.property("total");
+    }
+  });
+}

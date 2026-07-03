@@ -1,0 +1,25 @@
+meta {
+  name: Remove Tutor - sin permisos
+  type: http
+  seq: 7
+}
+
+delete {
+  url: http://localhost:8000/api/thesis/1/tutor
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+tests {
+  test("Status 403", function() {
+    expect(res.status).to.equal(403);
+  });
+  test("Forbidden message", function() {
+    expect(res.body.message).to.equal("Forbidden");
+  });
+}

@@ -1,0 +1,37 @@
+meta {
+  name: Update Career
+  type: http
+  seq: 9
+}
+
+put {
+  url: http://localhost:8000/api/careers/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "name": "Ingeniería Informática - Actualizada",
+    "knowledge_areas": ["Desarrollo de Software", "Redes", "Ciberseguridad"]
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.equal("Carrera actualizada.");
+  });
+  test("Returns updated career", function() {
+    expect(res.body.career.name).to.equal("Ingeniería Informática - Actualizada");
+    expect(res.body.career.knowledge_areas).to.include("Ciberseguridad");
+  });
+}

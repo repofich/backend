@@ -6,8 +6,10 @@ use App\Http\Requests\StoreThesisRequest;
 use App\Http\Requests\UpdateThesisRequest;
 use App\Http\Requests\UpdateThesisStatusRequest;
 use App\Http\Resources\ThesisResource;
+use App\Http\Resources\TutorAssignmentLogResource;
 use App\Models\Category;
 use App\Models\Thesis;
+use App\Models\TutorAssignmentLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -47,6 +49,14 @@ class ThesisController extends Controller
 
     public function update(UpdateThesisRequest $request, Thesis $thesis): JsonResponse
     {
+        if ($thesis->user_id !== auth()->id()) {
+            return response()->json(['message' => 'No eres el autor de esta tesis.'], 403);
+        }
+
+        if (!in_array($thesis->status, ['borrador', 'observado'])) {
+            return response()->json(['message' => 'Solo se puede editar en estado borrador u observado.'], 422);
+        }
+
         $thesis->update($request->validated());
 
         if ($request->has('tags')) {
@@ -84,7 +94,20 @@ class ThesisController extends Controller
             ], 422);
         }
 
+        $previousTutorId = $thesis->tutor_id;
+        $action = $previousTutorId ? 'changed' : 'assigned';
+
         $thesis->update(['tutor_id' => $user->id]);
+
+        TutorAssignmentLog::create([
+            'thesis_id' => $thesis->id,
+            'previous_tutor_id' => $previousTutorId,
+            'new_tutor_id' => $user->id,
+            'action' => $action,
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
         return response()->json([
@@ -95,13 +118,37 @@ class ThesisController extends Controller
 
     public function removeTutor(Thesis $thesis): JsonResponse
     {
+        $previousTutorId = $thesis->tutor_id;
+
         $thesis->update(['tutor_id' => null]);
+
+        if ($previousTutorId) {
+            TutorAssignmentLog::create([
+                'thesis_id' => $thesis->id,
+                'previous_tutor_id' => $previousTutorId,
+                'new_tutor_id' => null,
+                'action' => 'removed',
+                'changed_by' => auth()->id(),
+                'created_at' => now(),
+            ]);
+        }
+
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
         return response()->json([
             'message' => 'Tutor removido.',
             'thesis' => new ThesisResource($thesis),
         ]);
+    }
+
+    public function tutorHistory(Thesis $thesis): AnonymousResourceCollection
+    {
+        $logs = $thesis->assignmentLogs()
+            ->with(['previousTutor', 'newTutor', 'changedBy'])
+            ->latest('created_at')
+            ->get();
+
+        return TutorAssignmentLogResource::collection($logs);
     }
 
     public function featured(): AnonymousResourceCollection

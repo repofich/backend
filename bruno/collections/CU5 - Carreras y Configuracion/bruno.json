@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "CU5 - Carreras y Configuracion",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Show Career
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8000/api/careers/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Returns career resource", function() {
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.have.property("id");
+    expect(res.body.data).to.have.property("name");
+    expect(res.body.data).to.have.property("knowledge_areas");
+  });
+}

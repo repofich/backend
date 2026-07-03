@@ -1,0 +1,32 @@
+meta {
+  name: Update Thesis - no borrador
+  type: http
+  seq: 10
+}
+
+put {
+  url: http://localhost:8000/api/thesis/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": "Intento de edición fuera de borrador"
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Status validation message", function() {
+    expect(res.body.message).to.equal("Solo se puede editar en estado borrador u observado.");
+  });
+}

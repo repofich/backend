@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CareerController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\FormatController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ThesisController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +33,18 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/users/{user}/curriculum', [UserController::class, 'deleteCurriculum']);
         Route::post('/users/{user}/toggle-active', [UserController::class, 'toggleActive']);
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword']);
+
+        // Careers
+        Route::post('/careers', [CareerController::class, 'store']);
+        Route::put('/careers/{career}', [CareerController::class, 'update']);
+        Route::delete('/careers/{career}', [CareerController::class, 'destroy']);
+
+        // Formats
+        Route::get('/formats', [FormatController::class, 'index']);
+        Route::post('/formats', [FormatController::class, 'store']);
+        Route::get('/formats/{format}', [FormatController::class, 'show']);
+        Route::put('/formats/{format}', [FormatController::class, 'update']);
+        Route::delete('/formats/{format}', [FormatController::class, 'destroy']);
     });
 
     // Payments
@@ -50,11 +65,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/thesis', [ThesisController::class, 'store']);
     Route::put('/thesis/{thesis}', [ThesisController::class, 'update']);
     Route::delete('/thesis/{thesis}', [ThesisController::class, 'destroy']);
-    Route::put('/thesis/{thesis}/tutor', [ThesisController::class, 'assignTutor']);
-    Route::delete('/thesis/{thesis}/tutor', [ThesisController::class, 'removeTutor']);
 
     // Asignación de evaluador (vicedecano, director, admin)
     Route::middleware('role:vicedecano,director,admin')->group(function () {
+    // Asignación de tutor y evaluador (vicedecano, director)
+    Route::middleware('role:vicedecano,director')->group(function () {
+        Route::put('/thesis/{thesis}/tutor', [ThesisController::class, 'assignTutor']);
+        Route::delete('/thesis/{thesis}/tutor', [ThesisController::class, 'removeTutor']);
+        Route::get('/thesis/{thesis}/tutor/history', [ThesisController::class, 'tutorHistory']);
         Route::post('/thesis/{thesis}/evaluator', [EvaluationController::class, 'assignEvaluator']);
         Route::delete('/thesis/{thesis}/evaluator', [EvaluationController::class, 'removeEvaluator']);
     });
@@ -68,7 +86,20 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/thesis/{thesis}/evaluations/{evaluation}', [EvaluationController::class, 'destroy']);
         Route::post('/evaluations/{evaluation}/file', [EvaluationController::class, 'uploadFile']);
     });
+
+    // Reports (vicedecano, director)
+    Route::middleware('role:vicedecano,director')->prefix('reports')->group(function () {
+        Route::get('/theses-by-career', [ReportController::class, 'thesesByCareer']);
+        Route::get('/theses-by-status', [ReportController::class, 'thesesByStatus']);
+        Route::get('/theses-by-year', [ReportController::class, 'thesesByYear']);
+        Route::get('/payments', [ReportController::class, 'payments']);
+        Route::get('/users-by-role', [ReportController::class, 'usersByRole']);
+    });
 });
+
+// Careers (public)
+Route::get('/careers', [CareerController::class, 'index']);
+Route::get('/careers/{career}', [CareerController::class, 'show']);
 
 // Thesis (public)
 Route::get('/thesis', [ThesisController::class, 'index']);

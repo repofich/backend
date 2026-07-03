@@ -1,0 +1,32 @@
+meta {
+  name: Update Career - nombre duplicado
+  type: http
+  seq: 10
+}
+
+put {
+  url: http://localhost:8000/api/careers/2
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+body:json {
+  {
+    "name": "Ingeniería Informática - Actualizada"
+  }
+}
+
+tests {
+  test("Status 422", function() {
+    expect(res.status).to.equal(422);
+  });
+  test("Validation error on name", function() {
+    expect(res.body.errors).to.have.property("name");
+  });
+}

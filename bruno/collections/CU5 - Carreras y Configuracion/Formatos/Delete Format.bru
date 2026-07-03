@@ -1,0 +1,25 @@
+meta {
+  name: Delete Format
+  type: http
+  seq: 8
+}
+
+delete {
+  url: http://localhost:8000/api/formats/2
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{admin_token}}
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Success message", function() {
+    expect(res.body.message).to.equal("Formato eliminado.");
+  });
+}

@@ -1,0 +1,36 @@
+meta {
+  name: Login - Admin
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/api/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "vicedecano@test.com",
+    "password": "password"
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("Has token", function() {
+    expect(res.body).to.have.property("token");
+  });
+}
+
+vars {
+  admin_token: res.body.token
+}

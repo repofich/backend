@@ -1,0 +1,29 @@
+meta {
+  name: Create Career - sin permisos
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:8000/api/careers
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "name": "Ingeniería sin Permisos"
+  }
+}
+
+tests {
+  test("Status 403", function() {
+    expect(res.status).to.equal(403);
+  });
+}
