@@ -1,4 +1,5 @@
 import { useForm, usePage } from '@inertiajs/react';
+import KeywordPicker from '../components/KeywordPicker';
 
 const adminRoles = ['vicedecano', 'director', 'admin'];
 
@@ -15,7 +16,7 @@ export default function CreateProject({ categories, tutors, types, tags }) {
         type: '',
         repo_url: '',
         demo_url: '',
-        tags: [],
+        keywords: [],
         featured: false,
     });
 
@@ -54,7 +55,7 @@ export default function CreateProject({ categories, tutors, types, tags }) {
             >
                 <option value="">{placeholder}</option>
                 {options?.map((opt) => (
-                    <option key={opt.id || opt} value={opt.id || opt}>
+                    <option key={opt.id || opt} value={String(opt.id || opt)}>
                         {opt.name || opt.full_name || opt}
                     </option>
                 ))}
@@ -64,11 +65,6 @@ export default function CreateProject({ categories, tutors, types, tags }) {
             )}
         </div>
     );
-
-    const handleTagsChange = (e) => {
-        const selected = Array.from(e.target.selectedOptions, (o) => Number(o.value));
-        setData('tags', selected);
-    };
 
     return (
         <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
@@ -83,32 +79,16 @@ export default function CreateProject({ categories, tutors, types, tags }) {
                             {input('title', 'Nombre del Proyecto', 'Nombre del Proyecto')}
                             {select('type', 'Tipo de Proyecto', types, 'Seleccionar tipo')}
                             {select('category_id', 'Categoría / Carrera', categories, 'Seleccionar categoría')}
-                            {input('tutor', 'Sugerencia de Revisor o Tutor', 'Nombre del tutor')}
-                            {select('tutor_id', 'Seleccionar Tutor (opcional)', tutors, 'Seleccionar tutor')}
+                            {select('tutor_id', 'Tutor sugerido', tutors, 'Seleccionar tutor')}
                             {input('repo_url', 'URL del Repositorio', 'https://github.com/...', 'url')}
                             {input('demo_url', 'URL de Demo', 'https://...', 'url')}
 
-                            {/* Tags */}
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
-                                    Etiquetas
-                                </label>
-                                <select
-                                    multiple
-                                    value={data.tags}
-                                    onChange={handleTagsChange}
-                                    className="w-full min-h-[100px] rounded-[12px] border-none outline-none px-4 py-3 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta cursor-pointer"
-                                >
-                                    {tags?.map((tag) => (
-                                        <option key={tag.id} value={tag.id}>
-                                            {tag.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.tags && (
-                                    <span className="text-error text-[11px] font-card-meta">{errors.tags}</span>
-                                )}
-                            </div>
+                            <KeywordPicker
+                                options={tags}
+                                value={data.keywords}
+                                onChange={(keywords) => setData('keywords', keywords)}
+                                error={errors.keywords}
+                            />
 
                             {/* Featured */}
                             {isAdmin && (

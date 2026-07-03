@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 
 export default function EditUser({ user: u, careers, user_types, jwt_token }) {
+  const currentCareerId = u.career_id ?? u.career?.id ?? '';
+
   const [form, setForm] = useState({
     full_name: u.full_name || '',
     email: u.email || '',
     ci: u.ci || '',
     registration_number: u.registration_number || '',
     user_type: u.user_type || '',
-    career_id: u.career?.id?.toString() || '',
+    career_id: currentCareerId ? String(currentCareerId) : '',
   });
   const [error, setError] = useState(null);
   const [errors, setErrors] = useState({});
@@ -32,7 +34,7 @@ export default function EditUser({ user: u, careers, user_types, jwt_token }) {
       if (form.ci !== (u.ci || '')) body.ci = form.ci || null;
       if (form.registration_number !== (u.registration_number || '')) body.registration_number = form.registration_number || null;
       if (form.user_type !== u.user_type) body.user_type = form.user_type;
-      if (parseInt(form.career_id) !== u.career?.id) body.career_id = parseInt(form.career_id);
+      if (parseInt(form.career_id) !== Number(currentCareerId)) body.career_id = parseInt(form.career_id);
 
       if (Object.keys(body).length === 0) {
         router.visit('/admin/usuarios');
@@ -154,7 +156,7 @@ export default function EditUser({ user: u, careers, user_types, jwt_token }) {
                   className="w-full h-[48px] rounded-[12px] border border-gray-300 dark:border-[#555] outline-none px-4 text-base bg-white dark:bg-[#333] text-card-value"
                   required>
                   {careers?.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                    <option key={c.id} value={String(c.id)}>{c.name}</option>
                   ))}
                 </select>
                 {errors.career_id && <p className="text-red-500 text-xs mt-1">{errors.career_id}</p>}

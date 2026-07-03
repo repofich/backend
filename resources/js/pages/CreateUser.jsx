@@ -181,7 +181,7 @@ export default function CreateUser({ careers, user_types, jwt_token }) {
                   required>
                   <option value="">Seleccionar carrera</option>
                   {careers?.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                    <option key={c.id} value={String(c.id)}>{c.name}</option>
                   ))}
                 </select>
                 {errors.career_id && <p className="text-red-500 text-xs mt-1">{errors.career_id}</p>}

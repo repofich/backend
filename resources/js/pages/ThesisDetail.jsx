@@ -34,11 +34,25 @@ const recommendationColors = {
   rechazar: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
 };
 
-export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_users }) {
+const tutorStatusLabels = {
+  pending: 'Pendiente de aceptación',
+  accepted: 'Tutor aceptado',
+  rejected: 'Tutor rechazado',
+};
+
+const tutorStatusColors = {
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+  accepted: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  rejected: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+};
+
+export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_users, tutor_users }) {
   const t = thesis;
   const [submittingReview, setSubmittingReview] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [assigningTutor, setAssigningTutor] = useState(false);
   const [selectedEvaluator, setSelectedEvaluator] = useState('');
+  const [selectedTutor, setSelectedTutor] = useState('');
   const [changingStatus, setChangingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState('');
 
@@ -89,6 +103,28 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
       alert('Error de conexión');
     } finally {
       setAssigning(false);
+    }
+  };
+
+  const handleAssignTutor = async () => {
+    if (!selectedTutor) return;
+    setAssigningTutor(true);
+    try {
+      const res = await fetch('/api/thesis/' + t.id + '/tutor', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + jwt_token },
+        body: JSON.stringify({ user_id: parseInt(selectedTutor) }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al asignar tutor');
+      } else {
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setAssigningTutor(false);
     }
   };
 
@@ -179,6 +215,11 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
               <div>
                 <span className="text-card-label">Tutor: </span>
                 <span className="text-card-value font-semibold">{t.tutor_user?.full_name || t.tutor}</span>
+                {t.tutor_status && (
+                  <span className={`${tutorStatusColors[t.tutor_status] || 'bg-gray-100 text-gray-800'} ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap`}>
+                    {tutorStatusLabels[t.tutor_status] || t.tutor_status}
+                  </span>
+                )}
               </div>
             )}
             {t.assigned_evaluator && (
@@ -196,12 +237,15 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
           </div>
 
           {t.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="mb-6">
+              <h3 className="text-card-heading text-base font-bold mb-3">Palabras clave</h3>
+              <div className="flex flex-wrap gap-2">
               {t.tags.map((tag) => (
                 <span key={tag.id} className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">
                   {tag.name}
                 </span>
               ))}
+              </div>
             </div>
           )}
 
@@ -326,6 +370,23 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
             {isAdmin && (
               <div className="border-t pt-4 mt-4 space-y-3">
                 <h4 className="text-sm font-bold text-card-heading">Administración</h4>
+
+                <div>
+                  <label className="block text-xs text-card-label mb-1">Asignar Tutor</label>
+                  <div className="flex gap-2">
+                    <select value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.value)}
+                      className="flex-1 h-[40px] rounded-[10px] border border-gray-300 dark:border-[#555] outline-none px-3 text-sm bg-white dark:bg-[#333] text-card-value">
+                      <option value="">Seleccionar tutor</option>
+                      {tutor_users?.filter((u) => u.id !== t.tutor_user?.id).map((u) => (
+                        <option key={u.id} value={u.id}>{u.full_name}</option>
+                      ))}
+                    </select>
+                    <button onClick={handleAssignTutor} disabled={!selectedTutor || assigningTutor}
+                      className="bg-primary text-text-on-primary border-none px-4 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-50 whitespace-nowrap">
+                      {assigningTutor ? '...' : 'Asignar'}
+                    </button>
+                  </div>
+                </div>
 
                 <div>
                   <label className="block text-xs text-card-label mb-1">Asignar Evaluador</label>

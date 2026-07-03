@@ -1,0 +1,20 @@
+{
+    "The :attribute has already been taken.": "El :attribute ya está registrado.",
+    "The :attribute field is required.": "El campo :attribute es obligatorio.",
+    "The selected :attribute is invalid.": "El :attribute seleccionado no es válido.",
+    ":attribute must contain at least one uppercase letter.": ":attribute debe contener al menos una letra mayúscula.",
+    ":attribute must contain at least one lowercase letter.": ":attribute debe contener al menos una letra minúscula.",
+    ":attribute must contain at least one number.": ":attribute debe contener al menos un número.",
+    ":attribute must contain at least one special character.": ":attribute debe contener al menos un carácter especial.",
+    "The :attribute must be at least :min characters.": "El campo :attribute debe tener al menos :min caracteres.",
+    "The :attribute confirmation does not match.": "La confirmación del campo :attribute no coincide.",
+    "The :attribute must be a valid email address.": "Ingrese un correo electrónico válido.",
+    "The :attribute must be a valid URL.": "Ingrese una URL válida.",
+    "The :attribute must be an integer.": "El campo :attribute debe ser un número entero.",
+    "The :attribute must be a string.": "El campo :attribute debe ser un texto.",
+    "The :attribute must be a boolean.": "El campo :attribute debe ser verdadero o falso.",
+    "The :attribute must be an array.": "El campo :attribute debe ser un arreglo.",
+    "These credentials do not match our records.": "Las credenciales no coinciden con nuestros registros.",
+    "The password is incorrect.": "La contraseña es incorrecta.",
+    "Too many login attempts. Please try again in :seconds seconds.": "Demasiados intentos de inicio de sesión. Intente nuevamente en :seconds segundos."
+}

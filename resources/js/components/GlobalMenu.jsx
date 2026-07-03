@@ -2,6 +2,26 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { FaBars, FaMoon, FaSun } from 'react-icons/fa';
 
+const roleLabels = {
+	estudiante: 'Estudiante',
+	docente: 'Docente',
+	tutor: 'Tutor',
+	tribunal: 'Tribunal',
+	director: 'Director',
+	vicedecano: 'Vicedecano',
+	admin: 'Administrador',
+};
+
+const roleBadgeColors = {
+	estudiante: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+	docente: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+	tutor: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+	tribunal: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+	director: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+	vicedecano: 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300',
+	admin: 'bg-gray-900 text-white dark:bg-white dark:text-gray-900',
+};
+
 export default function GlobalMenu({ isDark, onToggleTheme }) {
 	const { auth } = usePage().props;
 	const [open, setOpen] = useState(false);
@@ -24,6 +44,8 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 		setOpen(false);
 	}, []);
 
+	const nav = (path) => { router.visit(path); setOpen(false); };
+
 	return (
 		<div ref={ref} className="relative">
 			<button
@@ -35,61 +57,50 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 			</button>
 
 			{open && (
-				<div className="absolute right-0 top-full mt-2 w-[220px] bg-white dark:bg-[#2a2a2a] rounded-[12px] shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
+				<div className="absolute right-0 top-full mt-2 w-[240px] bg-white dark:bg-[#2a2a2a] rounded-[12px] shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
 					{user && (
-						<div className="px-4 py-3 text-card-heading text-[14px] font-card-title truncate border-b border-gray-100 dark:border-[#3a3a3a]">
-							{user.full_name || user.email || 'Usuario'}
+						<div className="px-4 py-3 border-b border-gray-100 dark:border-[#3a3a3a] space-y-1.5">
+							<div className="text-card-heading text-[14px] font-card-title truncate leading-tight">
+								{user.full_name || user.email }
+							</div>
+							<div className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${roleBadgeColors[user.user_type] || 'bg-gray-100 text-gray-600'}`}>
+								{roleLabels[user.user_type] || user.user_type || 'Usuario'}
+							</div>
 						</div>
 					)}
 
 					<div className="py-1">
-						<div
-							onClick={() => { router.visit('/'); setOpen(false) }}
-							className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
-						>
+						<div onClick={() => nav('/')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 							Publicaciones
 						</div>
-						<div
-							onClick={() => { router.visit('/mis-proyectos'); setOpen(false) }}
-							className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
-						>
+
+						<div onClick={() => nav('/mis-proyectos')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 							Mis Proyectos
 						</div>
 
-						{(user?.user_type === 'tribunal' || user?.user_type === 'director') && (
-							<div
-								onClick={() => { router.visit('/mis-evaluaciones'); setOpen(false) }}
-								className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
-							>
-								Mis Evaluaciones
+						{['tutor', 'tribunal', 'director'].includes(user?.user_type) && (
+							<div onClick={() => nav('/mis-evaluaciones')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+								{user?.user_type === 'tutor' ? 'Mis Tutorías' : 'Mis Evaluaciones'}
 							</div>
 						)}
 
-						{(user?.user_type === 'vicedecano' || user?.user_type === 'director' || user?.user_type === 'admin') && (
-							<div
-								onClick={() => { router.visit('/admin/tesis'); setOpen(false) }}
-								className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
-							>
-								Admin Tesis
+						{['vicedecano', 'director', 'admin'].includes(user?.user_type) && (
+							<div onClick={() => nav('/admin/tesis')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+								Administrar Tesis
 							</div>
 						)}
 
 						{user?.user_type === 'admin' && (
-							<div
-								onClick={() => { router.visit('/admin/usuarios'); setOpen(false) }}
-								className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
-							>
-								Admin Usuarios
+							<div onClick={() => nav('/admin/usuarios')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+								Administrar Usuarios
 							</div>
 						)}
 
-						<div
-							onClick={() => { router.visit('/perfil'); setOpen(false) }}
-							className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
-						>
+						<div onClick={() => nav('/perfil')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 							Perfil
 						</div>
-						<div onClick={() => { router.visit('/pagos'); setOpen(false) }} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+
+						<div onClick={() => nav('/pagos')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 							Pagos
 						</div>
 					</div>
@@ -97,16 +108,14 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 					<div className="border-t border-gray-100 dark:border-[#3a3a3a]" />
 
 					<div className="py-1">
-						<div
-							onClick={() => { onToggleTheme(); setOpen(false) }}
+						<div onClick={() => { onToggleTheme(); setOpen(false) }}
 							className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer flex items-center gap-2"
 						>
 							{isDark ? <FaSun size={14} /> : <FaMoon size={14} />}
 							{isDark ? 'Modo Claro' : 'Modo Oscuro'}
 						</div>
 
-						<div
-							onClick={handleLogout}
+						<div onClick={handleLogout}
 							className="px-4 py-2 text-[#e60000] text-[13px] font-card-meta hover:bg-red-50 dark:hover:bg-[#3a1a1a] cursor-pointer"
 						>
 							Cerrar Sesión

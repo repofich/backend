@@ -20,6 +20,18 @@ const statusColors = {
   rechazado: 'bg-red-500',
 };
 
+const tutorStatusLabels = {
+  pending: 'Pendiente',
+  accepted: 'Aceptado',
+  rejected: 'Rechazado',
+};
+
+const tutorStatusColors = {
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+  accepted: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  rejected: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+};
+
 const validTransitions = {
   borrador: ['en_revision'],
   en_revision: ['observado', 'aprobado', 'rechazado'],
@@ -32,6 +44,7 @@ const validTransitions = {
 export default function AdminTesis({
   theses,
   tribunal_users,
+  tutor_users,
   filters: initialFilters,
   filterOptions,
   jwt_token,
@@ -107,6 +120,32 @@ export default function AdminTesis({
     }
   };
 
+  const handleAssignTutor = async (thesisId, userId) => {
+    if (!userId) return;
+    setAssigning((prev) => ({ ...prev, ['tutor-' + thesisId]: true }));
+    try {
+      const res = await fetch('/api/thesis/' + thesisId + '/tutor', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + jwt_token,
+        },
+        body: JSON.stringify({ user_id: parseInt(userId) }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al asignar tutor');
+      } else {
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setAssigning((prev) => ({ ...prev, ['tutor-' + thesisId]: false }));
+    }
+  };
+
   const handleChangeStatus = async (thesisId, status) => {
     if (!status) return;
     setStatusChanging((prev) => ({ ...prev, [thesisId]: true }));
@@ -159,7 +198,16 @@ export default function AdminTesis({
     {
       key: 'tutor_user',
       label: 'Tutor',
-      render: (val) => val?.full_name || '—',
+      render: (val, row) => (
+        <div className="space-y-1">
+          <div>{val?.full_name || row.tutor || '—'}</div>
+          {row.tutor_status && (
+            <span className={`${tutorStatusColors[row.tutor_status] || 'bg-gray-100 text-gray-800'} text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap`}>
+              {tutorStatusLabels[row.tutor_status] || row.tutor_status}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'status',
@@ -181,10 +229,35 @@ export default function AdminTesis({
       render: (_, row) => {
         const transitions = validTransitions[row.status] || [];
         const isAssigning = assigning[row.id];
+        const isAssigningTutor = assigning['tutor-' + row.id];
         const isChanging = statusChanging[row.id];
 
         return (
           <div className="flex flex-col gap-2 min-w-[200px]">
+            {/* Asignar tutor */}
+            <div className="flex gap-1 items-center">
+              <select
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val) handleAssignTutor(row.id, val);
+                }}
+                disabled={isAssigningTutor}
+                className="flex-1 h-[32px] rounded-[8px] border border-gray-300 dark:border-[#555] outline-none px-2 text-[11px] bg-white dark:bg-[#333] text-card-value disabled:opacity-60"
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  {row.tutor_user ? 'Cambiar tutor' : 'Asignar tutor'}
+                </option>
+                {tutor_users
+                  ?.filter((u) => u.id !== row.tutor_user?.id)
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.full_name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
             {/* Asignar evaluador */}
             <div className="flex gap-1 items-center">
               <select

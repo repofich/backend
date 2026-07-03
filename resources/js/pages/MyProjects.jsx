@@ -21,6 +21,18 @@ const statusColors = {
   rechazado: 'bg-red-500',
 };
 
+const tutorStatusLabels = {
+  pending: 'Tutor pendiente',
+  accepted: 'Tutor aceptó',
+  rejected: 'Tutor rechazó',
+};
+
+const tutorStatusColors = {
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+  accepted: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  rejected: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+};
+
 export default function MyProjects({ proyectos, jwt_token }) {
   const [submitting, setSubmitting] = useState(null);
 
@@ -67,7 +79,20 @@ export default function MyProjects({ proyectos, jwt_token }) {
       label: 'Categoría',
       render: (_, row) => row.category?.name ?? '—',
     },
-    { key: 'tutor', label: 'Tutor' },
+    {
+      key: 'tutor',
+      label: 'Tutor',
+      render: (val, row) => (
+        <div className="space-y-1">
+          <div>{row.tutor_user?.full_name || val || '—'}</div>
+          {row.tutor_status && (
+            <span className={`${tutorStatusColors[row.tutor_status] || 'bg-gray-100 text-gray-800'} text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap`}>
+              {tutorStatusLabels[row.tutor_status] || row.tutor_status}
+            </span>
+          )}
+        </div>
+      ),
+    },
     {
       key: 'status',
       label: 'Estado',

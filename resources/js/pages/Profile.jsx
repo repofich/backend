@@ -20,14 +20,17 @@ const userTypeColors = {
 };
 
 export default function Profile({ user, careers }) {
+    const currentCareerId = user.career_id ?? user.career?.id ?? '';
+
     const { data, setData, post, processing, errors } = useForm({
         full_name: user.full_name || '',
         email: user.email || '',
-        career_id: user.career?.id || '',
+        career_id: currentCareerId ? String(currentCareerId) : '',
+        ci: user.ci || '',
+        registration_number: user.registration_number || '',
         photo: null,
         curriculum: null,
     });
-
     const [photoPreview, setPhotoPreview] = useState(null);
 
     const handlePhotoChange = (e) => {
@@ -128,7 +131,7 @@ export default function Profile({ user, careers }) {
                             >
                                 <option value="">Seleccionar carrera</option>
                                 {careers?.map((c) => (
-                                    <option key={c.id} value={c.id}>
+                                    <option key={c.id} value={String(c.id)}>
                                         {c.name}
                                     </option>
                                 ))}
@@ -138,25 +141,39 @@ export default function Profile({ user, careers }) {
                             )}
                         </div>
 
-                        {/* Read-only data */}
+                        {/* Registration data */}
                         <div className="bg-input-bg rounded-[12px] p-4 sm:p-5 flex flex-col gap-3">
                             <h3 className="text-card-label text-[13px] font-card-meta font-semibold uppercase tracking-wide">
                                 Datos de registro
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <span className="text-card-label text-[11px] font-card-meta block">CI</span>
-                                    <span className="text-card-value text-[14px] font-card-meta">
-                                        {user.ci || '—'}
-                                    </span>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-card-label text-[11px] font-card-meta">CI</label>
+                                    <input
+                                        type="text"
+                                        value={data.ci}
+                                        onChange={(e) => setData('ci', e.target.value)}
+                                        placeholder="CI"
+                                        className="w-full h-[44px] rounded-[10px] border-none outline-none px-3 text-[14px] bg-card-bg text-input-text font-card-meta placeholder:text-input-placeholder"
+                                    />
+                                    {errors.ci && (
+                                        <span className="text-error text-[11px] font-card-meta">{errors.ci}</span>
+                                    )}
                                 </div>
-                                <div>
-                                    <span className="text-card-label text-[11px] font-card-meta block">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-card-label text-[11px] font-card-meta">
                                         Nro. de Registro
-                                    </span>
-                                    <span className="text-card-value text-[14px] font-card-meta">
-                                        {user.registration_number || '—'}
-                                    </span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={data.registration_number}
+                                        onChange={(e) => setData('registration_number', e.target.value)}
+                                        placeholder="Nro. de Registro"
+                                        className="w-full h-[44px] rounded-[10px] border-none outline-none px-3 text-[14px] bg-card-bg text-input-text font-card-meta placeholder:text-input-placeholder"
+                                    />
+                                    {errors.registration_number && (
+                                        <span className="text-error text-[11px] font-card-meta">{errors.registration_number}</span>
+                                    )}
                                 </div>
                             </div>
                             <div>
