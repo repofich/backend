@@ -144,11 +144,42 @@ class PageController
 
     public function myProjects()
     {
-        $proyectos = Thesis::with('category')
+        $proyectos = Thesis::with(['category', 'tutor'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get()
-            ->toArray();
+            ->map(function ($thesis) {
+                return [
+                    'id' => $thesis->id,
+                    'title' => $thesis->title,
+                    'abstract' => $thesis->abstract,
+                    'tutor' => $thesis->tutor,
+                    'tutor_id' => $thesis->tutor_id,
+                    'tutor_status' => $thesis->tutor_status,
+                    'tutor_user' => $thesis->relationLoaded('tutor') && $thesis->tutor_id
+                        ? [
+                            'id' => $thesis->getRelation('tutor')->id,
+                            'full_name' => $thesis->getRelation('tutor')->full_name,
+                            'email' => $thesis->getRelation('tutor')->email,
+                        ]
+                        : null,
+                    'repo_url' => $thesis->repo_url,
+                    'demo_url' => $thesis->demo_url,
+                    'featured' => $thesis->featured,
+                    'type' => $thesis->type,
+                    'status' => $thesis->status,
+                    'category' => $thesis->relationLoaded('category') && $thesis->category
+                        ? [
+                            'id' => $thesis->category->id,
+                            'name' => $thesis->category->name,
+                        ]
+                        : null,
+                    'created_at' => $thesis->created_at,
+                    'updated_at' => $thesis->updated_at,
+                ];
+            })
+            ->values()
+            ->all();
 
         $user = Auth::user();
         $token = $user ? auth('api')->login($user) : null;
@@ -191,12 +222,16 @@ class PageController
         $tribunalUsers = $user && in_array($user->user_type, ['vicedecano', 'director', 'admin'])
             ? User::where('user_type', 'tribunal')->get(['id', 'full_name', 'email'])
             : [];
+        $tutorUsers = $user && in_array($user->user_type, ['vicedecano', 'director', 'admin'])
+            ? User::where('user_type', 'tutor')->get(['id', 'full_name', 'email'])
+            : [];
 
         return Inertia::render('ThesisDetail', [
             'thesis' => ThesisResource::make($thesis)->resolve(),
             'jwt_token' => $token,
             'auth_user' => $user ? UserResource::make($user)->resolve() : null,
             'tribunal_users' => $tribunalUsers,
+            'tutor_users' => $tutorUsers,
         ]);
     }
 
@@ -204,20 +239,26 @@ class PageController
     {
         $user = Auth::user();
 
-        if (!in_array($user->user_type, ['tribunal', 'director'])) {
+        if (!in_array($user->user_type, ['tribunal', 'director', 'tutor'])) {
             abort(403);
         }
 
-        $theses = Thesis::with(['user', 'category', 'evaluations'])
-            ->where('assigned_evaluator_id', $user->id)
-            ->latest()
-            ->get();
+        $theses = $user->user_type === 'tutor'
+            ? Thesis::with(['user', 'category', 'tutor'])
+                ->where('tutor_id', $user->id)
+                ->latest()
+                ->get()
+            : Thesis::with(['user', 'category', 'evaluations'])
+                ->where('assigned_evaluator_id', $user->id)
+                ->latest()
+                ->get();
 
         $token = auth('api')->login($user);
 
         return Inertia::render('MisEvaluaciones', [
             'theses' => ThesisResource::collection($theses)->resolve(),
             'jwt_token' => $token,
+            'mode' => $user->user_type === 'tutor' ? 'tutorias' : 'evaluaciones',
         ]);
     }
 
@@ -277,6 +318,7 @@ class PageController
         $theses = $query->latest()->get();
 
         $tribunalUsers = User::where('user_type', 'tribunal')->get(['id', 'full_name', 'email']);
+        $tutorUsers = User::where('user_type', 'tutor')->get(['id', 'full_name', 'email']);
         $careers = Career::all();
         $statuses = ['borrador', 'en_revision', 'observado', 'aprobado', 'rechazado', 'publicado'];
 
@@ -285,6 +327,7 @@ class PageController
         return Inertia::render('AdminTesis', [
             'theses' => ThesisResource::collection($theses)->resolve(),
             'tribunal_users' => $tribunalUsers,
+            'tutor_users' => $tutorUsers,
             'filters' => $request->only(['title', 'author', 'career', 'tutor', 'status']),
             'filterOptions' => [
                 'careers' => $careers->pluck('name'),

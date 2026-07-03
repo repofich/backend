@@ -33,7 +33,14 @@ class ThesisController extends Controller
 
     public function store(StoreThesisRequest $request): JsonResponse
     {
-        $thesis = Thesis::create($request->validated());
+        $data = $request->validated();
+        $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+
+        $thesis = Thesis::create([
+            ...$data,
+            'tutor' => $data['tutor'] ?? $tutor->full_name,
+            'tutor_status' => 'pending',
+        ]);
 
         if ($request->has('tags')) {
             $thesis->tags()->sync($request->tags);
@@ -57,7 +64,15 @@ class ThesisController extends Controller
             return response()->json(['message' => 'Solo se puede editar en estado borrador u observado.'], 422);
         }
 
-        $thesis->update($request->validated());
+        $data = $request->validated();
+
+        if (!empty($data['tutor_id']) && (int) $data['tutor_id'] !== $thesis->tutor_id) {
+            $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+            $data['tutor'] = $data['tutor'] ?? $tutor->full_name;
+            $data['tutor_status'] = 'pending';
+        }
+
+        $thesis->update($data);
 
         if ($request->has('tags')) {
             $thesis->tags()->sync($request->tags);
@@ -97,13 +112,17 @@ class ThesisController extends Controller
         $previousTutorId = $thesis->tutor_id;
         $action = $previousTutorId ? 'changed' : 'assigned';
 
-        $thesis->update(['tutor_id' => $user->id]);
+        $thesis->update([
+            'tutor_id' => $user->id,
+            'tutor' => $user->full_name,
+            'tutor_status' => 'pending',
+        ]);
 
         TutorAssignmentLog::create([
             'thesis_id' => $thesis->id,
             'previous_tutor_id' => $previousTutorId,
             'new_tutor_id' => $user->id,
-            'action' => $action,
+            'action' => $action . '_pending',
             'changed_by' => auth()->id(),
             'created_at' => now(),
         ]);
@@ -111,7 +130,42 @@ class ThesisController extends Controller
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
         return response()->json([
-            'message' => 'Tutor asignado.',
+            'message' => 'Tutor sugerido. Queda pendiente de aceptación.',
+            'thesis' => new ThesisResource($thesis),
+        ]);
+    }
+
+    public function respondTutor(Request $request, Thesis $thesis): JsonResponse
+    {
+        $request->validate([
+            'response' => ['required', 'string', 'in:accepted,rejected'],
+        ]);
+
+        if ($thesis->tutor_id !== auth()->id()) {
+            return response()->json(['message' => 'No eres el tutor asignado a esta tesis.'], 403);
+        }
+
+        if ($thesis->tutor_status !== 'pending') {
+            return response()->json(['message' => 'Esta solicitud de tutoría ya fue respondida.'], 422);
+        }
+
+        $thesis->update(['tutor_status' => $request->response]);
+
+        TutorAssignmentLog::create([
+            'thesis_id' => $thesis->id,
+            'previous_tutor_id' => $thesis->tutor_id,
+            'new_tutor_id' => $thesis->tutor_id,
+            'action' => $request->response === 'accepted' ? 'accepted' : 'rejected',
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => $request->response === 'accepted'
+                ? 'Tutoría aceptada.'
+                : 'Tutoría rechazada. Un administrador debe asignar otro tutor.',
             'thesis' => new ThesisResource($thesis),
         ]);
     }
@@ -120,7 +174,10 @@ class ThesisController extends Controller
     {
         $previousTutorId = $thesis->tutor_id;
 
-        $thesis->update(['tutor_id' => null]);
+        $thesis->update([
+            'tutor_id' => null,
+            'tutor_status' => null,
+        ]);
 
         if ($previousTutorId) {
             TutorAssignmentLog::create([
@@ -254,6 +311,12 @@ class ThesisController extends Controller
         if (!isset($allowed[$thesis->status])) {
             return response()->json([
                 'message' => 'No puedes enviar esta tesis en su estado actual (' . $thesis->status . ').',
+            ], 422);
+        }
+
+        if ($thesis->tutor_status !== 'accepted') {
+            return response()->json([
+                'message' => 'No puedes enviar la tesis a revisión hasta que el tutor acepte la tutoría.',
             ], 422);
         }
 

@@ -16,6 +16,7 @@ class UserResource extends JsonResource
             'full_name' => $this->full_name,
             'email' => $this->email,
             'user_type' => $this->user_type,
+            'career_id' => $this->career_id,
             'career' => new CareerResource($this->whenLoaded('career')),
             'photo_url' => $this->photo_url,
             'curriculum_url' => $this->curriculum_url,

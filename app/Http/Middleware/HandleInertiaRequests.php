@@ -21,7 +21,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user()
-                    ? new UserResource($request->user())
+                    ? new UserResource($request->user())->resolve()
                     : null,
             ],
             'page_visits' => $request->attributes->get('page_visits'),

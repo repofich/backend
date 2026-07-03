@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Inertia;
 
 use App\Http\Requests\StoreThesisWebRequest;
+use App\Models\Tag;
 use App\Models\Thesis;
 use App\Models\ThesisFile;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,14 +16,17 @@ class ThesisController
 {
     public function store(StoreThesisWebRequest $request): RedirectResponse
     {
+        $data = $request->validated();
+        $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+
         $thesis = Thesis::create([
-            ...$request->validated(),
+            ...collect($data)->except(['tags', 'keywords'])->all(),
+            'tutor' => $data['tutor'] ?? $tutor->full_name,
+            'tutor_status' => 'pending',
             'user_id' => Auth::id(),
         ]);
 
-        if ($request->has('tags')) {
-            $thesis->tags()->sync($request->tags);
-        }
+        $this->syncKeywords($thesis, $data);
 
         return redirect('/mis-proyectos');
     }
@@ -32,11 +37,17 @@ class ThesisController
             abort(403);
         }
 
-        $thesis->update($request->validated());
+        $data = $request->validated();
 
-        if ($request->has('tags')) {
-            $thesis->tags()->sync($request->tags);
+        if (!empty($data['tutor_id']) && (int) $data['tutor_id'] !== $thesis->tutor_id) {
+            $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+            $data['tutor'] = $data['tutor'] ?? $tutor->full_name;
+            $data['tutor_status'] = 'pending';
         }
+
+        $thesis->update(collect($data)->except(['tags', 'keywords'])->all());
+
+        $this->syncKeywords($thesis, $data);
 
         return redirect('/mis-proyectos');
     }
@@ -90,5 +101,29 @@ class ThesisController
         $file->delete();
 
         return redirect()->back();
+    }
+
+    private function syncKeywords(Thesis $thesis, array $data): void
+    {
+        if (array_key_exists('keywords', $data)) {
+            $tagIds = collect($data['keywords'])
+                ->map(fn($keyword) => trim(preg_replace('/\s+/', ' ', $keyword)))
+                ->filter()
+                ->unique(fn($keyword) => strtolower($keyword))
+                ->map(function ($keyword) {
+                    return Tag::whereRaw('LOWER(name) = ?', [strtolower($keyword)])->first()
+                        ?? Tag::create(['name' => $keyword]);
+                })
+                ->pluck('id')
+                ->values()
+                ->all();
+
+            $thesis->tags()->sync($tagIds);
+            return;
+        }
+
+        if (array_key_exists('tags', $data)) {
+            $thesis->tags()->sync($data['tags']);
+        }
     }
 }

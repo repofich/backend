@@ -17,6 +17,8 @@ class ProfileRequest extends FormRequest
             'full_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . auth()->id()],
             'career_id' => ['required', 'integer', 'exists:careers,id'],
+            'ci' => ['nullable', 'string', 'max:20', 'unique:users,ci,' . auth()->id()],
+            'registration_number' => ['nullable', 'string', 'max:50', 'unique:users,registration_number,' . auth()->id()],
             'photo' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
             'curriculum' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
         ];

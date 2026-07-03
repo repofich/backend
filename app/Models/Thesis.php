@@ -29,6 +29,7 @@ class Thesis extends Model
         'type',
         'status',
         'tutor_id',
+        'tutor_status',
         'assigned_evaluator_id',
         'published_at',
         'observations',
@@ -44,6 +45,7 @@ class Thesis extends Model
             'assigned_evaluator_id' => 'integer',
             'featured' => 'boolean',
             'status' => 'string',
+            'tutor_status' => 'string',
             'published_at' => 'datetime',
             'observations' => 'string',
         ];

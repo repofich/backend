@@ -15,6 +15,7 @@ class ThesisResource extends JsonResource
             'abstract' => $this->abstract,
             'tutor' => $this->tutor,
             'tutor_id' => $this->tutor_id,
+            'tutor_status' => $this->tutor_status,
             'tutor_user' => $this->when(
                 $this->resource->relationLoaded('tutor') && $this->resource->getRelation('tutor'),
                 fn() => UserResource::make($this->resource->getRelation('tutor'))->resolve()
@@ -27,6 +28,7 @@ class ThesisResource extends JsonResource
             'user' => $this->whenLoaded('user', fn() => UserResource::make($this->user)->resolve()),
             'category' => $this->whenLoaded('category', fn() => CategoryResource::make($this->category)->resolve()),
             'tags' => $this->whenLoaded('tags', fn($tags) => $tags->map(fn($t) => TagResource::make($t)->resolve())->values()->all()),
+            'keywords' => $this->whenLoaded('tags', fn($tags) => $tags->map(fn($t) => TagResource::make($t)->resolve())->values()->all()),
             'files' => $this->whenLoaded('files', fn($files) => $files->map(fn($f) => ThesisFileResource::make($f)->resolve())->values()->all()),
             'assigned_evaluator' => $this->whenLoaded('assignedEvaluator', fn() => UserResource::make($this->assignedEvaluator)->resolve()),
             'evaluations' => $this->whenLoaded('evaluations', fn($evals) => $evals->map(fn($e) => EvaluationResource::make($e)->resolve())->values()->all()),
