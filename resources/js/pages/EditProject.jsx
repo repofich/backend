@@ -59,9 +59,11 @@ export default function EditProject({ thesis, categories, careers, tutors, types
     };
 
     const handleFileUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        router.post('/tesis/' + thesis.id + '/archivos', { file }, {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+        const formData = new FormData();
+        files.forEach((f) => formData.append('files[]', f));
+        router.post('/tesis/' + thesis.id + '/archivos', formData, {
             preserveState: true,
             preserveScroll: true,
         });
@@ -224,6 +226,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
                             </label>
                             <input
                                 type="file"
+                                multiple
                                 accept=".pdf,.doc,.docx,.jpg,.png,.jpeg,.zip"
                                 onChange={handleFileUpload}
                                 className="w-full text-[13px] text-card-value font-card-meta file:mr-4 file:py-2 file:px-4 file:rounded-[10px] file:border-none file:text-[13px] file:font-card-meta file:bg-primary file:text-text-on-primary file:cursor-pointer hover:file:bg-primary-light transition-colors"

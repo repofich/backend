@@ -5,7 +5,6 @@ const rolesLabels = {
   admin: 'Administrador',
   vicedecano: 'Vicedecano',
   director: 'Director',
-  tutor: 'Tutor',
   tribunal: 'Tribunal',
   docente: 'Docente',
   estudiante: 'Estudiante',

@@ -30,6 +30,8 @@ class StoreThesisWebRequest extends FormRequest
             'tags.*' => ['integer', 'exists:tags,id'],
             'keywords' => ['sometimes', 'array'],
             'keywords.*' => ['string', 'max:100'],
+            'files' => ['sometimes', 'array'],
+            'files.*' => ['file', 'mimes:pdf,doc,docx,jpg,png,jpeg,zip', 'max:20480'],
         ];
     }
 

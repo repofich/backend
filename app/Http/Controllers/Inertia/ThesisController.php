@@ -17,16 +17,17 @@ class ThesisController
     public function store(StoreThesisWebRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+        $tutor = User::where('user_type', 'docente')->findOrFail($data['tutor_id']);
 
         $thesis = Thesis::create([
-            ...collect($data)->except(['tags', 'keywords'])->all(),
+            ...collect($data)->except(['tags', 'keywords', 'files'])->all(),
             'tutor' => $data['tutor'] ?? $tutor->full_name,
             'tutor_status' => 'pending',
             'user_id' => Auth::id(),
         ]);
 
         $this->syncKeywords($thesis, $data);
+        $this->storeFiles($thesis, $data);
 
         return redirect('/mis-proyectos');
     }
@@ -40,14 +41,15 @@ class ThesisController
         $data = $request->validated();
 
         if (!empty($data['tutor_id']) && (int) $data['tutor_id'] !== $thesis->tutor_id) {
-            $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+            $tutor = User::where('user_type', 'docente')->findOrFail($data['tutor_id']);
             $data['tutor'] = $data['tutor'] ?? $tutor->full_name;
             $data['tutor_status'] = 'pending';
         }
 
-        $thesis->update(collect($data)->except(['tags', 'keywords'])->all());
+        $thesis->update(collect($data)->except(['tags', 'keywords', 'files'])->all());
 
         $this->syncKeywords($thesis, $data);
+        $this->storeFiles($thesis, $data);
 
         return redirect('/mis-proyectos');
     }
@@ -77,16 +79,26 @@ class ThesisController
         }
 
         $request->validate([
-            'file' => ['required', 'file', 'mimes:pdf,doc,docx,jpg,png,jpeg,zip', 'max:20480'],
-            'is_primary' => ['nullable', 'boolean'],
+            'file' => ['sometimes', 'file', 'mimes:pdf,doc,docx,jpg,png,jpeg,zip', 'max:20480'],
+            'files' => ['sometimes', 'array'],
+            'files.*' => ['file', 'mimes:pdf,doc,docx,jpg,png,jpeg,zip', 'max:20480'],
         ]);
 
-        $path = $request->file('file')->store('thesis/' . $thesis->id, 'public');
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $name = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('thesis/' . $thesis->id, $name, 'public');
+            $thesis->files()->create(['file_path' => $path, 'is_primary' => false]);
+        }
 
-        $thesis->files()->create([
-            'file_path' => $path,
-            'is_primary' => $request->boolean('is_primary'),
-        ]);
+        if ($request->hasFile('files')) {
+            $i = 0;
+            foreach ($request->file('files') as $file) {
+                $name = time() . '_' . ($i++) . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('thesis/' . $thesis->id, $name, 'public');
+                $thesis->files()->create(['file_path' => $path, 'is_primary' => false]);
+            }
+        }
 
         return redirect()->back();
     }
@@ -101,6 +113,22 @@ class ThesisController
         $file->delete();
 
         return redirect()->back();
+    }
+
+    private function storeFiles(Thesis $thesis, array $data): void
+    {
+        if (!isset($data['files']) || !is_array($data['files'])) {
+            return;
+        }
+
+        $i = 0;
+        foreach ($data['files'] as $file) {
+            if ($file instanceof \Illuminate\Http\UploadedFile) {
+                $name = time() . '_' . ($i++) . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('thesis/' . $thesis->id, $name, 'public');
+                $thesis->files()->create(['file_path' => $path, 'is_primary' => false]);
+            }
+        }
     }
 
     private function syncKeywords(Thesis $thesis, array $data): void

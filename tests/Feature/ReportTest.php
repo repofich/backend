@@ -138,7 +138,7 @@ class ReportTest extends TestCase
     {
         $user = User::factory()->create(['user_type' => 'vicedecano']);
         User::factory(3)->create(['user_type' => 'estudiante']);
-        User::factory(2)->create(['user_type' => 'tutor']);
+        User::factory(2)->create(['user_type' => 'docente']);
 
         $response = $this->actingAs($user, 'api')
             ->getJson('/api/reports/users-by-role');
@@ -146,7 +146,7 @@ class ReportTest extends TestCase
         $response->assertOk();
         $response->assertJsonFragment(['user_type' => 'vicedecano', 'total' => 1]);
         $response->assertJsonFragment(['user_type' => 'estudiante', 'total' => 3]);
-        $response->assertJsonFragment(['user_type' => 'tutor', 'total' => 2]);
+        $response->assertJsonFragment(['user_type' => 'docente', 'total' => 2]);
     }
 
     public function test_export_csv_returns_file_response(): void

@@ -157,6 +157,12 @@ class EvaluationController extends Controller
             'rechazar' => 'rechazado',
         ];
 
-        $thesis->update(['status' => $statusMap[$recommendation]]);
+        $newStatus = $statusMap[$recommendation];
+
+        if (!$thesis->canTransitionTo($newStatus)) {
+            return;
+        }
+
+        $thesis->update(['status' => $newStatus]);
     }
 }

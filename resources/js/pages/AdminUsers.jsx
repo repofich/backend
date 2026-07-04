@@ -5,7 +5,6 @@ import { FiSearch, FiPlus, FiEdit2, FiToggleLeft, FiToggleRight, FiKey, FiX } fr
 const userTypeLabels = {
   estudiante: 'Estudiante',
   docente: 'Docente',
-  tutor: 'Tutor',
   tribunal: 'Tribunal',
   director: 'Director',
   vicedecano: 'Vicedecano',
@@ -15,7 +14,6 @@ const userTypeLabels = {
 const userTypeBadgeColors = {
   estudiante: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
   docente: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
-  tutor: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
   tribunal: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
   director: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
   vicedecano: 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300',

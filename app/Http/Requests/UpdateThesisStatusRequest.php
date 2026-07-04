@@ -15,6 +15,7 @@ class UpdateThesisStatusRequest extends FormRequest
     {
         return [
             'status' => ['required', 'string', 'in:borrador,en_revision,observado,aprobado,publicado,rechazado'],
+            'observations' => ['nullable', 'string'],
         ];
     }
 }

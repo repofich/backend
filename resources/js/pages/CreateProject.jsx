@@ -19,6 +19,7 @@ export default function CreateProject({ categories, careers, tutors, types, tags
         repo_url: '',
         demo_url: '',
         keywords: [],
+        files: [],
         featured: false,
     });
 
@@ -130,6 +131,27 @@ export default function CreateProject({ categories, careers, tutors, types, tags
                                 />
                                 {errors.abstract && (
                                     <span className="text-error text-[11px] font-card-meta">{errors.abstract}</span>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col gap-1.5 md:col-span-2">
+                                <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
+                                    Archivos (opcional)
+                                </label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    onChange={(e) => setData('files', Array.from(e.target.files))}
+                                    accept=".pdf,.doc,.docx,.jpg,.png,.jpeg,.zip"
+                                    className="w-full text-sm text-card-value file:mr-4 file:py-2 file:px-4 file:rounded-[10px] file:border-0 file:text-sm file:font-[600] file:bg-primary file:text-text-on-primary file:cursor-pointer cursor-pointer"
+                                />
+                                {data.files?.length > 0 && (
+                                    <div className="text-xs text-card-label mt-1">
+                                        {data.files.length} archivo(s) seleccionado(s)
+                                    </div>
+                                )}
+                                {errors['files.0'] && (
+                                    <span className="text-error text-[11px] font-card-meta">{errors['files.0']}</span>
                                 )}
                             </div>
                         </div>

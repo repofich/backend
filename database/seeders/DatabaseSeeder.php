@@ -45,11 +45,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
-            'full_name' => 'Tutor',
-            'email' => 'tutor@test.com',
+            'full_name' => 'Docente',
+            'email' => 'docente@test.com',
             'password' => bcrypt('password'),
             'career_id' => $career->id,
-            'user_type' => 'tutor',
+            'user_type' => 'docente',
         ]);
 
         User::create([

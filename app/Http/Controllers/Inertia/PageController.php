@@ -104,7 +104,7 @@ class PageController
     public function createProject()
     {
         $categories = Category::all();
-        $tutors = User::where('user_type', 'tutor')->get(['id', 'full_name']);
+        $tutors = User::where('user_type', 'docente')->get(['id', 'full_name']);
         $careers = Career::all(['id', 'name', 'format_config']);
         $defaultTypes = ['Tesis de Grado', 'Proyecto de Grado', 'Trabajo Dirigido', 'Pasantía', 'Adscripción'];
         $existingTypes = Thesis::whereNotNull('type')->distinct()->pluck('type');
@@ -133,7 +133,7 @@ class PageController
 
         $categories = Category::all();
         $careers = Career::all(['id', 'name', 'format_config']);
-        $tutors = User::where('user_type', 'tutor')->get(['id', 'full_name']);
+        $tutors = User::where('user_type', 'docente')->get(['id', 'full_name']);
         $defaultTypes = ['Tesis de Grado', 'Proyecto de Grado', 'Trabajo Dirigido', 'Pasantía', 'Adscripción'];
         $existingTypes = Thesis::whereNotNull('type')->distinct()->pluck('type');
         $types = collect($defaultTypes)->merge($existingTypes)->unique()->values();
@@ -233,7 +233,7 @@ class PageController
             ? User::where('user_type', 'tribunal')->get(['id', 'full_name', 'email'])
             : [];
         $tutorUsers = $user && in_array($user->user_type, ['vicedecano', 'director', 'admin'])
-            ? User::where('user_type', 'tutor')->get(['id', 'full_name', 'email'])
+            ? User::where('user_type', 'docente')->get(['id', 'full_name', 'email'])
             : [];
 
         return Inertia::render('ThesisDetail', [
@@ -249,11 +249,11 @@ class PageController
     {
         $user = Auth::user();
 
-        if (!in_array($user->user_type, ['tribunal', 'director', 'tutor'])) {
+        if (!in_array($user->user_type, ['tribunal', 'director', 'docente'])) {
             abort(403);
         }
 
-        $theses = $user->user_type === 'tutor'
+        $theses = $user->user_type === 'docente'
             ? Thesis::with(['user', 'category', 'tutor'])
                 ->where('tutor_id', $user->id)
                 ->latest()
@@ -268,7 +268,7 @@ class PageController
         return Inertia::render('MisEvaluaciones', [
             'theses' => ThesisResource::collection($theses)->resolve(),
             'jwt_token' => $token,
-            'mode' => $user->user_type === 'tutor' ? 'tutorias' : 'evaluaciones',
+            'mode' => $user->user_type === 'docente' ? 'tutorias' : 'evaluaciones',
         ]);
     }
 
@@ -328,7 +328,7 @@ class PageController
         $theses = $query->latest()->get();
 
         $tribunalUsers = User::where('user_type', 'tribunal')->get(['id', 'full_name', 'email']);
-        $tutorUsers = User::where('user_type', 'tutor')->get(['id', 'full_name', 'email']);
+        $tutorUsers = User::where('user_type', 'docente')->get(['id', 'full_name', 'email']);
         $careers = Career::all();
         $statuses = ['borrador', 'en_revision', 'observado', 'aprobado', 'rechazado', 'publicado'];
 
@@ -375,7 +375,6 @@ class PageController
         $userTypes = [
             'estudiante' => 'Estudiante',
             'docente' => 'Docente',
-            'tutor' => 'Tutor',
             'tribunal' => 'Tribunal',
             'director' => 'Director',
             'vicedecano' => 'Vicedecano',
@@ -406,7 +405,6 @@ class PageController
         $careers = Career::all();
         $userTypes = [
             'docente' => 'Docente',
-            'tutor' => 'Tutor',
             'tribunal' => 'Tribunal',
             'director' => 'Director',
             'vicedecano' => 'Vicedecano',
@@ -436,7 +434,6 @@ class PageController
         $userTypes = [
             'estudiante' => 'Estudiante',
             'docente' => 'Docente',
-            'tutor' => 'Tutor',
             'tribunal' => 'Tribunal',
             'director' => 'Director',
             'vicedecano' => 'Vicedecano',

@@ -55,6 +55,7 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
   const [selectedTutor, setSelectedTutor] = useState('');
   const [changingStatus, setChangingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState('');
+  const [observations, setObservations] = useState(t.observations || '');
 
   const user = auth_user;
   const isOwner = user?.id === t.user?.id;
@@ -150,10 +151,12 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
     if (!newStatus) return;
     setChangingStatus(true);
     try {
+      const body = { status: newStatus };
+      if (observations) body.observations = observations;
       const res = await fetch('/api/thesis/' + t.id + '/status', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + jwt_token },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -428,6 +431,17 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
                         {changingStatus ? '...' : 'Cambiar'}
                       </button>
                     </div>
+                  </div>
+                )}
+
+                {(transitions.length > 0) && (
+                  <div>
+                    <label className="block text-xs text-card-label mb-1">Observaciones</label>
+                    <textarea value={observations} onChange={(e) => setObservations(e.target.value)}
+                      placeholder="Notas para el autor..."
+                      rows="3"
+                      className="w-full rounded-[10px] border border-gray-300 dark:border-[#555] outline-none px-3 py-2 text-sm bg-white dark:bg-[#333] text-card-value placeholder:text-input-placeholder resize-none"
+                    />
                   </div>
                 )}
               </div>

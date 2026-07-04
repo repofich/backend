@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 const userTypeLabels = {
     estudiante: 'Estudiante',
-    tutor: 'Tutor',
+    docente: 'Docente',
     tribunal: 'Tribunal',
     director: 'Director',
     vicedecano: 'Vicedecano',
@@ -12,7 +12,7 @@ const userTypeLabels = {
 
 const userTypeColors = {
     estudiante: 'bg-blue-500',
-    tutor: 'bg-green-500',
+    docente: 'bg-green-500',
     tribunal: 'bg-purple-500',
     director: 'bg-orange-500',
     vicedecano: 'bg-red-500',

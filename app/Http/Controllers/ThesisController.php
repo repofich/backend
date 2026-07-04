@@ -34,7 +34,7 @@ class ThesisController extends Controller
     public function store(StoreThesisRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+        $tutor = User::where('user_type', 'docente')->findOrFail($data['tutor_id']);
 
         $thesis = Thesis::create([
             ...$data,
@@ -67,7 +67,7 @@ class ThesisController extends Controller
         $data = $request->validated();
 
         if (!empty($data['tutor_id']) && (int) $data['tutor_id'] !== $thesis->tutor_id) {
-            $tutor = User::where('user_type', 'tutor')->findOrFail($data['tutor_id']);
+            $tutor = User::where('user_type', 'docente')->findOrFail($data['tutor_id']);
             $data['tutor'] = $data['tutor'] ?? $tutor->full_name;
             $data['tutor_status'] = 'pending';
         }
@@ -103,9 +103,9 @@ class ThesisController extends Controller
 
         $user = User::findOrFail($request->user_id);
 
-        if ($user->user_type !== 'tutor') {
+        if ($user->user_type !== 'docente') {
             return response()->json([
-                'message' => 'El usuario seleccionado no es un tutor.',
+                'message' => 'El usuario seleccionado no es un docente.',
             ], 422);
         }
 
@@ -291,6 +291,10 @@ class ThesisController extends Controller
             $data['published_at'] = null;
         }
 
+        if ($request->filled('observations')) {
+            $data['observations'] = $request->observations;
+        }
+
         $thesis->update($data);
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
@@ -311,6 +315,12 @@ class ThesisController extends Controller
         if (!isset($allowed[$thesis->status])) {
             return response()->json([
                 'message' => 'No puedes enviar esta tesis en su estado actual (' . $thesis->status . ').',
+            ], 422);
+        }
+
+        if (!$thesis->files()->exists()) {
+            return response()->json([
+                'message' => 'Debe adjuntar al menos un archivo antes de enviar a revisión.',
             ], 422);
         }
 

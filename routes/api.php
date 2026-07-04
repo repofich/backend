@@ -62,7 +62,7 @@ Route::middleware('auth:api')->group(function () {
         ->middleware('role:estudiante');
 
     Route::post('/thesis/{thesis}/tutor/respond', [ThesisController::class, 'respondTutor'])
-        ->middleware('role:tutor');
+        ->middleware('role:docente');
 
     // Thesis (authenticated)
     Route::post('/thesis', [ThesisController::class, 'store']);
