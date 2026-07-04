@@ -30,6 +30,7 @@ class Thesis extends Model
         'status',
         'tutor_id',
         'tutor_status',
+        'career_id',
         'assigned_evaluator_id',
         'published_at',
         'observations',
@@ -64,6 +65,11 @@ class Thesis extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function career(): BelongsTo
+    {
+        return $this->belongsTo(Career::class);
     }
     public function tags(): BelongsToMany
     {

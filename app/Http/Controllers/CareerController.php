@@ -13,14 +13,14 @@ class CareerController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        $careers = Career::withCount('users')->latest()->get();
+        $careers = Career::with('director')->withCount('users')->latest()->get();
 
         return CareerResource::collection($careers);
     }
 
     public function show(Career $career): CareerResource
     {
-        $career->loadCount('users');
+        $career->load('director')->loadCount('users');
 
         return new CareerResource($career);
     }
@@ -28,6 +28,7 @@ class CareerController extends Controller
     public function store(StoreCareerRequest $request): JsonResponse
     {
         $career = Career::create($request->validated());
+        $career->load('director');
 
         return response()->json([
             'message' => 'Carrera creada.',
@@ -37,7 +38,17 @@ class CareerController extends Controller
 
     public function update(UpdateCareerRequest $request, Career $career): JsonResponse
     {
-        $career->update($request->validated());
+        $data = $request->validated();
+
+        if (array_key_exists('format_config', $data)) {
+            $data['format_config'] = array_merge(
+                $career->format_config ?? [],
+                $data['format_config']
+            );
+        }
+
+        $career->update($data);
+        $career->load('director');
 
         return response()->json([
             'message' => 'Carrera actualizada.',

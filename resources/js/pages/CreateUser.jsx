@@ -48,7 +48,7 @@ export default function CreateUser({ careers, user_types, jwt_token }) {
           ci: form.ci || null,
           registration_number: form.registration_number || null,
           user_type: form.user_type,
-          career_id: parseInt(form.career_id),
+          career_id: form.career_id ? parseInt(form.career_id) : null,
         }),
       });
 
@@ -173,12 +173,11 @@ export default function CreateUser({ careers, user_types, jwt_token }) {
               </div>
               <div>
                 <label className="block text-card-label text-sm mb-1.5">
-                  Carrera <span className="text-red-500">*</span>
+                  Carrera
                 </label>
                 <select value={form.career_id}
                   onChange={(e) => handleChange('career_id', e.target.value)}
-                  className="w-full h-[48px] rounded-[12px] border border-gray-300 dark:border-[#555] outline-none px-4 text-base bg-white dark:bg-[#333] text-card-value"
-                  required>
+                  className="w-full h-[48px] rounded-[12px] border border-gray-300 dark:border-[#555] outline-none px-4 text-base bg-white dark:bg-[#333] text-card-value">
                   <option value="">Seleccionar carrera</option>
                   {careers?.map((c) => (
                     <option key={c.id} value={String(c.id)}>{c.name}</option>

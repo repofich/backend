@@ -1,9 +1,10 @@
+import { useMemo } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import KeywordPicker from '../components/KeywordPicker';
 
 const adminRoles = ['vicedecano', 'director', 'admin'];
 
-export default function CreateProject({ categories, tutors, types, tags }) {
+export default function CreateProject({ categories, careers, tutors, types, tags }) {
     const { auth } = usePage().props;
     const isAdmin = adminRoles.includes(auth?.user?.user_type);
 
@@ -13,12 +14,19 @@ export default function CreateProject({ categories, tutors, types, tags }) {
         tutor: '',
         tutor_id: '',
         category_id: '',
+        career_id: '',
         type: '',
         repo_url: '',
         demo_url: '',
         keywords: [],
         featured: false,
     });
+
+    const selectedCareer = useMemo(
+        () => careers?.find((c) => String(c.id) === data.career_id),
+        [careers, data.career_id]
+    );
+    const careerFormatConfig = selectedCareer?.format_config ?? null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -78,17 +86,20 @@ export default function CreateProject({ categories, tutors, types, tags }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {input('title', 'Nombre del Proyecto', 'Nombre del Proyecto')}
                             {select('type', 'Tipo de Proyecto', types, 'Seleccionar tipo')}
-                            {select('category_id', 'Categoría / Carrera', categories, 'Seleccionar categoría')}
+                            {select('category_id', 'Categoría', categories, 'Seleccionar categoría')}
+                            {select('career_id', 'Carrera', careers, 'Seleccionar carrera')}
                             {select('tutor_id', 'Tutor sugerido', tutors, 'Seleccionar tutor')}
-                            {input('repo_url', 'URL del Repositorio', 'https://github.com/...', 'url')}
-                            {input('demo_url', 'URL de Demo', 'https://...', 'url')}
+                            {(careerFormatConfig === null || careerFormatConfig?.repo_url === true) && input('repo_url', 'URL del Repositorio', 'https://github.com/...', 'url')}
+                            {(careerFormatConfig === null || careerFormatConfig?.demo_url === true) && input('demo_url', 'URL de Demo', 'https://...', 'url')}
 
-                            <KeywordPicker
-                                options={tags}
-                                value={data.keywords}
-                                onChange={(keywords) => setData('keywords', keywords)}
-                                error={errors.keywords}
-                            />
+                            {(careerFormatConfig === null || careerFormatConfig?.keywords === true) && (
+                                <KeywordPicker
+                                    options={tags}
+                                    value={data.keywords}
+                                    onChange={(keywords) => setData('keywords', keywords)}
+                                    error={errors.keywords}
+                                />
+                            )}
 
                             {/* Featured */}
                             {isAdmin && (

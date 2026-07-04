@@ -105,16 +105,21 @@ class PageController
     {
         $categories = Category::all();
         $tutors = User::where('user_type', 'tutor')->get(['id', 'full_name']);
+        $careers = Career::all(['id', 'name', 'format_config']);
         $defaultTypes = ['Tesis de Grado', 'Proyecto de Grado', 'Trabajo Dirigido', 'Pasantía', 'Adscripción'];
         $existingTypes = Thesis::whereNotNull('type')->distinct()->pluck('type');
         $types = collect($defaultTypes)->merge($existingTypes)->unique()->values();
         $tags = Tag::all();
 
+        $formatConfig = Auth::user()->career?->format_config;
+
         return Inertia::render('CreateProject', [
             'categories' => $categories,
+            'careers' => $careers,
             'tutors' => $tutors,
             'types' => $types,
             'tags' => $tags,
+            'format_config' => $formatConfig ?? null,
         ]);
     }
 
@@ -127,18 +132,23 @@ class PageController
         $thesis->load(['user', 'category', 'tags', 'files', 'tutor']);
 
         $categories = Category::all();
+        $careers = Career::all(['id', 'name', 'format_config']);
         $tutors = User::where('user_type', 'tutor')->get(['id', 'full_name']);
         $defaultTypes = ['Tesis de Grado', 'Proyecto de Grado', 'Trabajo Dirigido', 'Pasantía', 'Adscripción'];
         $existingTypes = Thesis::whereNotNull('type')->distinct()->pluck('type');
         $types = collect($defaultTypes)->merge($existingTypes)->unique()->values();
         $tags = Tag::all();
 
+        $formatConfig = $thesis->user->career?->format_config;
+
         return Inertia::render('EditProject', [
             'thesis' => $thesis->toArray(),
             'categories' => $categories,
+            'careers' => $careers,
             'tutors' => $tutors,
             'types' => $types,
             'tags' => $tags,
+            'format_config' => $formatConfig ?? null,
         ]);
     }
 
@@ -439,6 +449,66 @@ class PageController
             'user' => UserResource::make($user)->resolve(),
             'careers' => $careers,
             'user_types' => $userTypes,
+            'jwt_token' => $token,
+        ]);
+    }
+
+    public function adminCareers()
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->user_type, ['admin'])) {
+            abort(403);
+        }
+
+        $careers = Career::with('director')->withCount('users')->latest()->get();
+        $token = auth('api')->login($user);
+
+        return Inertia::render('AdminCareers', [
+            'careers' => CareerResource::collection($careers)->resolve(),
+            'jwt_token' => $token,
+        ]);
+    }
+
+    public function createCareer()
+    {
+        $user = Auth::user();
+
+        if ($user->user_type !== 'admin') {
+            abort(403);
+        }
+
+        $directors = User::where('user_type', '!=', 'estudiante')
+            ->where('is_active', true)
+            ->get(['id', 'full_name', 'email', 'user_type']);
+
+        $token = auth('api')->login($user);
+
+        return Inertia::render('CreateCareer', [
+            'directors' => $directors,
+            'jwt_token' => $token,
+        ]);
+    }
+
+    public function editCareer(Career $career)
+    {
+        $user = Auth::user();
+
+        if ($user->user_type !== 'admin') {
+            abort(403);
+        }
+
+        $career->load('director');
+
+        $directors = User::where('user_type', '!=', 'estudiante')
+            ->where('is_active', true)
+            ->get(['id', 'full_name', 'email', 'user_type']);
+
+        $token = auth('api')->login($user);
+
+        return Inertia::render('EditCareer', [
+            'career' => CareerResource::make($career)->resolve(),
+            'directors' => $directors,
             'jwt_token' => $token,
         ]);
     }

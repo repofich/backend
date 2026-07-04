@@ -96,6 +96,12 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 							</div>
 						)}
 
+						{user?.user_type === 'admin' && (
+							<div onClick={() => nav('/admin/carreras')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+								Gestionar Carreras
+							</div>
+						)}
+
 						<div onClick={() => nav('/perfil')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 							Perfil
 						</div>

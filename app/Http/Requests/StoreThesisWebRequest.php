@@ -21,6 +21,7 @@ class StoreThesisWebRequest extends FormRequest
             'tutor' => ['nullable', 'string', 'max:255'],
             'tutor_id' => [$required, 'integer', 'exists:users,id'],
             'category_id' => [$required, 'integer', 'exists:categories,id'],
+            'career_id' => ['nullable', 'integer', 'exists:careers,id'],
             'type' => ['nullable', 'string', 'max:100'],
             'repo_url' => ['nullable', 'string', 'url', 'max:2048'],
             'demo_url' => ['nullable', 'string', 'url', 'max:2048'],

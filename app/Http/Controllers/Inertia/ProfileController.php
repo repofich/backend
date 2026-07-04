@@ -13,7 +13,11 @@ class ProfileController
     {
         $user = Auth::user();
 
-        $user->update($request->safe()->except(['photo', 'curriculum']));
+        $data = $request->safe()->except(['photo', 'curriculum']);
+        if (empty($data['career_id'])) {
+            $data['career_id'] = null;
+        }
+        $user->update($data);
 
         if ($request->hasFile('photo')) {
             if ($user->photo_path) {

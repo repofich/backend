@@ -17,6 +17,7 @@ class StoreCareerRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', 'unique:careers,name'],
             'knowledge_areas' => ['nullable', 'array'],
             'knowledge_areas.*' => ['string', 'max:255'],
+            'director_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }
 }

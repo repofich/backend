@@ -37,6 +37,10 @@ Route::get('/admin/usuarios', [PageController::class, 'adminUsers'])->middleware
 Route::get('/admin/usuarios/crear', [PageController::class, 'createUser'])->middleware('auth');
 Route::get('/admin/usuarios/{user}/editar', [PageController::class, 'editUser'])->middleware('auth');
 
+Route::get('/admin/carreras', [PageController::class, 'adminCareers'])->middleware('auth');
+Route::get('/admin/carreras/crear', [PageController::class, 'createCareer'])->middleware('auth');
+Route::get('/admin/carreras/{career}/editar', [PageController::class, 'editCareer'])->middleware('auth');
+
 Route::get('/tesis/{thesis}', [PageController::class, 'thesisDetail']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

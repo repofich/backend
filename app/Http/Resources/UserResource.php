@@ -17,7 +17,14 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'user_type' => $this->user_type,
             'career_id' => $this->career_id,
-            'career' => new CareerResource($this->whenLoaded('career')),
+            'career' => $this->whenLoaded('career', function () {
+                if (!$this->career) return null;
+                return [
+                    'id' => $this->career->id,
+                    'name' => $this->career->name,
+                    'knowledge_areas' => $this->career->knowledge_areas,
+                ];
+            }),
             'photo_url' => $this->photo_url,
             'curriculum_url' => $this->curriculum_url,
             'is_active' => $this->is_active,

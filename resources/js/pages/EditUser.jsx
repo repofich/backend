@@ -34,7 +34,7 @@ export default function EditUser({ user: u, careers, user_types, jwt_token }) {
       if (form.ci !== (u.ci || '')) body.ci = form.ci || null;
       if (form.registration_number !== (u.registration_number || '')) body.registration_number = form.registration_number || null;
       if (form.user_type !== u.user_type) body.user_type = form.user_type;
-      if (parseInt(form.career_id) !== Number(currentCareerId)) body.career_id = parseInt(form.career_id);
+      if (String(form.career_id) !== String(currentCareerId)) body.career_id = form.career_id ? parseInt(form.career_id) : null;
 
       if (Object.keys(body).length === 0) {
         router.visit('/admin/usuarios');
@@ -149,12 +149,11 @@ export default function EditUser({ user: u, careers, user_types, jwt_token }) {
               </div>
               <div>
                 <label className="block text-card-label text-sm mb-1.5">
-                  Carrera <span className="text-red-500">*</span>
+                  Carrera
                 </label>
                 <select value={form.career_id}
                   onChange={(e) => handleChange('career_id', e.target.value)}
-                  className="w-full h-[48px] rounded-[12px] border border-gray-300 dark:border-[#555] outline-none px-4 text-base bg-white dark:bg-[#333] text-card-value"
-                  required>
+                  className="w-full h-[48px] rounded-[12px] border border-gray-300 dark:border-[#555] outline-none px-4 text-base bg-white dark:bg-[#333] text-card-value">
                   {careers?.map((c) => (
                     <option key={c.id} value={String(c.id)}>{c.name}</option>
                   ))}
