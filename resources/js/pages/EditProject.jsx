@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useForm, usePage, router } from '@inertiajs/react';
 import { FiFile, FiTrash2 } from 'react-icons/fi';
+import BackButton from '../components/BackButton';
 import KeywordPicker from '../components/KeywordPicker';
 
 const adminRoles = ['vicedecano', 'director', 'admin'];
@@ -123,7 +124,8 @@ export default function EditProject({ thesis, categories, careers, tutors, types
         <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
             <div className="flex-1 flex items-center justify-center px-4 py-8">
                 <div className="w-full max-w-[800px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
-                    <div className="flex items-center gap-4 mb-8 w-full">
+                    <BackButton />
+                    <div className="flex items-center gap-4 mb-4 w-full">
                         <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta flex-1">
                             Editar proyecto
                         </h1>

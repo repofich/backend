@@ -38,6 +38,10 @@ class ThesisController
             abort(403);
         }
 
+        if (!in_array($thesis->status, ['borrador', 'observado'])) {
+            return redirect()->back()->withErrors(['status' => 'Solo se puede editar tesis en estado borrador u observado.']);
+        }
+
         $data = $request->validated();
 
         if (!empty($data['tutor_id']) && (int) $data['tutor_id'] !== $thesis->tutor_id) {

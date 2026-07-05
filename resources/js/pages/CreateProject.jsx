@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
+import BackButton from '../components/BackButton';
 import KeywordPicker from '../components/KeywordPicker';
 
 const adminRoles = ['vicedecano', 'director', 'admin'];
@@ -79,7 +80,8 @@ export default function CreateProject({ categories, careers, tutors, types, tags
         <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
             <div className="flex-1 flex items-center justify-center px-4 py-8">
                 <div className="w-full max-w-[800px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
-                    <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-8">
+                    <BackButton />
+                    <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-4">
                         Crear un nuevo proyecto
                     </h1>
 

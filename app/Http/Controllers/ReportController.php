@@ -6,14 +6,19 @@ use App\Exports\PaymentsExport;
 use App\Exports\ThesesByCareerExport;
 use App\Exports\ThesesByStatusExport;
 use App\Exports\ThesesByYearExport;
+use App\Exports\ThesisOverviewExport;
+use App\Exports\ThesisVisitsExport;
 use App\Exports\UsersByRoleExport;
 use App\Models\Category;
+use App\Models\Evaluation;
+use App\Models\PageVisit;
 use App\Models\Payment;
 use App\Models\Thesis;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
@@ -72,6 +77,53 @@ class ReportController extends Controller
 
         if ($request->query('export') === 'csv') {
             return $this->exportCsv(new PaymentsExport, collect($data), 'ingresos-por-pagos.csv');
+        }
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function thesisOverview(Request $request): JsonResponse|StreamedResponse
+    {
+        $totalTheses = Thesis::count();
+        $publishedTheses = Thesis::where('status', 'publicado')->count();
+        $totalFiles = \App\Models\ThesisFile::count();
+        $totalUsers = User::count();
+        $totalDocentes = User::where('user_type', 'docente')->count();
+        $totalEstudiantes = User::where('user_type', 'estudiante')->count();
+        $totalEvaluations = Evaluation::count();
+        $totalVisits = PageVisit::sum('visits');
+
+        $data = [
+            'total_theses' => $totalTheses,
+            'published_theses' => $publishedTheses,
+            'publication_rate' => $totalTheses > 0
+                ? round(($publishedTheses / $totalTheses) * 100, 1) . '%'
+                : '0%',
+            'total_files' => $totalFiles,
+            'total_users' => $totalUsers,
+            'total_docentes' => $totalDocentes,
+            'total_estudiantes' => $totalEstudiantes,
+            'total_evaluations' => $totalEvaluations,
+            'total_visits' => $totalVisits,
+        ];
+
+        if ($request->query('export') === 'csv') {
+            return $this->exportCsv(new ThesisOverviewExport, collect($data), 'resumen-general.csv');
+        }
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function thesisVisits(Request $request): JsonResponse|StreamedResponse
+    {
+        $data = PageVisit::select('page_visits.*', 'theses.title', 'theses.id as thesis_id')
+            ->join('theses', DB::raw("CONCAT('tesis/', theses.id)"), '=', 'page_visits.path')
+            ->where('page_visits.path', 'LIKE', 'tesis/%')
+            ->orderBy('page_visits.visits', 'desc')
+            ->get();
+
+        if ($request->query('export') === 'csv') {
+            return $this->exportCsv(new ThesisVisitsExport, $data, 'visitas-por-tesis.csv');
         }
 
         return response()->json(['data' => $data]);

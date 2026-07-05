@@ -19,7 +19,10 @@ class ThesisController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        $theses = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])->latest()->get();
+        $theses = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])
+            ->where('status', 'publicado')
+            ->latest()
+            ->get();
 
         return ThesisResource::collection($theses);
     }
@@ -27,6 +30,20 @@ class ThesisController extends Controller
     public function show(Thesis $thesis): ThesisResource
     {
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        if ($thesis->status !== 'publicado') {
+            $user = auth('api')->user();
+            $allowed = $user && (
+                $thesis->user_id === $user->id ||
+                in_array($user->user_type, ['admin', 'vicedecano', 'director']) ||
+                $thesis->tutor_id === $user->id ||
+                $thesis->assigned_evaluator_id === $user->id
+            );
+
+            if (!$allowed) {
+                abort(404);
+            }
+        }
 
         return new ThesisResource($thesis);
     }
@@ -212,6 +229,7 @@ class ThesisController extends Controller
     {
         $theses = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])
             ->where('featured', true)
+            ->where('status', 'publicado')
             ->latest()
             ->get();
 
@@ -221,6 +239,7 @@ class ThesisController extends Controller
     public function recent(): AnonymousResourceCollection
     {
         $theses = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])
+            ->where('status', 'publicado')
             ->latest()
             ->take(10)
             ->get();
@@ -230,7 +249,8 @@ class ThesisController extends Controller
 
     public function search(Request $request): AnonymousResourceCollection
     {
-        $query = Thesis::with(['user', 'tutor', 'category', 'tags', 'files']);
+        $query = Thesis::with(['user', 'tutor', 'category', 'tags', 'files'])
+            ->where('status', 'publicado');
 
         if ($request->filled('query')) {
             $search = $request->input('query');

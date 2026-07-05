@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { FiStar, FiCheckCircle } from 'react-icons/fi';
+import BackButton from '../components/BackButton';
 import Table from '../components/Table';
 
 const statusLabels = {
@@ -132,6 +133,7 @@ export default function MisEvaluaciones({ theses, jwt_token, mode = 'evaluacione
     return (
       <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
         <div className="flex-1 max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-8">
+          <BackButton />
           <h1 className="m-0 text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-2">
             Mis Tutorías
           </h1>
@@ -241,6 +243,7 @@ export default function MisEvaluaciones({ theses, jwt_token, mode = 'evaluacione
   return (
     <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
       <div className="flex-1 max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-8">
+        <BackButton />
         <h1 className="m-0 text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-2">
           Mis Evaluaciones
         </h1>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { FiSearch, FiPlus, FiEdit2, FiToggleLeft, FiToggleRight, FiKey, FiX } from 'react-icons/fi';
+import { FiSearch, FiPlus, FiEdit2, FiToggleLeft, FiToggleRight, FiKey, FiTrash2, FiX } from 'react-icons/fi';
+import BackButton from '../components/BackButton';
 
 const userTypeLabels = {
   estudiante: 'Estudiante',
@@ -60,6 +61,14 @@ export default function AdminUsers({ users, filters: initialFilters, filterOptio
     }
   };
 
+  const handleDeleteUser = async (userId, userName) => {
+    if (!confirm('¿Eliminar usuario "' + userName + '" permanentemente?')) return;
+    setActionLoading('delete-' + userId);
+    const result = await apiCall('/api/users/' + userId, 'DELETE');
+    if (result) router.reload();
+    setActionLoading(null);
+  };
+
   const handleToggleActive = async (userId) => {
     setActionLoading('toggle-' + userId);
     const result = await apiCall('/api/users/' + userId + '/toggle-active', 'POST');
@@ -85,6 +94,7 @@ export default function AdminUsers({ users, filters: initialFilters, filterOptio
   return (
     <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
       <div className="flex-1 max-w-[1400px] mx-auto w-full px-4 sm:px-6 py-8">
+        <BackButton />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="m-0 text-card-heading text-[22px] sm:text-[26px] font-card-meta">
@@ -127,6 +137,18 @@ export default function AdminUsers({ users, filters: initialFilters, filterOptio
                 {Object.entries(filterOptions?.user_types || {}).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
                 ))}
+              </select>
+            </div>
+            <div className="w-[160px]">
+              <label className="block text-xs text-card-label mb-1">Estado</label>
+              <select
+                value={filters.is_active ?? ''}
+                onChange={(e) => handleFilterChange('is_active', e.target.value)}
+                className="w-full h-[40px] rounded-[10px] border border-gray-300 dark:border-[#555] outline-none px-3 text-sm bg-white dark:bg-[#333] text-card-value"
+              >
+                <option value="">Todos</option>
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
               </select>
             </div>
             <div className="flex gap-2">
@@ -200,6 +222,14 @@ export default function AdminUsers({ users, filters: initialFilters, filterOptio
                           className={`border px-3 h-[32px] rounded-[8px] text-[11px] font-[600] cursor-pointer transition-colors font-card-meta inline-flex items-center gap-1.5 disabled:opacity-60 ${u.is_active ? 'border-red-300 dark:border-red-700 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20' : 'border-green-300 dark:border-green-700 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'}`}>
                           <FiToggleLeft className="size-3" />
                           {actionLoading === 'toggle-' + u.id ? '...' : (u.is_active ? 'Desactivar' : 'Activar')}
+                        </button>
+
+                        {/* Eliminar */}
+                        <button onClick={() => handleDeleteUser(u.id, u.full_name)}
+                          disabled={actionLoading === 'delete-' + u.id}
+                          className="border border-red-300 dark:border-red-700 text-red-600 px-3 h-[32px] rounded-[8px] text-[11px] font-[600] cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-card-meta inline-flex items-center gap-1.5 disabled:opacity-60">
+                          <FiTrash2 className="size-3" />
+                          {actionLoading === 'delete-' + u.id ? '...' : 'Eliminar'}
                         </button>
 
                         {/* Restablecer contraseña */}

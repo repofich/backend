@@ -8,6 +8,7 @@ use App\Http\Resources\ThesisResource;
 use App\Http\Resources\UserResource;
 use App\Models\Career;
 use App\Models\Category;
+use App\Models\PageVisit;
 use App\Models\Tag;
 use App\Models\Thesis;
 use App\Models\User;
@@ -19,7 +20,7 @@ class PageController
 {
     public function home(Request $request)
     {
-        $query = Thesis::with(['user', 'category', 'tags', 'files']);
+        $query = Thesis::with(['user', 'category', 'tags', 'files'])->where('status', 'publicado');
 
         if ($request->filled('query')) {
             $search = $request->input('query');
@@ -51,7 +52,11 @@ class PageController
 
         $theses = $query->latest()->get();
 
-        $thesisData = $theses->map(function ($thesis) {
+        $visitsByThesis = PageVisit::where('path', 'LIKE', 'tesis/%')
+            ->get()
+            ->keyBy(fn($pv) => (int) str_replace('tesis/', '', $pv->path));
+
+        $thesisData = $theses->map(function ($thesis) use ($visitsByThesis) {
             return [
                 'id' => $thesis->id,
                 'titulo' => $thesis->title,
@@ -59,7 +64,7 @@ class PageController
                 'carrera' => $thesis->category?->name ?? 'Sin categoría',
                 'año' => (string) $thesis->created_at->year,
                 'tipo' => $thesis->type ?? 'Tesis',
-                'vistas' => 0,
+                'vistas' => $visitsByThesis->get($thesis->id)?->visits ?? 0,
                 'imagen' => null,
             ];
         });
@@ -227,6 +232,20 @@ class PageController
         $thesis->load(['user.career', 'tutor', 'category', 'tags', 'files', 'assignedEvaluator', 'evaluations.evaluator']);
 
         $user = Auth::user();
+
+        if ($thesis->status !== 'publicado') {
+            $allowed = $user && (
+                $thesis->user_id === $user->id ||
+                in_array($user->user_type, ['admin', 'vicedecano', 'director']) ||
+                $thesis->tutor_id === $user->id ||
+                $thesis->assigned_evaluator_id === $user->id
+            );
+
+            if (!$allowed) {
+                abort(404);
+            }
+        }
+
         $token = $user ? auth('api')->login($user) : null;
 
         $tribunalUsers = $user && in_array($user->user_type, ['vicedecano', 'director', 'admin'])
@@ -506,6 +525,21 @@ class PageController
         return Inertia::render('EditCareer', [
             'career' => CareerResource::make($career)->resolve(),
             'directors' => $directors,
+            'jwt_token' => $token,
+        ]);
+    }
+
+    public function adminReports()
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->user_type, ['vicedecano', 'director', 'admin'])) {
+            abort(403);
+        }
+
+        $token = auth('api')->login($user);
+
+        return Inertia::render('AdminReports', [
             'jwt_token' => $token,
         ]);
     }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { FiEdit2, FiSend } from 'react-icons/fi';
+import BackButton from '../components/BackButton';
 import Table from '../components/Table';
 
 const statusLabels = {
@@ -139,6 +140,7 @@ export default function MyProjects({ proyectos, jwt_token }) {
   return (
     <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
       <div className="flex-1 max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-8">
+        <BackButton />
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <h1 className="m-0 text-card-heading text-[22px] sm:text-[26px] font-card-meta">
             Mis Proyectos

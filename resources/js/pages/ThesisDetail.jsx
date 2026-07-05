@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { FiFile, FiPaperclip, FiExternalLink, FiSend, FiStar, FiEdit2 } from 'react-icons/fi';
 import { FaGithub } from 'react-icons/fa';
+import BackButton from '../components/BackButton';
 import Portada from '../components/Portada';
 
 const statusLabels = {
@@ -147,6 +148,24 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
     }
   };
 
+  const handleRemoveTutor = async () => {
+    if (!confirm('¿Remover tutor?')) return;
+    try {
+      const res = await fetch('/api/thesis/' + t.id + '/tutor', {
+        method: 'DELETE',
+        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + jwt_token },
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al remover');
+      } else {
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    }
+  };
+
   const handleChangeStatus = async () => {
     if (!newStatus) return;
     setChangingStatus(true);
@@ -185,12 +204,7 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
   return (
     <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
       <div className="max-w-[1100px] mx-auto w-full px-4 py-8">
-        <button
-          onClick={() => router.visit('/')}
-          className="mb-4 bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
-        >
-          Volver
-        </button>
+        <BackButton />
         <div className="border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden">
           <div className="md:grid md:grid-cols-[280px_1fr]">
             <Portada
@@ -375,20 +389,30 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
                 <h4 className="text-sm font-bold text-card-heading">Administración</h4>
 
                 <div>
-                  <label className="block text-xs text-card-label mb-1">Asignar Tutor</label>
-                  <div className="flex gap-2">
-                    <select value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.value)}
-                      className="flex-1 h-[40px] rounded-[10px] border border-gray-300 dark:border-[#555] outline-none px-3 text-sm bg-white dark:bg-[#333] text-card-value">
-                      <option value="">Seleccionar tutor</option>
-                      {tutor_users?.filter((u) => u.id !== t.tutor_user?.id).map((u) => (
-                        <option key={u.id} value={u.id}>{u.full_name}</option>
-                      ))}
-                    </select>
-                    <button onClick={handleAssignTutor} disabled={!selectedTutor || assigningTutor}
-                      className="bg-primary text-text-on-primary border-none px-4 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-50 whitespace-nowrap">
-                      {assigningTutor ? '...' : 'Asignar'}
-                    </button>
-                  </div>
+                  <label className="block text-xs text-card-label mb-1">Tutor</label>
+                  {t.tutor_user ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-card-value font-semibold">{t.tutor_user.full_name}</span>
+                      <button onClick={handleRemoveTutor}
+                        className="bg-red-500 text-white border-none px-3 h-[32px] rounded-[8px] text-[11px] cursor-pointer hover:bg-red-600 transition-colors">
+                        Remover
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <select value={selectedTutor} onChange={(e) => setSelectedTutor(e.target.value)}
+                        className="flex-1 h-[40px] rounded-[10px] border border-gray-300 dark:border-[#555] outline-none px-3 text-sm bg-white dark:bg-[#333] text-card-value">
+                        <option value="">Seleccionar tutor</option>
+                        {tutor_users?.map((u) => (
+                          <option key={u.id} value={u.id}>{u.full_name}</option>
+                        ))}
+                      </select>
+                      <button onClick={handleAssignTutor} disabled={!selectedTutor || assigningTutor}
+                        className="bg-primary text-text-on-primary border-none px-4 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-50 whitespace-nowrap">
+                        {assigningTutor ? '...' : 'Asignar'}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>

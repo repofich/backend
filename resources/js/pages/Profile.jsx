@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import BackButton from '../components/BackButton';
 
 const userTypeLabels = {
     estudiante: 'Estudiante',
@@ -57,7 +58,8 @@ export default function Profile({ user, careers }) {
         <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
             <div className="flex-1 flex items-center justify-center px-4 py-8">
                 <div className="w-full max-w-[600px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
-                    <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-8">
+                    <BackButton href="/" />
+                    <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-4">
                         Mi Perfil
                     </h1>
 

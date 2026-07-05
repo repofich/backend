@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { FiSearch, FiEye, FiX } from 'react-icons/fi';
+import BackButton from '../components/BackButton';
 import Table from '../components/Table';
 
 const statusLabels = {
@@ -146,6 +147,30 @@ export default function AdminTesis({
     }
   };
 
+  const handleRemoveTutor = async (thesisId) => {
+    if (!confirm('¿Remover tutor?')) return;
+    setAssigning((prev) => ({ ...prev, ['tutor-' + thesisId]: true }));
+    try {
+      const res = await fetch('/api/thesis/' + thesisId + '/tutor', {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + jwt_token,
+        },
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al remover');
+      } else {
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setAssigning((prev) => ({ ...prev, ['tutor-' + thesisId]: false }));
+    }
+  };
+
   const handleChangeStatus = async (thesisId, status) => {
     if (!status) return;
     setStatusChanging((prev) => ({ ...prev, [thesisId]: true }));
@@ -236,26 +261,35 @@ export default function AdminTesis({
           <div className="flex flex-col gap-2 min-w-[200px]">
             {/* Asignar tutor */}
             <div className="flex gap-1 items-center">
-              <select
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val) handleAssignTutor(row.id, val);
-                }}
-                disabled={isAssigningTutor}
-                className="flex-1 h-[32px] rounded-[8px] border border-gray-300 dark:border-[#555] outline-none px-2 text-[11px] bg-white dark:bg-[#333] text-card-value disabled:opacity-60"
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  {row.tutor_user ? 'Cambiar tutor' : 'Asignar tutor'}
-                </option>
-                {tutor_users
-                  ?.filter((u) => u.id !== row.tutor_user?.id)
-                  .map((u) => (
+              {row.tutor_user ? (
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-card-value text-[11px] font-semibold truncate">{row.tutor_user.full_name}</span>
+                  <button
+                    onClick={() => handleRemoveTutor(row.id)}
+                    disabled={isAssigningTutor}
+                    className="bg-red-500 text-white border-none px-2 h-[28px] rounded-[6px] text-[10px] cursor-pointer hover:bg-red-600 transition-colors disabled:opacity-50 shrink-0"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              ) : (
+                <select
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val) handleAssignTutor(row.id, val);
+                  }}
+                  disabled={isAssigningTutor}
+                  className="flex-1 h-[32px] rounded-[8px] border border-gray-300 dark:border-[#555] outline-none px-2 text-[11px] bg-white dark:bg-[#333] text-card-value disabled:opacity-60"
+                  defaultValue=""
+                >
+                  <option value="" disabled>Asignar tutor</option>
+                  {tutor_users?.map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.full_name}
                     </option>
                   ))}
-              </select>
+                </select>
+              )}
             </div>
 
             {/* Asignar evaluador */}
@@ -328,6 +362,7 @@ export default function AdminTesis({
   return (
     <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
       <div className="flex-1 max-w-[1400px] mx-auto w-full px-4 sm:px-6 py-8">
+        <BackButton />
         <h1 className="m-0 text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-2">
           Gestión de Tesis
         </h1>

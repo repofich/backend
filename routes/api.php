@@ -88,13 +88,15 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/evaluations/{evaluation}/file', [EvaluationController::class, 'uploadFile']);
     });
 
-    // Reports (vicedecano, director)
-    Route::middleware('role:vicedecano,director')->prefix('reports')->group(function () {
+    // Reports (vicedecano, director, admin)
+    Route::middleware('role:vicedecano,director,admin')->prefix('reports')->group(function () {
         Route::get('/theses-by-career', [ReportController::class, 'thesesByCareer']);
         Route::get('/theses-by-status', [ReportController::class, 'thesesByStatus']);
         Route::get('/theses-by-year', [ReportController::class, 'thesesByYear']);
         Route::get('/payments', [ReportController::class, 'payments']);
         Route::get('/users-by-role', [ReportController::class, 'usersByRole']);
+        Route::get('/thesis-overview', [ReportController::class, 'thesisOverview']);
+        Route::get('/thesis-visits', [ReportController::class, 'thesisVisits']);
     });
 });
 
