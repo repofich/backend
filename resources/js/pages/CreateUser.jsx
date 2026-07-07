@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 
-export default function CreateUser({ careers, user_types, jwt_token }) {
+export default function CreateUser({ careers, user_types, jwt_token, role_constraints }) {
   const [form, setForm] = useState({
     full_name: '',
     email: '',
@@ -19,6 +19,25 @@ export default function CreateUser({ careers, user_types, jwt_token }) {
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: null }));
+  };
+
+  const isRoleDisabled = (key) => {
+    if (key === 'vicedecano') return role_constraints?.vicedecano_taken;
+    if (key === 'director') {
+      const careerId = parseInt(form.career_id);
+      if (!careerId) return false;
+      return (role_constraints?.director_career_ids || []).includes(careerId);
+    }
+    return false;
+  };
+
+  const getRoleTitle = (key) => {
+    if (key === 'vicedecano' && role_constraints?.vicedecano_taken) return 'Ya existe un vicedecano';
+    if (key === 'director') {
+      const careerId = parseInt(form.career_id);
+      if (careerId && (role_constraints?.director_career_ids || []).includes(careerId)) return 'Ya existe un director para esta carrera';
+    }
+    return '';
   };
 
   const handleSubmit = async (e) => {
@@ -166,7 +185,11 @@ export default function CreateUser({ careers, user_types, jwt_token }) {
                   required>
                   <option value="">Seleccionar rol</option>
                   {Object.entries(user_types || {}).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                    <option key={key} value={key}
+                      disabled={isRoleDisabled(key)}
+                      title={getRoleTitle(key)}
+                      className={isRoleDisabled(key) ? 'text-gray-400' : ''}
+                    >{label}</option>
                   ))}
                 </select>
                 {errors.user_type && <p className="text-red-500 text-xs mt-1">{errors.user_type}</p>}

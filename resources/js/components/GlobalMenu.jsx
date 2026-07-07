@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { FaBars, FaMoon, FaSun } from 'react-icons/fa';
+import { FaBars, FaMoon, FaSun, FaPaintBrush } from 'react-icons/fa';
+import AppearanceDropdown from './AppearanceDropdown';
 
 const roleLabels = {
 	estudiante: 'Estudiante',
@@ -20,17 +21,20 @@ const roleBadgeColors = {
 	admin: 'bg-gray-900 text-white dark:bg-white dark:text-gray-900',
 };
 
-export default function GlobalMenu({ isDark, onToggleTheme }) {
+export default function GlobalMenu({ appearance }) {
 	const { auth } = usePage().props;
 	const [open, setOpen] = useState(false);
+	const [showAppearance, setShowAppearance] = useState(false);
 	const ref = useRef(null);
 
 	const user = auth?.user;
+	const { isDark, toggleDark } = appearance;
 
 	useEffect(() => {
 		const handler = (e) => {
 			if (ref.current && !ref.current.contains(e.target)) {
 				setOpen(false);
+				setShowAppearance(false);
 			}
 		};
 		document.addEventListener('mousedown', handler);
@@ -55,7 +59,7 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 			</button>
 
 			{open && (
-				<div className="absolute right-0 top-full mt-2 w-[240px] bg-white dark:bg-[#2a2a2a] rounded-[12px] shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
+				<div className="absolute right-0 top-full mt-2 w-[270px] bg-white dark:bg-[#2a2a2a] rounded-[12px] shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
 					{user && (
 						<div className="px-4 py-3 border-b border-gray-100 dark:border-[#3a3a3a] space-y-1.5">
 							<div className="text-card-heading text-[14px] font-card-title truncate leading-tight">
@@ -67,70 +71,86 @@ export default function GlobalMenu({ isDark, onToggleTheme }) {
 						</div>
 					)}
 
-					<div className="py-1">
-						<div onClick={() => nav('/')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-							Publicaciones
-						</div>
-
-						<div onClick={() => nav('/mis-proyectos')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-							Mis Proyectos
-						</div>
-
-						{['docente', 'tribunal', 'director'].includes(user?.user_type) && (
-							<div onClick={() => nav('/mis-evaluaciones')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-								{user?.user_type === 'docente' ? 'Mis Tutorías' : 'Mis Evaluaciones'}
+					{showAppearance ? (
+						<>
+							<AppearanceDropdown appearance={appearance} />
+							<div className="border-t border-gray-100 dark:border-[#3a3a3a]" />
+							<div className="py-1">
+								<div onClick={() => setShowAppearance(false)}
+									className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer"
+								>
+									Volver al menú
+								</div>
 							</div>
-						)}
+						</>
+					) : (
+						<>
+							<div className="py-1">
+								<div onClick={() => nav('/')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+									Publicaciones
+								</div>
 
-						{['vicedecano', 'director', 'admin'].includes(user?.user_type) && (
-							<div onClick={() => nav('/admin/tesis')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-								Administrar Tesis
+								<div onClick={() => nav('/mis-proyectos')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+									Mis Proyectos
+								</div>
+
+								{['docente', 'tribunal', 'director'].includes(user?.user_type) && (
+									<div onClick={() => nav('/mis-evaluaciones')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+										{user?.user_type === 'docente' ? 'Mis Tutorías' : 'Mis Evaluaciones'}
+									</div>
+								)}
+
+								{['vicedecano', 'director', 'admin'].includes(user?.user_type) && (
+									<div onClick={() => nav('/admin/tesis')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+										Administrar Tesis
+									</div>
+								)}
+
+								{user?.user_type === 'admin' && (
+									<div onClick={() => nav('/admin/usuarios')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+										Administrar Usuarios
+									</div>
+								)}
+
+								{user?.user_type === 'admin' && (
+									<div onClick={() => nav('/admin/carreras')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+										Gestionar Carreras
+									</div>
+								)}
+
+								{['vicedecano', 'director', 'admin'].includes(user?.user_type) && (
+									<div onClick={() => nav('/admin/reportes')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+										Reportes
+									</div>
+								)}
+
+								<div onClick={() => nav('/perfil')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+									Perfil
+								</div>
+
+								<div onClick={() => nav('/pagos')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+									Pagos
+								</div>
 							</div>
-						)}
 
-						{user?.user_type === 'admin' && (
-							<div onClick={() => nav('/admin/usuarios')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-								Administrar Usuarios
+							<div className="border-t border-gray-100 dark:border-[#3a3a3a]" />
+
+							<div className="py-1">
+								<div onClick={() => setShowAppearance(true)}
+									className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer flex items-center gap-2"
+								>
+									<FaPaintBrush size={14} />
+									Apariencia
+								</div>
+
+								<div onClick={handleLogout}
+									className="px-4 py-2 text-[#e60000] text-[13px] font-card-meta hover:bg-red-50 dark:hover:bg-[#3a1a1a] cursor-pointer"
+								>
+									Cerrar Sesión
+								</div>
 							</div>
-						)}
-
-						{user?.user_type === 'admin' && (
-							<div onClick={() => nav('/admin/carreras')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-								Gestionar Carreras
-							</div>
-						)}
-
-						{['vicedecano', 'director', 'admin'].includes(user?.user_type) && (
-							<div onClick={() => nav('/admin/reportes')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-								Reportes
-							</div>
-						)}
-
-						<div onClick={() => nav('/perfil')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-							Perfil
-						</div>
-
-						<div onClick={() => nav('/pagos')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
-							Pagos
-						</div>
-					</div>
-
-					<div className="border-t border-gray-100 dark:border-[#3a3a3a]" />
-
-					<div className="py-1">
-						<div onClick={() => { onToggleTheme(); setOpen(false) }}
-							className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer flex items-center gap-2"
-						>
-							{isDark ? <FaSun size={14} /> : <FaMoon size={14} />}
-							{isDark ? 'Modo Claro' : 'Modo Oscuro'}
-						</div>
-
-						<div onClick={handleLogout}
-							className="px-4 py-2 text-[#e60000] text-[13px] font-card-meta hover:bg-red-50 dark:hover:bg-[#3a1a1a] cursor-pointer"
-						>
-							Cerrar Sesión
-						</div>
-					</div>
+						</>
+					)}
 				</div>
 			)}
 		</div>

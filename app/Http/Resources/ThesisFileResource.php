@@ -13,6 +13,7 @@ class ThesisFileResource extends JsonResource
             'id' => $this->id,
             'thesis_id' => $this->thesis_id,
             'file_path' => $this->file_path,
+            'file_url' => $this->file_url,
             'is_primary' => $this->is_primary,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

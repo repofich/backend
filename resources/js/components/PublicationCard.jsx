@@ -4,7 +4,7 @@ export default function PublicationCard({ pub, onClick }) {
 	return (
 		<div
 			onClick={() => onClick?.(pub)}
-			className="bg-card-bg rounded-[8px] overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex p-3 sm:p-4 md:p-[24px] gap-2 sm:gap-4 md:gap-[22px]"
+			className="bg-card-bg rounded-[8px] overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex p-3 sm:p-4 md:p-[24px] gap-2 sm:gap-4 md:gap-[22px]"
 		>
 			<div className="w-[100px] sm:w-[120px] md:w-[151px] h-[125px] sm:h-[150px] md:h-[189px] flex-shrink-0 rounded-[6px] sm:rounded-[8px] bg-card-img flex flex-col items-center justify-center text-center p-2 overflow-hidden">
 				{pub.imagen ? (

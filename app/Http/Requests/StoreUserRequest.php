@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreUserRequest extends FormRequest
@@ -22,5 +23,25 @@ class StoreUserRequest extends FormRequest
             'ci' => ['nullable', 'string', 'max:20', 'unique:users,ci'],
             'registration_number' => ['nullable', 'string', 'max:50', 'unique:users,registration_number'],
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $userType = $this->input('user_type');
+            $careerId = $this->input('career_id');
+
+            if ($userType === 'vicedecano') {
+                if (User::where('user_type', 'vicedecano')->exists()) {
+                    $validator->errors()->add('user_type', 'Ya existe un vicedecano.');
+                }
+            }
+
+            if ($userType === 'director' && !empty($careerId)) {
+                if (User::where('user_type', 'director')->where('career_id', $careerId)->exists()) {
+                    $validator->errors()->add('user_type', 'Ya existe un director para esta carrera.');
+                }
+            }
+        });
     }
 }

@@ -17,6 +17,7 @@ class EvaluationResource extends JsonResource
             'comments' => $this->comments,
             'recommendation' => $this->recommendation,
             'file_path' => $this->file_path,
+            'file_url' => $this->file_url,
             'submitted_at' => $this->submitted_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

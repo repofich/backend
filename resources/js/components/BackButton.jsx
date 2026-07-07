@@ -12,7 +12,7 @@ export default function BackButton({ href }) {
   return (
     <button
       onClick={handleClick}
-      className="mb-4 bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
+      className="mb-4 bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light hover:-translate-y-0.5 transition-all duration-200"
     >
       Volver
     </button>

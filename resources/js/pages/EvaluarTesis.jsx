@@ -171,7 +171,7 @@ export default function EvaluarTesis({ thesis: t, evaluation, jwt_token }) {
             {t.files?.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {t.files.map((f) => (
-                  <a key={f.id} href={f.file_path} target="_blank" rel="noopener noreferrer"
+                  <a key={f.id} href={f.file_url} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
                     <FiFile className="size-3" />
                     {f.file_path?.split('/').pop()}
@@ -261,8 +261,8 @@ export default function EvaluarTesis({ thesis: t, evaluation, jwt_token }) {
                     className="hidden"
                   />
                 </label>
-                {evaluation?.file_path && !file && (
-                  <a href={evaluation.file_path} target="_blank" rel="noopener noreferrer"
+                {evaluation?.file_url && !file && (
+                  <a href={evaluation.file_url} target="_blank" rel="noopener noreferrer"
                     className="text-primary text-sm hover:underline whitespace-nowrap">
                     Ver actual
                   </a>

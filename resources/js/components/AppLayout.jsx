@@ -3,21 +3,23 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import Header from './Header';
 import GlobalMenu from './GlobalMenu';
 import Footer from './Footer';
-import { useTheme } from '../hooks/useTheme';
+import { useAppearance } from '../hooks/useAppearance';
 
 export default function AppLayout({ children }) {
+	const { url } = usePage();
 	const { auth } = usePage().props;
-	const { isDark, toggleTheme } = useTheme();
+	const appearance = useAppearance();
+	const { isDark, toggleDark } = appearance;
 
 	return (
 		<div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
 			<Header>
 				{auth?.user ? (
-					<GlobalMenu isDark={isDark} onToggleTheme={toggleTheme} />
+					<GlobalMenu appearance={appearance} />
 				) : (
 					<div className="flex items-center gap-2 sm:gap-3">
 						<button
-							onClick={toggleTheme}
+							onClick={toggleDark}
 							className="bg-bg-card border border-gray-200 dark:border-[#3a3a3a] w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] rounded-full flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-shadow text-text-primary text-sm sm:text-base"
 							aria-label="Toggle theme"
 						>
@@ -32,7 +34,9 @@ export default function AppLayout({ children }) {
 					</div>
 				)}
 			</Header>
-			{children}
+			<div key={url} className="page-enter flex-1 flex flex-col">
+				{children}
+			</div>
 			<Footer />
 		</div>
 	);

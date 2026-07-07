@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class ThesisFile extends Model
 {
@@ -26,6 +27,8 @@ class ThesisFile extends Model
      *
      * @return array<string, string>
      */
+    protected $appends = ['file_url'];
+
     protected function casts(): array
     {
         return [
@@ -33,6 +36,11 @@ class ThesisFile extends Model
             'thesis_id' => 'integer',
             'is_primary' => 'boolean',
         ];
+    }
+
+    public function getFileUrlAttribute(): ?string
+    {
+        return $this->file_path ? Storage::url($this->file_path) : null;
     }
 
     public function thesis(): BelongsTo

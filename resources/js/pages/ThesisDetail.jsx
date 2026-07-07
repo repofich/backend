@@ -300,7 +300,7 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
               <h3 className="text-card-heading text-base font-bold mb-3">Archivos</h3>
               <div className="space-y-2">
                 {t.files.map((file) => (
-                  <a key={file.id} href={file.file_path} target="_blank" rel="noopener noreferrer"
+                  <a key={file.id} href={file.file_url} target="_blank" rel="noopener noreferrer"
                     className="block bg-input-bg text-card-value text-sm px-4 py-2.5 rounded-xl hover:bg-gray-200 dark:hover:bg-[#444] transition-colors">
                     {file.is_primary ? <FiFile className="inline mr-1.5 size-4 shrink-0" /> : <FiPaperclip className="inline mr-1.5 size-4 shrink-0" />}
                     {file.file_path?.split('/').pop() || 'Archivo'}
@@ -337,8 +337,8 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
                       {ev.comments && (
                         <p className="text-sm text-card-value whitespace-pre-line">{ev.comments}</p>
                       )}
-                      {ev.file_path && (
-                        <a href={ev.file_path} target="_blank" rel="noopener noreferrer"
+                      {ev.file_url && (
+                        <a href={ev.file_url} target="_blank" rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
                           <FiFile className="size-3.5" />
                           {ev.file_path.split('/').pop()}

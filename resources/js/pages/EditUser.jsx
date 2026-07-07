@@ -1,8 +1,30 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 
-export default function EditUser({ user: u, careers, user_types, jwt_token }) {
+export default function EditUser({ user: u, careers, user_types, jwt_token, role_constraints }) {
   const currentCareerId = u.career_id ?? u.career?.id ?? '';
+  const isCurrentVicedecano = u.user_type === 'vicedecano';
+  const isCurrentDirector = u.user_type === 'director';
+
+  const isRoleDisabled = (key) => {
+    if (key === 'vicedecano') return role_constraints?.vicedecano_taken && !isCurrentVicedecano;
+    if (key === 'director') {
+      const careerId = parseInt(form.career_id);
+      if (!careerId) return false;
+      const taken = (role_constraints?.director_career_ids || []).includes(careerId);
+      return taken && !isCurrentDirector;
+    }
+    return false;
+  };
+
+  const getRoleTitle = (key) => {
+    if (key === 'vicedecano' && role_constraints?.vicedecano_taken && !isCurrentVicedecano) return 'Ya existe un vicedecano';
+    if (key === 'director') {
+      const careerId = parseInt(form.career_id);
+      if (careerId && (role_constraints?.director_career_ids || []).includes(careerId) && !isCurrentDirector) return 'Ya existe un director para esta carrera';
+    }
+    return '';
+  };
 
   const [form, setForm] = useState({
     full_name: u.full_name || '',
@@ -142,7 +164,11 @@ export default function EditUser({ user: u, careers, user_types, jwt_token }) {
                   className="w-full h-[48px] rounded-[12px] border border-gray-300 dark:border-[#555] outline-none px-4 text-base bg-white dark:bg-[#333] text-card-value"
                   required>
                   {Object.entries(user_types || {}).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                    <option key={key} value={key}
+                      disabled={isRoleDisabled(key)}
+                      title={getRoleTitle(key)}
+                      className={isRoleDisabled(key) ? 'text-gray-400' : ''}
+                    >{label}</option>
                   ))}
                 </select>
                 {errors.user_type && <p className="text-red-500 text-xs mt-1">{errors.user_type}</p>}

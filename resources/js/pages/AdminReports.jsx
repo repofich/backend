@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiDownload } from 'react-icons/fi';
 import BackButton from '../components/BackButton';
+import FadeInSection from '../components/FadeInSection';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -376,11 +377,11 @@ export default function AdminReports({ jwt_token }) {
           <ThesisOverviewCard jwt_token={jwt_token} />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ThesesByCareerCard jwt_token={jwt_token} />
-          <ThesesByStatusCard jwt_token={jwt_token} />
-          <ThesesByYearCard jwt_token={jwt_token} />
-          <PaymentsCard jwt_token={jwt_token} />
-          <UsersByRoleCard jwt_token={jwt_token} />
+          <FadeInSection><ThesesByCareerCard jwt_token={jwt_token} /></FadeInSection>
+          <FadeInSection><ThesesByStatusCard jwt_token={jwt_token} /></FadeInSection>
+          <FadeInSection><ThesesByYearCard jwt_token={jwt_token} /></FadeInSection>
+          <FadeInSection><PaymentsCard jwt_token={jwt_token} /></FadeInSection>
+          <FadeInSection><UsersByRoleCard jwt_token={jwt_token} /></FadeInSection>
         </div>
         <div className="mt-6">
           <ThesisVisitsCard jwt_token={jwt_token} />

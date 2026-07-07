@@ -196,7 +196,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
                                     {thesis.files.map((file) => (
                                         <div key={file.id} className="flex items-center justify-between gap-3">
                                             <a
-                                                href={file.file_path}
+                                                href={file.file_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-card-value text-[13px] font-card-meta hover:text-primary transition-colors inline-flex items-center gap-2"

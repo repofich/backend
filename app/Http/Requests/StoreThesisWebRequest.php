@@ -35,22 +35,5 @@ class StoreThesisWebRequest extends FormRequest
         ];
     }
 
-    public function messages(): array
-    {
-        return [
-            'title.required' => 'El título es obligatorio.',
-            'abstract.required' => 'El resumen es obligatorio.',
-            'tutor_id.required' => 'Debe seleccionar un tutor sugerido.',
-            'tutor_id.integer' => 'El tutor seleccionado no es válido.',
-            'tutor_id.exists' => 'El tutor seleccionado no existe.',
-            'category_id.required' => 'Debe seleccionar una categoría.',
-            'category_id.exists' => 'La categoría seleccionada no es válida.',
-            'repo_url.url' => 'Ingrese una URL válida para el repositorio.',
-            'demo_url.url' => 'Ingrese una URL válida para la demo.',
-            'tags.array' => 'Las palabras clave seleccionadas no son válidas.',
-            'tags.*.exists' => 'Una de las palabras clave seleccionadas no existe.',
-            'keywords.array' => 'Las palabras clave seleccionadas no son válidas.',
-            'keywords.*.max' => 'Cada palabra clave debe tener como máximo 100 caracteres.',
-        ];
-    }
+}
 }

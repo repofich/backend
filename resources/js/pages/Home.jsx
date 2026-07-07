@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import SearchBar from '../components/SearchBar';
 import PublicationCard from '../components/PublicationCard';
+import FadeInSection from '../components/FadeInSection';
 
 export default function Home({ publicaciones, filterOptions, filters }) {
 	const [query, setQuery] = useState(filters?.query || '');
@@ -71,8 +72,10 @@ export default function Home({ publicaciones, filterOptions, filters }) {
 							{publicaciones.length !== 1 ? 's' : ''}
 						</p>
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-							{publicaciones.map((pub) => (
-								<PublicationCard key={pub.id} pub={pub} onClick={handleCardClick} />
+							{publicaciones.map((pub, i) => (
+								<FadeInSection key={pub.id}>
+									<PublicationCard pub={pub} onClick={handleCardClick} />
+								</FadeInSection>
 							))}
 						</div>
 					</>

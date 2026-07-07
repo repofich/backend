@@ -432,10 +432,17 @@ class PageController
 
         $token = auth('api')->login($user);
 
+        $directorCareerIds = User::where('user_type', 'director')
+            ->whereNotNull('career_id')->pluck('career_id')->toArray();
+
         return Inertia::render('CreateUser', [
             'careers' => $careers,
             'user_types' => $userTypes,
             'jwt_token' => $token,
+            'role_constraints' => [
+                'vicedecano_taken' => User::where('user_type', 'vicedecano')->exists(),
+                'director_career_ids' => $directorCareerIds,
+            ],
         ]);
     }
 
@@ -461,11 +468,19 @@ class PageController
 
         $token = auth('api')->login($authUser);
 
+        $directorCareerIds = User::where('user_type', 'director')
+            ->whereNotNull('career_id')->where('id', '!=', $user->id)
+            ->pluck('career_id')->toArray();
+
         return Inertia::render('EditUser', [
             'user' => UserResource::make($user)->resolve(),
             'careers' => $careers,
             'user_types' => $userTypes,
             'jwt_token' => $token,
+            'role_constraints' => [
+                'vicedecano_taken' => User::where('user_type', 'vicedecano')->where('id', '!=', $user->id)->exists(),
+                'director_career_ids' => $directorCareerIds,
+            ],
         ]);
     }
 
