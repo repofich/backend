@@ -95,6 +95,11 @@ class Thesis extends Model
         return $this->hasMany(TutorAssignmentLog::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public static array $transitions = [
         'borrador'    => ['en_revision'],
         'en_revision' => ['observado', 'aprobado', 'rechazado'],

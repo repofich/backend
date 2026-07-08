@@ -1,0 +1,37 @@
+\section{Metodología}
+\label{sec:metodologia}
+
+El presente proyecto se desarrollará bajo un enfoque metodológico que se fundamenta en el Manual de Presentación de Proyectos de la Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones \textcite{calderon2013manual}, combinado con Scrum como marco de gestión ágil y la metodología UWE (UML-based Web Engineering) para el modelado y desarrollo del sistema.
+
+\subsection{Scrum para la gestión del proyecto}
+
+Se empleará Scrum para organizar y controlar el avance del proyecto mediante iteraciones denominadas sprints. El equipo de trabajo está conformado por tres desarrolladores, que asumen los roles de Scrum Master y equipo de desarrollo, mientras que el rol de Product Owner es omitido y asumido por el Scrum Master guiado por los casos de uso planteados y los requerimientos espeficados. Se llevarán a cabo las ceremonias habituales: Sprint Planning al inicio de cada iteración, Daily Standup para la sincronización diaria, Sprint Review para la presentación de los incrementos y Sprint Retrospective para la mejora continua. El backlog del producto se construirá a partir de los casos de uso definidos y se priorizará en función de las necesidades de la facultad.
+
+\subsection{UWE para el modelado y desarrollo}
+
+Para el análisis, diseño e implementación del sistema se utilizará la metodología UWE (UML-based Web Engineering) propuesta por \textcite{koch2001uwe}, la cual extiende UML con estereotipos específicos para aplicaciones web. UWE define cuatro modelos principales:
+
+\begin{enumerate}
+    \item \textbf{Modelo de contenido:} define la estructura de la información del sistema mediante diagramas de clases UML, identificando entidades como usuario, manuscrito, evaluación, pago, entre otras.
+    \item \textbf{Modelo de navegación:} especifica las rutas de navegación y los accesos a la información según el perfil del usuario (vicedecano, director, tutor, tribunal, estudiante).
+    \item \textbf{Modelo de presentación:} describe la interfaz de usuario y la disposición de los elementos visuales.
+    \item \textbf{Modelo de procesos:} representa los flujos de trabajo académicos (registro, asignación, revisión, aprobación, publicación).
+\end{enumerate}
+
+\subsection{Correspondencia con los objetivos específicos}
+
+La metodología propuesta permite alcanzar cada objetivo específico de la siguiente manera:
+
+\begin{enumerate}
+    \item El diagnóstico de los procesos actuales se realizará mediante entrevistas con autoridades, docentes y estudiantes de la FICH, así como la revisión de la documentación institucional.
+    \item Los requisitos funcionales y técnicos se determinarán a partir del análisis de los casos de uso aprobados y se documentarán mediante diagramas UML.
+    \item El diseño de los flujos de trabajo se modelará con UWE, representando los procesos de registro, asignación, evaluación y publicación.
+    \item El desarrollo de los módulos se ejecutará en sprints Scrum, implementando incrementalmente cada caso de uso.
+    \item La evaluación del impacto se realizará mediante indicadores cuantitativos (tiempos de gestión, número de proyectos finalizados) y cualitativos (encuestas de satisfacción a usuarios).
+\end{enumerate}
+
+\subsection{Recursos y herramientas}
+
+Se emplearán herramientas de código abierto: el lenguaje PHP con el framework Laravel version 12 para el backend usando inertia con ReactJS para el frontend, una base de datos relacional PostgreSQL, y Git para el control de versiones. La gestión del proyecto se apoyará en tableros Kanban digitales para el seguimiento del backlog usando la herramienta Taiga.
+
+\endinput

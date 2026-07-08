@@ -1,0 +1,51 @@
+Grupo: Grupo02cc - Sistema de Gestión y Seguimiento de Tesis y Proyectos de Grado para “FICH”
+INTEGRANTES:
+222104279 Josue Miguel Flores Prado                        Ingeniería en Sistemas
+222106301 Melissa Shanner Nuñez Ardaya                Ingeniería en Sistemas
+222106867 Marthel Pedro Pozo Soliz                          Ingeniería Informática
+
+CASOS DE USO:(APROBADOS)
+CU1. Gestión de Usuarios(Vicedecano,Director,Tutor,Tribunal,Estudiante)- pdf curriculo,Foto.
+CU2. Gestión de Registro y Gestión de Manuscrito (Borrador,GitHub/Demo).
+CU3. Gestión de Envío y Asignación para Revisión(Director designa Tutor).
+CU4. Gestión de Evaluación y Retroalimentación Académica(Revisiones, Correcciones, Aprobacion).
+CU5. Gestión de Gestión Multicarrera y Configuración de Formatos(carreras y sus áreas de conocimiento).
+CU6. Gestión de Consulta Pública y Analítica(BORRADOR -> EN REVISIÓN -> OBSERVADO -> APROBADO -> PUBLICADO).
+CU7. Gestión de Pagos(Contado, Credito 2 cuotas).
+CU8. Reportes y Estadísticas.
+
+INF-513 TECNOLOGÍA WEB
+
+HERRAMIENTAS PARA EL DESARROLLO
+DE SOFTWARE EN LA WEB
+
+
+
+Proyecto Final
+
+El proyecto final consiste en el desarrollo de un sitio Web soportado por una Base de Datos y en arquitectura de tres capas, deberá asociarse a los temas propuestos.
+
+
+Requisitos mínimos para todos los proyectos:
+
+1. Deberá incluir todos los elementos de diseño y navegación citados en clase.
+
+2. En el diseño se deberá incluir al menos Dos Roles de acceso al Negocio (administrador no es un rol).
+
+3. La Implementación del Menú Dinámico (uso de base de datos) .
+
+4. Deberá ser implementado  MVC-MVVM (Laravel-Inertia) .
+
+5.Debera tener un estilo único para todo el sitio(CSS) y poder elegir al menos 3 temas ( niños, jovenes y adultos, modo Dia/Noche según el horario del Cliente) , comteplando accesibilidad(que cambie el tamaño de letras y constraste).
+
+6.  Validar todas entradas (Mensajes en Español) de los datos en todas los formularios de la aplicación.
+
+7.  Tener un contador por cada pagina  que muestre el número de visitas (debe estar en el pie de cada página del sitio Web)
+
+8.  Tener estadísticas del negocio y acceso  relacionadas con el proyecto Web.
+
+9.  Búsquedas de la información (del Negocio) del sitio Web; esta deberá ser presentada en el encabezado de la página principal (ejemplo mediante una forma de un campo de texto);
+
+10.  Pagos Electrónicos ; esta deberá cumplir los procesos de registro de los métodos de pago y pagos únicos y plan de pagos de cada usuario;
+
+

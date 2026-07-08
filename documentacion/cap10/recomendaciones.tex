@@ -1,0 +1,17 @@
+\section{Recomendaciones}
+\label{sec:recomendaciones}
+
+A partir de la experiencia adquirida durante el desarrollo del proyecto, se formulan las siguientes recomendaciones para futuras iteraciones y despliegue del sistema:
+
+\begin{itemize}
+    \item \textbf{Despliegue a producción:} Configurar un entorno de producción con servidor web Nginx, PHP-FPM, PostgreSQL y cola de trabajos Horizon. Implementar CI/CD con GitHub Actions para automatizar las pruebas y el despliegue.
+    \item \textbf{Pruebas de seguridad:} Realizar una auditoría de seguridad antes del despliegue, incluyendo pruebas de penetración, análisis de vulnerabilidades OWASP y revisión de permisos por rol.
+    \item \textbf{Pruebas de carga:} Ejecutar pruebas de estrés sobre los endpoints críticos (consulta pública, generación de reportes) para garantizar un rendimiento aceptable bajo demanda concurrente.
+    \item \textbf{Notificaciones en tiempo real:} Implementar notificaciones push mediante Laravel Reverb o Pusher para alertar a tutores, tribunales y estudiantes sobre cambios de estado en los manuscritos.
+    \item \textbf{Módulo de firma digital:} Incorporar firma electrónica para la aprobación formal de tesis por parte del tribunal y director de carrera, reduciendo trámites presenciales.
+    \item \textbf{Aplicación móvil:} Desarrollar una aplicación móvil complementaria (Flutter o React Native) para consulta de estado de tesis y notificaciones, consumiendo los mismos datos mediante Inertia o una API si se separa el frontend.
+    \item \textbf{Mejora de UX/UI:} Realizar pruebas de usabilidad con usuarios reales (estudiantes, docentes) para refinar la interfaz y los flujos de navegación, especialmente en el registro de manuscritos y el proceso de pago.
+    \item \textbf{Copia de seguridad:} Establecer una política de backups automáticos de la base de datos y los archivos adjuntos, con retención configurable y almacenamiento en S3 compatible.
+\end{itemize}
+
+\endinput

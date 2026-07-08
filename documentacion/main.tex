@@ -1,0 +1,66 @@
+\documentclass[man, 10pt, floatsintext]{apa7}
+\usepackage[spanish, es-nodecimaldot]{babel}
+\usepackage{graphfig}
+\usepackage{minted}
+\setminted{fontsize=\small, baselinestretch=0.9}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+\usepackage{booktabs}
+\usepackage{indentfirst}
+\usepackage{setspace}
+\usepackage{geometry}
+\geometry{margin=2.54cm}
+\setlength{\parindent}{1.27cm}
+
+\linespread{2}
+\usepackage[style=apa, backend=biber, sortcites=true, doi=true, isbn=true, url=true]{biblatex}
+\addbibresource{cap11/bibliografia.bib}
+
+\title{Sistema de Gestión y Seguimiento de Tesis y Proyecto de Grado Para "FICH"}
+\shorttitle{}
+\author{Marthel Pedro Pozo Solíz \\ Melissa Shanner Nuñez Ardaya \\ Josue Miguel Flores Prado}
+\date{\today}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+
+\input{cap0/caratula.tex}
+
+\pagenumbering{roman}
+\setcounter{page}{2}
+\tableofcontents
+\listoftables
+\listoffigures
+
+\newpage
+\pagenumbering{arabic}
+\hypersetup{pageanchor=true}
+\setcounter{secnumdepth}{3}
+
+\input{cap1/introduccion.tex}
+\newpage
+\input{cap2/antecedentes.tex}
+\newpage
+\input{cap3/problema.tex}
+\newpage
+\input{cap4/objetivos.tex}
+\newpage
+\input{cap5/metodologia.tex}
+\newpage
+\input{cap6/marco-teorico.tex}
+\newpage
+\input{cap7/desarrollo.tex}
+\newpage
+\input{cap8/resultados.tex}
+\newpage
+\input{cap9/conclusiones.tex}
+\newpage
+\input{cap10/recomendaciones.tex}
+
+\newpage
+\nocite{*}
+\printbibliography
+
+\input{cap12/anexos.tex}
+
+\end{document}

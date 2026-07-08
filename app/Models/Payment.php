@@ -13,6 +13,7 @@ class Payment extends Model
 
     protected $fillable = [
         'user_id',
+        'thesis_id',
         'stripe_payment_intent_id',
         'stripe_payment_method_id',
         'amount',
@@ -39,6 +40,11 @@ class Payment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function thesis(): BelongsTo
+    {
+        return $this->belongsTo(Thesis::class);
     }
 
     public function parent(): BelongsTo
