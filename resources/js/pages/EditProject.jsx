@@ -122,11 +122,13 @@ export default function EditProject({ thesis, categories, careers, tutors, types
 
     return (
         <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
-            <div className="flex-1 flex items-center justify-center px-4 py-8">
-                <div className="w-full max-w-[800px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
+            <div className="flex-1 flex items-center justify-center px-4 py-8 relative">
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
                     <BackButton />
+                </div>
+                <div className="w-full max-w-[800px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
                     <div className="flex items-center gap-4 mb-4 w-full">
-                        <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta flex-1">
+                        <h1 className="fade-in-up fade-in-up-d1 m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta flex-1">
                             Editar proyecto
                         </h1>
                         <span className={`${statusColors[thesis.status] || 'bg-gray-400'} text-white text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap`}>
@@ -135,7 +137,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
                     </div>
 
                     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="fade-in-up fade-in-up-d2 grid grid-cols-1 md:grid-cols-2 gap-5">
                             {input('title', 'Nombre del Proyecto', 'Nombre del Proyecto')}
                             {select('type', 'Tipo de Proyecto', types, 'Seleccionar tipo')}
                             {select('category_id', 'Categoría', categories, 'Seleccionar categoría')}
@@ -155,7 +157,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
 
                             {/* Featured */}
                             {isAdmin && (
-                                <div className="flex items-center gap-3 pt-2">
+                                <div className="fade-in-up fade-in-up-d3 flex items-center gap-3 pt-2">
                                     <input
                                         type="checkbox"
                                         id="featured"
@@ -169,7 +171,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
                                 </div>
                             )}
 
-                            <div className="flex flex-col gap-1.5 md:col-span-2">
+                            <div className="fade-in-up fade-in-up-d3 flex flex-col gap-1.5 md:col-span-2">
                                 <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
                                     Descripción
                                 </label>
@@ -178,7 +180,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
                                     onChange={(e) => setData('abstract', e.target.value)}
                                     placeholder="Descripción del proyecto"
                                     rows="4"
-                                    className="w-full rounded-[12px] border-none outline-none px-4 py-3 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder resize-none"
+                                    className="w-full rounded-[12px] border-none outline-none px-4 py-3 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder resize-none transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
                                 />
                                 {errors.abstract && (
                                     <span className="text-error text-[11px] font-card-meta">{errors.abstract}</span>
@@ -188,7 +190,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
 
                         {/* Files */}
                         {thesis.files?.length > 0 && (
-                            <div className="bg-input-bg rounded-[12px] p-4 sm:p-5">
+                            <div className="fade-in-up fade-in-up-d4 bg-input-bg rounded-[12px] p-4 sm:p-5">
                                 <h3 className="text-card-label text-[13px] font-card-meta font-semibold uppercase tracking-wide mb-3">
                                     Archivos
                                 </h3>
@@ -222,7 +224,7 @@ export default function EditProject({ thesis, categories, careers, tutors, types
                         )}
 
                         {/* Upload file */}
-                        <div className="flex flex-col gap-2">
+                        <div className="fade-in-up fade-in-up-d5 flex flex-col gap-2">
                             <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
                                 Subir archivo
                             </label>
@@ -235,11 +237,11 @@ export default function EditProject({ thesis, categories, careers, tutors, types
                             />
                         </div>
 
-                        <div className="flex gap-4">
+                        <div className="fade-in-up fade-in-up-d6 flex gap-4">
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="flex-1 h-[50px] sm:h-[58px] rounded-[14px] border-none bg-primary text-text-on-primary text-[16px] sm:text-[18px] font-[600] cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-card-meta"
+                                className="flex-1 h-[50px] sm:h-[58px] rounded-[14px] border-none bg-primary text-text-on-primary text-[16px] sm:text-[18px] font-[600] cursor-pointer hover:bg-primary-light transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed font-card-meta hover:-translate-y-0.5 active:translate-y-0"
                             >
                                 {processing ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
                             </button>

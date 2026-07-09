@@ -56,16 +56,18 @@ export default function Profile({ user, careers }) {
 
     return (
         <div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
-            <div className="flex-1 flex items-center justify-center px-4 py-8">
-                <div className="w-full max-w-[600px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
+            <div className="flex-1 flex items-center justify-center px-4 py-8 relative">
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
                     <BackButton href="/" />
-                    <h1 className="m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-4">
+                </div>
+                <div className="w-full max-w-[600px] bg-card-bg rounded-[20px] p-8 sm:p-10 flex flex-col items-center">
+                    <h1 className="fade-in-up fade-in-up-d1 m-0 text-center text-card-heading text-[22px] sm:text-[26px] font-card-meta mb-4">
                         Mi Perfil
                     </h1>
 
                     {/* Photo */}
-                    <div className="flex flex-col items-center mb-8">
-                        <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-card-img mb-4 flex items-center justify-center">
+                    <div className="fade-in-up fade-in-up-d2 flex flex-col items-center mb-8">
+                        <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-card-img mb-4 flex items-center justify-center transition-shadow duration-200 hover:shadow-[0_0_0_3px_var(--color-primary)]">
                             {photoPreview ? (
                                 <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
                             ) : user.photo_url ? (
@@ -76,7 +78,7 @@ export default function Profile({ user, careers }) {
                                 </span>
                             )}
                         </div>
-                        <label className="text-primary text-[13px] font-card-meta cursor-pointer hover:underline">
+                        <label className="text-primary text-[13px] font-card-meta cursor-pointer hover:underline transition-colors">
                             Cambiar foto
                             <input type="file" accept="image/jpg,image/jpeg,image/png" onChange={handlePhotoChange} hidden />
                         </label>
@@ -87,7 +89,7 @@ export default function Profile({ user, careers }) {
 
                     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
                         {/* Basic info */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="fade-in-up fade-in-up-d3 grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
                                     Nombre completo
@@ -97,7 +99,7 @@ export default function Profile({ user, careers }) {
                                     value={data.full_name}
                                     onChange={(e) => setData('full_name', e.target.value)}
                                     placeholder="Nombre completo"
-                                    className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder"
+                                    className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
                                 />
                                 {errors.full_name && (
                                     <span className="text-error text-[11px] font-card-meta">{errors.full_name}</span>
@@ -113,7 +115,7 @@ export default function Profile({ user, careers }) {
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder="correo@ejemplo.com"
-                                    className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder"
+                                    className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
                                 />
                                 {errors.email && (
                                     <span className="text-error text-[11px] font-card-meta">{errors.email}</span>
@@ -122,14 +124,14 @@ export default function Profile({ user, careers }) {
                         </div>
 
                         {/* Career */}
-                        <div className="flex flex-col gap-1.5">
+                        <div className="fade-in-up fade-in-up-d4 flex flex-col gap-1.5">
                             <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
                                 Carrera
                             </label>
                             <select
                                 value={data.career_id}
                                 onChange={(e) => setData('career_id', e.target.value)}
-                                className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta cursor-pointer appearance-none"
+                                className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta cursor-pointer appearance-none transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
                             >
                                 <option value="">Seleccionar carrera</option>
                                 {careers?.map((c) => (
@@ -144,7 +146,7 @@ export default function Profile({ user, careers }) {
                         </div>
 
                         {/* Registration data */}
-                        <div className="bg-input-bg rounded-[12px] p-4 sm:p-5 flex flex-col gap-3">
+                        <div className="fade-in-up fade-in-up-d5 bg-input-bg rounded-[12px] p-4 sm:p-5 flex flex-col gap-3">
                             <h3 className="text-card-label text-[13px] font-card-meta font-semibold uppercase tracking-wide">
                                 Datos de registro
                             </h3>
@@ -156,7 +158,7 @@ export default function Profile({ user, careers }) {
                                         value={data.ci}
                                         onChange={(e) => setData('ci', e.target.value)}
                                         placeholder="CI"
-                                        className="w-full h-[44px] rounded-[10px] border-none outline-none px-3 text-[14px] bg-card-bg text-input-text font-card-meta placeholder:text-input-placeholder"
+                                        className="w-full h-[44px] rounded-[10px] border-none outline-none px-3 text-[14px] bg-card-bg text-input-text font-card-meta placeholder:text-input-placeholder transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
                                     />
                                     {errors.ci && (
                                         <span className="text-error text-[11px] font-card-meta">{errors.ci}</span>
@@ -171,7 +173,7 @@ export default function Profile({ user, careers }) {
                                         value={data.registration_number}
                                         onChange={(e) => setData('registration_number', e.target.value)}
                                         placeholder="Nro. de Registro"
-                                        className="w-full h-[44px] rounded-[10px] border-none outline-none px-3 text-[14px] bg-card-bg text-input-text font-card-meta placeholder:text-input-placeholder"
+                                        className="w-full h-[44px] rounded-[10px] border-none outline-none px-3 text-[14px] bg-card-bg text-input-text font-card-meta placeholder:text-input-placeholder transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
                                     />
                                     {errors.registration_number && (
                                         <span className="text-error text-[11px] font-card-meta">{errors.registration_number}</span>
@@ -187,7 +189,7 @@ export default function Profile({ user, careers }) {
                         </div>
 
                         {/* Curriculum */}
-                        <div className="flex flex-col gap-2">
+                        <div className="fade-in-up fade-in-up-d6 flex flex-col gap-2">
                             <label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
                                 Curriculum Vitae (PDF)
                             </label>
@@ -220,7 +222,7 @@ export default function Profile({ user, careers }) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full h-[50px] sm:h-[58px] rounded-[14px] border-none bg-primary text-text-on-primary text-[16px] sm:text-[18px] font-[600] cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-card-meta"
+                            className="fade-in-up fade-in-up-d7 w-full h-[50px] sm:h-[58px] rounded-[14px] border-none bg-primary text-text-on-primary text-[16px] sm:text-[18px] font-[600] cursor-pointer hover:bg-primary-light transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed font-card-meta hover:-translate-y-0.5 active:translate-y-0"
                         >
                             {processing ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
                         </button>
