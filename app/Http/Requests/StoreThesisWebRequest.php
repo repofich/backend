@@ -33,7 +33,5 @@ class StoreThesisWebRequest extends FormRequest
             'files' => ['sometimes', 'array'],
             'files.*' => ['file', 'mimes:pdf,doc,docx,jpg,png,jpeg,zip', 'max:20480'],
         ];
-    }
-
 }
 }
