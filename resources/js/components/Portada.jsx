@@ -2,7 +2,7 @@ export default function Portada({ titulo, autores, carrera, tutor, año, compact
   if (compact) {
     return (
       <>
-        <img src="logo.png" alt="" className="w-5 sm:w-6 md:w-8 mb-0.5 opacity-70" />
+        <img src={(window._inertiaBaseUrl || '') + '/logo.png'} alt="" className="w-5 sm:w-6 md:w-8 mb-0.5 opacity-70" />
         <p className="text-card-value text-[8px] sm:text-[9px] md:text-[11px] leading-tight line-clamp-3 font-semibold">
           {titulo}
         </p>
@@ -22,7 +22,7 @@ export default function Portada({ titulo, autores, carrera, tutor, año, compact
 
         <div className="w-16 h-20 flex items-center justify-center">
           <img
-            src="logo.png"
+            src={(window._inertiaBaseUrl || '') + '/logo.png'}
             alt="Escudo UAGRM"
             className="max-w-full max-h-full object-contain"
           />
