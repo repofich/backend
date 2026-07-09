@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="/inf513/grupo02cc/proyecto2/public/" />
     <link rel="icon" type="image/png" href="{{ asset('logo.png') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,7 +17,6 @@
             window.$RefreshSig$ = () => (type) => type;
         </script>
     @endif
-    <script>window._inertiaBaseUrl = '{{ rtrim(parse_url(config('app.url'), PHP_URL_PATH), '/') }}';</script>
     @vite('resources/js/app.jsx')
     @inertiaHead
 </head>

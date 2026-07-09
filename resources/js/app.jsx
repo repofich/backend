@@ -12,8 +12,7 @@ const originalDelete = router.delete.bind(router);
 
 function withBaseUrl(url) {
     if (url.startsWith('/')) {
-        const base = window._inertiaBaseUrl || '';
-        return base + url;
+        return url.substring(1);
     }
     return url;
 }
