@@ -20,7 +20,7 @@ export default function Header({ children }) {
       <div className="flex justify-between items-center gap-3 sm:gap-0">
         <div className="flex items-center gap-3 sm:gap-[18px]">
           <img
-            src="/logo.png"
+            src={(window._inertiaBaseUrl || '') + '/logo.png'}
             alt="Logo FICH"
             className={`object-contain transition-all duration-300 ${
               compact ? 'w-[35px] sm:w-[50px]' : 'w-[50px] sm:w-[85px]'
