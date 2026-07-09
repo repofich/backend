@@ -15,6 +15,14 @@ function withBaseUrl(url) {
 
 router.visit = (url, options) => originalVisit(withBaseUrl(url), options);
 
+const originalFetch = window.fetch.bind(window);
+window.fetch = (input, init) => {
+    if (typeof input === 'string' && input.startsWith('/')) {
+        input = withBaseUrl(input);
+    }
+    return originalFetch(input, init);
+};
+
 createInertiaApp({
     resolve: name => {
         const pages = import.meta.glob('./pages/**/*.jsx', { eager: true });
