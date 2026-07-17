@@ -9,9 +9,11 @@ use App\Http\Resources\UserResource;
 use App\Models\Career;
 use App\Models\Category;
 use App\Models\PageVisit;
+use App\Models\PaymentConcept;
 use App\Models\Tag;
 use App\Models\Thesis;
 use App\Models\User;
+use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -205,14 +207,44 @@ class PageController
         ]);
     }
 
-    public function payments()
+    public function payments(StripeService $stripe)
     {
         $user = auth()->user();
         $token = $user ? auth('api')->login($user) : null;
 
+        $pendingTheses = [];
+        $defenseFee = null;
+        $paymentMethods = [];
+
+        if ($user) {
+            $pendingTheses = ThesisResource::collection(
+                Thesis::with(['category', 'career'])
+                    ->where('user_id', $user->id)
+                    ->pendingDefensePayment()
+                    ->latest()
+                    ->get()
+            )->resolve();
+
+            $concept = PaymentConcept::active()
+                ->byCode('defensa_tesis')
+                ->forCareer($user->career_id)
+                ->first();
+
+            if ($concept) {
+                $defenseFee = $concept->amount;
+            }
+
+            if ($user->stripe_customer_id) {
+                $paymentMethods = $stripe->listPaymentMethods($user->stripe_customer_id);
+            }
+        }
+
         return Inertia::render('Payments', [
             'stripe_key' => config('stripe.key'),
             'jwt_token' => $token,
+            'pending_theses' => $pendingTheses,
+            'defense_fee' => $defenseFee,
+            'payment_methods' => $paymentMethods,
         ]);
     }
 

@@ -7,53 +7,73 @@ use App\Models\Thesis;
 use App\Models\ThesisFile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Storage;
 
 class ThesisSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('user_type', 'admin')->first();
+        $estudiante = User::where('user_type', 'estudiante')->first();
         $category = Category::where('name', 'Tesis de Grado')->first();
+        $docentes = User::where('user_type', 'docente')->get();
+        $careers = \App\Models\Career::pluck('id', 'name');
 
         $theses = [
             [
-                'title' => 'Sistema de Gestión de Tesis Universitarias',
-                'abstract' => 'Este proyecto presenta el desarrollo de un sistema web para la gestión digital de tesis universitarias, permitiendo el seguimiento, revisión y archivo de documentos académicos.',
-                'tutor' => 'Dr. Juan Pérez García',
-                'repo_url' => 'https://github.com/usuario/sistema-tesis',
-                'demo_url' => 'https://sistema-tesis.demo.edu',
-                'user_id' => $admin->id,
-                'category_id' => $category->id,
+                'title' => 'Avances y discusiones sobre el uso de inteligencia artificial (IA) en educación',
+                'abstract' => 'La inteligencia artificial está transformando los procesos educativos a nivel global. Este estudio explora los avances recientes en IA aplicada a la educación, analizando tanto las oportunidades como los desafíos éticos y pedagógicos que surgen de su implementación en el aula. Se examinan casos de uso como sistemas de tutoría inteligente, evaluación automatizada y personalización del aprendizaje.',
+                'tutor' => 'Blanco Pacheco Offman',
+                'tutor_id' => $docentes->firstWhere('full_name', 'Blanco Pacheco Offman')?->id,
+                'student_id' => 'estudiante@test.com',
                 'file' => 'thesis_1.txt',
             ],
             [
-                'title' => 'Aplicación Móvil para Seguimiento de Egresados',
-                'abstract' => 'Desarrollo de una aplicación móvil que permite a la universidad mantener un registro actualizado de sus egresados, facilitando la bolsa de trabajo y seguimiento profesional.',
-                'tutor' => 'Dra. María López Martínez',
-                'repo_url' => 'https://github.com/usuario/app-egresados',
-                'demo_url' => null,
-                'user_id' => $admin->id,
-                'category_id' => $category->id,
+                'title' => 'Aplicaciones de inteligencia artificial (IA) en el contexto educativo ecuatoriano: retos y desafíos',
+                'abstract' => 'Esta investigación analiza la implementación de tecnologías de inteligencia artificial en el sistema educativo de Ecuador. Se identifican las principales barreras tecnológicas, de infraestructura y de formación docente que limitan la adopción de IA, así como las oportunidades para mejorar la calidad educativa mediante herramientas inteligentes adaptadas al contexto local.',
+                'tutor' => 'Rodriguez Martinez Oscar',
+                'tutor_id' => $docentes->firstWhere('full_name', 'Rodriguez Martinez Oscar')?->id,
+                'student_id' => 'estudiante@test.com',
                 'file' => 'thesis_2.txt',
             ],
             [
-                'title' => 'Inteligencia Artificial en la Detección de Plagio',
-                'abstract' => 'Investigación sobre el uso de técnicas de inteligencia artificial y procesamiento de lenguaje natural para la detección automática de plagio en trabajos académicos.',
-                'tutor' => 'Ing. Carlos Rodríguez Silva',
-                'repo_url' => null,
-                'demo_url' => 'https://ia-plagio.demo.edu',
-                'user_id' => $admin->id,
-                'category_id' => $category->id,
+                'title' => 'Rendimiento académico y contexto familiar en estudiantes universitarios',
+                'abstract' => 'El presente trabajo examina la relación entre el contexto familiar y el rendimiento académico de estudiantes universitarios. A través de un estudio mixto con encuestas y análisis de calificaciones, se identifican factores como el nivel educativo de los padres, el ingreso familiar y el apoyo emocional como determinantes significativos del desempeño académico. Los resultados sugieren la necesidad de políticas institucionales que consideren el entorno familiar.',
+                'tutor' => 'Aoiz Carballo Elio',
+                'tutor_id' => $docentes->firstWhere('full_name', 'Aoiz Carballo Elio')?->id,
+                'student_id' => 'estudiante@test.com',
                 'file' => 'thesis_3.txt',
+            ],
+            [
+                'title' => 'Sistema de Gestión de Tesis Universitarias',
+                'abstract' => 'Este proyecto presenta el desarrollo de un sistema web para la gestión digital de tesis universitarias, permitiendo el seguimiento, revisión y archivo de documentos académicos.',
+                'tutor' => 'Jimenez Languidey Guillermo',
+                'tutor_id' => $docentes->firstWhere('full_name', 'Jimenez Languidey Guillermo')?->id,
+                'student_id' => 'estudiante@test.com',
+                'file' => 'thesis_4.txt',
             ],
         ];
 
-        foreach ($theses as $thesisData) {
-            $file = $thesisData['file'];
-            unset($thesisData['file']);
+        foreach ($theses as $data) {
+            $career = $data['tutor_id'] ? User::find($data['tutor_id'])?->career_id : null;
+            $student = User::where('email', $data['student_id'])->first();
 
-            $thesis = Thesis::create($thesisData);
+            $file = $data['file'];
+            unset($data['file'], $data['student_id']);
+
+            $thesis = Thesis::create([
+                'title' => $data['title'],
+                'abstract' => $data['abstract'],
+                'tutor' => $data['tutor'],
+                'tutor_id' => $data['tutor_id'],
+                'user_id' => $student?->id ?? 1,
+                'category_id' => $category->id,
+                'career_id' => $career,
+                'status' => 'publicado',
+                'featured' => true,
+                'published_at' => now()->subDays(rand(1, 60)),
+                'type' => 'Tesis de Grado',
+                'repo_url' => 'https://github.com/ejemplo/' . strtolower(str_replace(' ', '-', explode('(', $data['title'])[0])),
+                'demo_url' => null,
+            ]);
 
             ThesisFile::create([
                 'thesis_id' => $thesis->id,

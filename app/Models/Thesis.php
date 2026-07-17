@@ -34,6 +34,7 @@ class Thesis extends Model
         'assigned_evaluator_id',
         'published_at',
         'observations',
+        'defense_paid_at',
     ];
 
     protected function casts(): array
@@ -48,6 +49,7 @@ class Thesis extends Model
             'status' => 'string',
             'tutor_status' => 'string',
             'published_at' => 'datetime',
+            'defense_paid_at' => 'datetime',
             'observations' => 'string',
         ];
     }
@@ -112,5 +114,16 @@ class Thesis extends Model
     public function canTransitionTo(string $newStatus): bool
     {
         return in_array($newStatus, self::$transitions[$this->status] ?? []);
+    }
+
+    public function isDefensePaid(): bool
+    {
+        return $this->defense_paid_at !== null;
+    }
+
+    public function scopePendingDefensePayment($query)
+    {
+        return $query->where('status', 'aprobado')
+            ->whereNull('defense_paid_at');
     }
 }

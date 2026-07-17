@@ -16,12 +16,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CareerSeeder::class,
             CategorySeeder::class,
+            PaymentConceptSeeder::class,
+            /* DocenteSeeder::class, */
         ]);
 
         $career = Career::first();
 
         User::create([
-            'full_name' => 'Administrador',
+            'full_name' => 'Melissa Shanner Nuñez Ardaya',
             'email' => 'admin@admin.com',
             'password' => bcrypt('admin'),
             'career_id' => $career->id,
@@ -31,7 +33,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'full_name' => 'Vicedecano',
             'email' => 'vicedecano@test.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('contra123'),
             'career_id' => $career->id,
             'user_type' => 'vicedecano',
         ]);
@@ -39,25 +41,9 @@ class DatabaseSeeder extends Seeder
         User::create([
             'full_name' => 'Director',
             'email' => 'director@test.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('contra123'),
             'career_id' => $career->id,
             'user_type' => 'director',
-        ]);
-
-        User::create([
-            'full_name' => 'Docente',
-            'email' => 'docente@test.com',
-            'password' => bcrypt('password'),
-            'career_id' => $career->id,
-            'user_type' => 'docente',
-        ]);
-
-        User::create([
-            'full_name' => 'Tribunal',
-            'email' => 'tribunal@test.com',
-            'password' => bcrypt('password'),
-            'career_id' => $career->id,
-            'user_type' => 'tribunal',
         ]);
 
         User::create([
@@ -65,7 +51,7 @@ class DatabaseSeeder extends Seeder
             'registration_number' => '2024-0001',
             'full_name' => 'Estudiante',
             'email' => 'estudiante@test.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('contra123'),
             'career_id' => $career->id,
             'user_type' => 'estudiante',
         ]);

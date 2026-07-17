@@ -387,4 +387,15 @@ class ThesisController extends Controller
             'by_career' => $byCareer,
         ]);
     }
+
+    public function pendingDefensePayment(): AnonymousResourceCollection
+    {
+        $theses = Thesis::with(['category', 'career'])
+            ->where('user_id', auth()->id())
+            ->pendingDefensePayment()
+            ->latest()
+            ->get();
+
+        return ThesisResource::collection($theses);
+    }
 }

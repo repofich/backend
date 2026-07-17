@@ -21,6 +21,13 @@ class PaymentResource extends JsonResource
             'due_date' => $this->due_date,
             'paid_at' => $this->paid_at,
             'created_at' => $this->created_at,
+            'thesis' => $this->whenLoaded('thesis', function () {
+                return [
+                    'id' => $this->thesis->id,
+                    'title' => $this->thesis->title,
+                ];
+            }),
+            'children' => PaymentResource::collection($this->whenLoaded('children')),
         ];
     }
 }

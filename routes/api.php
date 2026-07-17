@@ -53,6 +53,18 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/payments', [PaymentController::class, 'index']);
     Route::get('/payments/{payment}', [PaymentController::class, 'show']);
 
+    // Payment methods
+    Route::post('/payments/setup-intent', [PaymentController::class, 'setupIntent']);
+    Route::get('/payments/methods', [PaymentController::class, 'listMethods']);
+    Route::delete('/payments/methods/{paymentMethod}', [PaymentController::class, 'deleteMethod']);
+
+    // Defense payment
+    Route::post('/payments/defense', [PaymentController::class, 'initiateDefensePayment']);
+
+    // Thesis pending defense payment (estudiante)
+    Route::get('/thesis/pending-defense-payment', [ThesisController::class, 'pendingDefensePayment'])
+        ->middleware('role:estudiante');
+
     // Thesis status (vicedecano, director, admin)
     Route::put('/thesis/{thesis}/status', [ThesisController::class, 'updateStatus'])
         ->middleware('role:vicedecano,director,admin');

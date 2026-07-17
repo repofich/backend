@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ConfirmPaymentRequest;
 use App\Http\Requests\CreatePaymentIntentRequest;
+use App\Http\Requests\InitiateDefensePaymentRequest;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
+use App\Models\PaymentConcept;
+use App\Models\Thesis;
 use App\Services\StripeService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PaymentController extends Controller
@@ -109,9 +113,175 @@ class PaymentController extends Controller
             'paid_at' => now(),
         ]);
 
+        $this->checkDefensePaymentComplete($payment);
+
         return response()->json([
             'message' => 'Pago confirmado.',
             'payment' => new PaymentResource($payment->fresh()),
         ]);
+    }
+
+    public function setupIntent(): JsonResponse
+    {
+        $user = auth()->user();
+        $customer = $this->stripe->createCustomer($user);
+        $setupIntent = $this->stripe->createSetupIntent($customer->id);
+
+        return response()->json([
+            'client_secret' => $setupIntent->client_secret,
+        ]);
+    }
+
+    public function listMethods(): JsonResponse
+    {
+        $user = auth()->user();
+
+        if (!$user->stripe_customer_id) {
+            return response()->json(['data' => []]);
+        }
+
+        $methods = $this->stripe->listPaymentMethods($user->stripe_customer_id);
+
+        return response()->json(['data' => $methods]);
+    }
+
+    public function deleteMethod(string $paymentMethodId): JsonResponse
+    {
+        $user = auth()->user();
+
+        if (!$user->stripe_customer_id) {
+            abort(404);
+        }
+
+        $this->stripe->detachPaymentMethod($paymentMethodId);
+
+        return response()->json(['message' => 'Método de pago eliminado.']);
+    }
+
+    public function initiateDefensePayment(InitiateDefensePaymentRequest $request): JsonResponse
+    {
+        $user = auth()->user();
+        $thesis = Thesis::findOrFail($request->thesis_id);
+
+        $concept = PaymentConcept::active()
+            ->byCode('defensa_tesis')
+            ->forCareer($thesis->career_id)
+            ->first();
+
+        if (!$concept) {
+            return response()->json([
+                'message' => 'No se encontró un concepto de pago activo para defensa de tesis.',
+            ], 422);
+        }
+
+        $totalAmount = $concept->amount;
+        $installments = $request->payment_type === 'credito'
+            ? min(max($request->installments, 2), 12)
+            : 1;
+
+        $customer = $this->stripe->createCustomer($user);
+
+        if ($request->filled('payment_method_id')) {
+            $this->stripe->attachPaymentMethod(
+                $request->payment_method_id,
+                $customer->id
+            );
+
+            $intent = $this->stripe->createPaymentIntentForCustomer(
+                intdiv($totalAmount, $installments),
+                'bob',
+                $customer->id,
+                $request->payment_method_id
+            );
+        } else {
+            $intent = $this->stripe->createPaymentIntent(
+                intdiv($totalAmount, $installments),
+                'bob'
+            );
+        }
+
+        $firstPayment = Payment::create([
+            'user_id' => $user->id,
+            'thesis_id' => $thesis->id,
+            'stripe_payment_intent_id' => $intent->id,
+            'stripe_payment_method_id' => $request->payment_method_id,
+            'amount' => intdiv($totalAmount, $installments),
+            'currency' => 'bob',
+            'concept' => $concept->name,
+            'payment_type' => $request->payment_type,
+            'installment_number' => 1,
+            'total_installments' => $installments,
+            'status' => 'pending',
+        ]);
+
+        if ($request->payment_type === 'credito') {
+            $remaining = $totalAmount - intdiv($totalAmount, $installments);
+            $baseInstallment = intdiv($totalAmount, $installments);
+
+            for ($i = 2; $i <= $installments; $i++) {
+                $isLast = $i === $installments;
+                $installmentAmount = $isLast ? $remaining : $baseInstallment;
+                $remaining -= $installmentAmount;
+
+                Payment::create([
+                    'user_id' => $user->id,
+                    'thesis_id' => $thesis->id,
+                    'amount' => $installmentAmount,
+                    'currency' => 'bob',
+                    'concept' => $concept->name . ' (cuota ' . $i . ' de ' . $installments . ')',
+                    'payment_type' => 'credito',
+                    'installment_number' => $i,
+                    'total_installments' => $installments,
+                    'status' => 'pending',
+                    'parent_payment_id' => $firstPayment->id,
+                    'due_date' => now()->addMonths($i - 1),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'client_secret' => $intent->client_secret,
+            'payment' => new PaymentResource($firstPayment->fresh()),
+        ]);
+    }
+
+    private function checkDefensePaymentComplete(Payment $payment): void
+    {
+        if (!$payment->thesis_id) {
+            return;
+        }
+
+        $thesis = $payment->thesis;
+
+        if ($thesis->isDefensePaid()) {
+            return;
+        }
+
+        if ($payment->payment_type === 'contado') {
+            $thesis->update(['defense_paid_at' => now()]);
+            return;
+        }
+
+        if ($payment->payment_type === 'credito' && $payment->installment_number === $payment->total_installments) {
+            $allPaid = Payment::where('parent_payment_id', $payment->parent_payment_id)
+                ->orWhere('id', $payment->parent_payment_id)
+                ->where('status', 'succeeded')
+                ->count() === $payment->total_installments;
+
+            if ($allPaid) {
+                $thesis->update(['defense_paid_at' => now()]);
+            }
+            return;
+        }
+
+        if ($payment->payment_type === 'credito' && $payment->parent_payment_id === null) {
+            $allPaid = Payment::where('parent_payment_id', $payment->id)
+                ->where('status', 'succeeded')
+                ->count() === ($payment->total_installments - 1);
+
+            if ($allPaid && $payment->status === 'succeeded') {
+                $thesis->update(['defense_paid_at' => now()]);
+            }
+        }
     }
 }

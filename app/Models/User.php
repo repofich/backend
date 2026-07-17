@@ -23,6 +23,7 @@ class User extends Authenticatable implements JWTSubject
         'photo_path',
         'curriculum_pdf_path',
         'is_active',
+        'stripe_customer_id',
     ];
 
     protected $hidden = [
@@ -59,6 +60,11 @@ class User extends Authenticatable implements JWTSubject
     public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class, 'evaluator_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     public function getPhotoUrlAttribute(): ?string
