@@ -119,12 +119,23 @@ export default function MisEvaluaciones({ theses, jwt_token, mode = 'evaluacione
               </button>
             </div>
           ) : (
-            <button
-              onClick={(e) => { e.stopPropagation(); router.visit('/tesis/' + row.id); }}
-              className="border border-gray-300 dark:border-[#555] bg-transparent text-card-value px-4 h-[34px] rounded-[8px] text-[12px] font-[600] cursor-pointer hover:bg-gray-50 dark:hover:bg-[#333] transition-colors whitespace-nowrap font-card-meta"
-            >
-              Ver
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); router.visit('/tesis/' + row.id); }}
+                className="border border-gray-300 dark:border-[#555] bg-transparent text-card-value px-4 h-[34px] rounded-[8px] text-[12px] font-[600] cursor-pointer hover:bg-gray-50 dark:hover:bg-[#333] transition-colors whitespace-nowrap font-card-meta"
+              >
+                Ver
+              </button>
+              {row.tutor_status === 'accepted' && row.status === 'en_revision' && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); router.visit('/tesis/' + row.id); }}
+                  className="bg-primary text-text-on-primary border-none px-4 h-[34px] rounded-[8px] text-[12px] font-[600] cursor-pointer hover:bg-primary-light transition-colors whitespace-nowrap font-card-meta inline-flex items-center gap-1.5"
+                >
+                  <FiMessageSquare className="size-3.5" />
+                  Observar
+                </button>
+              )}
+            </div>
           )
         ),
       },

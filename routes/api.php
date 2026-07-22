@@ -76,6 +76,16 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/thesis/{thesis}/tutor/respond', [ThesisController::class, 'respondTutor'])
         ->middleware('role:docente');
 
+    // Tutor observations (docente)
+    Route::middleware('role:docente')->group(function () {
+        Route::post('/thesis/{thesis}/tutor/observations', [ThesisController::class, 'storeObservation']);
+        Route::post('/thesis/{thesis}/tutor/approve', [ThesisController::class, 'tutorApprove']);
+        Route::post('/thesis/{thesis}/tutor/request-changes', [ThesisController::class, 'tutorRequestChanges']);
+    });
+
+    // View tutor observations (autenticados: tutor, estudiante owner, admin)
+    Route::get('/thesis/{thesis}/tutor-observations', [ThesisController::class, 'tutorObservations']);
+
     // Thesis (authenticated)
     Route::post('/thesis', [ThesisController::class, 'store']);
     Route::put('/thesis/{thesis}', [ThesisController::class, 'update']);

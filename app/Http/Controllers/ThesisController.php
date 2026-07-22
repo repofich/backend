@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreThesisRequest;
+use App\Http\Requests\StoreTutorObservationRequest;
 use App\Http\Requests\UpdateThesisRequest;
 use App\Http\Requests\UpdateThesisStatusRequest;
 use App\Http\Resources\ThesisResource;
 use App\Http\Resources\TutorAssignmentLogResource;
+use App\Http\Resources\TutorObservationResource;
 use App\Models\Category;
 use App\Models\Thesis;
 use App\Models\TutorAssignmentLog;
+use App\Models\TutorObservation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -385,6 +388,107 @@ class ThesisController extends Controller
             'total' => $total,
             'with_code' => $withCode,
             'by_career' => $byCareer,
+        ]);
+    }
+
+    public function tutorObservations(Thesis $thesis): AnonymousResourceCollection
+    {
+        $observations = $thesis->tutorObservations()
+            ->with('tutor')
+            ->latest()
+            ->get();
+
+        return TutorObservationResource::collection($observations);
+    }
+
+    public function storeObservation(StoreTutorObservationRequest $request, Thesis $thesis): JsonResponse
+    {
+        if ($thesis->tutor_id !== auth()->id()) {
+            return response()->json(['message' => 'No eres el tutor de esta tesis.'], 403);
+        }
+
+        if ($thesis->tutor_status !== 'accepted') {
+            return response()->json(['message' => 'Debes aceptar la tutoría antes de dejar observaciones.'], 422);
+        }
+
+        $observation = TutorObservation::create([
+            'thesis_id' => $thesis->id,
+            'tutor_id' => auth()->id(),
+            'comment' => $request->comment,
+        ]);
+
+        $observation->load('tutor');
+
+        return response()->json([
+            'message' => 'Observación registrada.',
+            'observation' => new TutorObservationResource($observation),
+        ], 201);
+    }
+
+    public function tutorApprove(Request $request, Thesis $thesis): JsonResponse
+    {
+        if ($thesis->tutor_id !== auth()->id()) {
+            return response()->json(['message' => 'No eres el tutor de esta tesis.'], 403);
+        }
+
+        if ($thesis->tutor_status !== 'accepted') {
+            return response()->json(['message' => 'Debes aceptar la tutoría antes de aprobar.'], 422);
+        }
+
+        if (!$thesis->canTransitionTo('aprobado')) {
+            return response()->json(['message' => 'No se puede aprobar desde el estado ' . $thesis->status . '.'], 422);
+        }
+
+        $thesis->update(['status' => 'aprobado']);
+
+        if ($request->filled('comment')) {
+            TutorObservation::create([
+                'thesis_id' => $thesis->id,
+                'tutor_id' => auth()->id(),
+                'comment' => 'Aprobado: ' . $request->comment,
+            ]);
+        }
+
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Tesis aprobada.',
+            'thesis' => new ThesisResource($thesis),
+        ]);
+    }
+
+    public function tutorRequestChanges(Request $request, Thesis $thesis): JsonResponse
+    {
+        if ($thesis->tutor_id !== auth()->id()) {
+            return response()->json(['message' => 'No eres el tutor de esta tesis.'], 403);
+        }
+
+        if ($thesis->tutor_status !== 'accepted') {
+            return response()->json(['message' => 'Debes aceptar la tutoría antes de solicitar cambios.'], 422);
+        }
+
+        if (!$thesis->canTransitionTo('observado')) {
+            return response()->json(['message' => 'No se puede marcar como observado desde ' . $thesis->status . '.'], 422);
+        }
+
+        $request->validate(['comment' => ['required', 'string']]);
+
+        $thesis->update([
+            'status' => 'observado',
+            'observations' => $request->comment,
+        ]);
+
+        TutorObservation::create([
+            'thesis_id' => $thesis->id,
+            'tutor_id' => auth()->id(),
+            'comment' => 'Cambios solicitados: ' . $request->comment,
+        ]);
+
+        $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        return response()->json([
+            'message' => 'Cambios solicitados al estudiante.',
+            'thesis' => new ThesisResource($thesis),
         ]);
     }
 

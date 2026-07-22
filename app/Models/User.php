@@ -67,6 +67,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Payment::class);
     }
 
+    public function tutorObservations(): HasMany
+    {
+        return $this->hasMany(TutorObservation::class, 'tutor_id');
+    }
+
     public function getPhotoUrlAttribute(): ?string
     {
         return $this->photo_path ? asset('storage/' . $this->photo_path) : null;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
-import { FiFile, FiPaperclip, FiExternalLink, FiSend, FiStar, FiEdit2 } from 'react-icons/fi';
+import { FiFile, FiPaperclip, FiExternalLink, FiSend, FiStar, FiEdit2, FiMessageSquare, FiCheckCircle } from 'react-icons/fi';
 import { FaGithub } from 'react-icons/fa';
 import BackButton from '../components/BackButton';
 import Portada from '../components/Portada';
@@ -57,6 +57,11 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
   const [changingStatus, setChangingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState('');
   const [observations, setObservations] = useState(t.observations || '');
+  const [tutorObservations, setTutorObservations] = useState([]);
+  const [newObservation, setNewObservation] = useState('');
+  const [submittingObs, setSubmittingObs] = useState(false);
+  const [approvingObs, setApprovingObs] = useState(false);
+  const [requestingChanges, setRequestingChanges] = useState(false);
 
   const user = auth_user;
   const isOwner = user?.id === t.user?.id;
@@ -187,6 +192,90 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
       alert('Error de conexión');
     } finally {
       setChangingStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    const isTutor = user?.id === t.tutor_user?.id;
+    const isOwner = user?.id === t.user?.id;
+    if (isTutor || isOwner || isAdmin) {
+      fetch('/api/thesis/' + t.id + '/tutor-observations', {
+        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + jwt_token },
+      })
+        .then((res) => res.ok ? res.json() : [])
+        .then((data) => setTutorObservations(data.data || []))
+        .catch(() => {});
+    }
+  }, []);
+
+  const isTutorAccepted = user?.id === t.tutor_user?.id && t.tutor_status === 'accepted';
+
+  const handleAddObservation = async () => {
+    if (!newObservation.trim()) return;
+    setSubmittingObs(true);
+    try {
+      const res = await fetch('/api/thesis/' + t.id + '/tutor/observations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + jwt_token },
+        body: JSON.stringify({ comment: newObservation }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al enviar observación');
+      } else {
+        setNewObservation('');
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setSubmittingObs(false);
+    }
+  };
+
+  const handleTutorApprove = async () => {
+    if (!confirm('¿Aprobar esta tesis?')) return;
+    setApprovingObs(true);
+    try {
+      const res = await fetch('/api/thesis/' + t.id + '/tutor/approve', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + jwt_token },
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al aprobar');
+      } else {
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setApprovingObs(false);
+    }
+  };
+
+  const handleTutorRequestChanges = async () => {
+    if (!observations.trim()) {
+      alert('Debes escribir una observación explicando los cambios solicitados.');
+      return;
+    }
+    setRequestingChanges(true);
+    try {
+      const res = await fetch('/api/thesis/' + t.id + '/tutor/request-changes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + jwt_token },
+        body: JSON.stringify({ comment: observations }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al solicitar cambios');
+      } else {
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setRequestingChanges(false);
     }
   };
 
@@ -355,6 +444,68 @@ export default function ThesisDetail({ thesis, jwt_token, auth_user, tribunal_us
                   <p className="text-sm text-card-label">Pendiente de evaluación</p>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Observaciones del Tutor */}
+          {(isTutorAccepted || tutorObservations.length > 0 || (isAdmin && tutorObservations.length > 0) || isOwner) && (
+            <div className="mb-6">
+              <h3 className="text-card-heading text-base font-bold mb-3 flex items-center gap-2">
+                <FiMessageSquare className="size-4" />
+                Retroalimentación del Tutor
+              </h3>
+
+              {tutorObservations.length > 0 ? (
+                <div className="space-y-3 mb-4">
+                  {tutorObservations.map((obs) => (
+                    <div key={obs.id} className="bg-input-bg rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold text-card-heading">
+                          {obs.tutor?.full_name || 'Tutor'}
+                        </span>
+                        <span className="text-[10px] text-card-label">
+                          {new Date(obs.created_at).toLocaleDateString('es-BO')}
+                        </span>
+                      </div>
+                      <p className="text-sm text-card-value whitespace-pre-line">{obs.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-card-label mb-4">No hay observaciones del tutor.</p>
+              )}
+
+              {isTutorAccepted && (
+                <div className="space-y-2">
+                  <textarea value={newObservation} onChange={(e) => setNewObservation(e.target.value)}
+                    placeholder="Escribe una observación para el estudiante..."
+                    rows="3"
+                    className="w-full rounded-[10px] border border-gray-300 dark:border-[#555] outline-none px-3 py-2 text-sm bg-white dark:bg-[#333] text-card-value placeholder:text-input-placeholder resize-none"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={handleAddObservation} disabled={submittingObs || !newObservation.trim()}
+                      className="bg-primary text-text-on-primary border-none px-4 h-[38px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-50 inline-flex items-center gap-1.5">
+                      <FiMessageSquare className="size-3.5" />
+                      {submittingObs ? 'Enviando...' : 'Dejar Observación'}
+                    </button>
+                  </div>
+
+                  {t.status === 'en_revision' && (
+                    <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                      <button onClick={handleTutorApprove} disabled={approvingObs}
+                        className="bg-green-600 text-white border-none px-4 h-[38px] rounded-[10px] text-sm cursor-pointer hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5">
+                        <FiCheckCircle className="size-3.5" />
+                        {approvingObs ? 'Aprobando...' : 'Aprobar Trabajo'}
+                      </button>
+                      <button onClick={handleTutorRequestChanges} disabled={requestingChanges || !observations.trim()}
+                        className="bg-orange-500 text-white border-none px-4 h-[38px] rounded-[10px] text-sm cursor-pointer hover:bg-orange-600 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5">
+                        <FiSend className="size-3.5" />
+                        {requestingChanges ? 'Enviando...' : 'Solicitar Cambios'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
