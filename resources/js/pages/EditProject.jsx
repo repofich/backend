@@ -31,7 +31,6 @@ export default function EditProject({ thesis, categories, careers, tutors, types
     const { data, setData, post, processing, errors } = useForm({
         title: thesis.title || '',
         abstract: thesis.abstract || '',
-        tutor: thesis.tutor || '',
         tutor_id: String(thesis.tutor_id || ''),
         category_id: String(thesis.category_id || ''),
         career_id: String(thesis.career_id || ''),
