@@ -23,14 +23,14 @@ class PaymentConceptSeeder extends Seeder
             ]);
         } else {
             foreach ($careers as $career) {
-                PaymentConcept::create([
-                    'career_id' => $career->id,
-                    'name' => 'Defensa de Tesis - ' . $career->name,
-                    'code' => 'defensa_tesis',
-                    'description' => 'Pago por concepto de defensa de tesis de grado para ' . $career->name,
-                    'amount' => 50000,
-                    'is_active' => true,
-                ]);
+            PaymentConcept::create([
+                'career_id' => $career->id,
+                'name' => 'Defensa de Tesis - ' . $career->name,
+                'code' => 'defensa_tesis',
+                'description' => 'Pago por concepto de defensa de tesis de grado para ' . $career->name,
+                'amount' => 50000,
+                'is_active' => true,
+            ]);
             }
         }
     }

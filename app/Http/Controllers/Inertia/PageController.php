@@ -236,7 +236,6 @@ class PageController
         }
 
         return Inertia::render('Payments', [
-            'stripe_key' => config('stripe.key'),
             'jwt_token' => $token,
             'pending_theses' => $pendingTheses,
             'defense_fee' => $defenseFee,

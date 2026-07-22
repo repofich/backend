@@ -49,6 +49,7 @@ class HandleInertiaRequests extends Middleware
             'page_visits' => $request->attributes->get('page_visits'),
             'notifications' => $notifications,
             'unread_notifications_count' => $unreadCount,
+            'stripe_key' => config('stripe.key'),
         ];
     }
 }
