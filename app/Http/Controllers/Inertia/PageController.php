@@ -455,6 +455,7 @@ class PageController
 
         $careers = Career::all();
         $userTypes = [
+            'estudiante' => 'Estudiante',
             'docente' => 'Docente',
             'tribunal' => 'Tribunal',
             'director' => 'Director',
