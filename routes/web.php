@@ -43,6 +43,7 @@ Route::get('/admin/carreras/crear', [PageController::class, 'createCareer'])->mi
 Route::get('/admin/carreras/{career}/editar', [PageController::class, 'editCareer'])->middleware('auth');
 
 Route::get('/admin/reportes', [PageController::class, 'adminReports'])->middleware('auth');
+Route::get('/admin/papelera', [PageController::class, 'adminTrash'])->middleware('auth');
 
 Route::get('/tesis/{thesis}', [PageController::class, 'thesisDetail']);
 

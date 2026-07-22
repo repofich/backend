@@ -64,16 +64,9 @@ class ThesisController
             abort(403);
         }
 
-        $thesis->tags()->detach();
-
-        foreach ($thesis->files as $file) {
-            Storage::disk('public')->delete($file->file_path);
-        }
-
-        $thesis->files()->delete();
         $thesis->delete();
 
-        return redirect('/mis-proyectos');
+        return redirect('/mis-proyectos')->with('success', 'Tesis enviada a la papelera. Se eliminará definitivamente después de 30 días.');
     }
 
     public function uploadFile(Request $request, Thesis $thesis): RedirectResponse

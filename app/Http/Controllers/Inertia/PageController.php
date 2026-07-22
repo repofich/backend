@@ -27,13 +27,13 @@ class PageController
         if ($request->filled('query')) {
             $search = $request->input('query');
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('abstract', 'like', '%' . $search . '%')
+                $q->where('title', 'ilike', '%' . $search . '%')
+                    ->orWhere('abstract', 'ilike', '%' . $search . '%')
                     ->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('full_name', 'like', '%' . $search . '%');
+                        $q2->where('full_name', 'ilike', '%' . $search . '%');
                     })
                     ->orWhereHas('category', function ($q2) use ($search) {
-                        $q2->where('name', 'like', '%' . $search . '%');
+                        $q2->where('name', 'ilike', '%' . $search . '%');
                     });
             });
         }
@@ -43,9 +43,7 @@ class PageController
         }
 
         if ($request->filled('career')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', $request->career);
-            });
+            $query->where('career_id', $request->career);
         }
 
         if ($request->filled('type')) {
@@ -79,15 +77,13 @@ class PageController
 
         $types = Thesis::whereNotNull('type')->distinct()->pluck('type');
 
-        $careers = Career::all();
-        $careerNames = $careers->pluck('name');
-        $careerOptions = CareerResource::collection($careers);
+        $careers = Career::all(['id', 'name']);
 
         return Inertia::render('Home', [
             'publicaciones' => $thesisData,
             'filterOptions' => [
                 'años' => $years,
-                'carreras' => $careerNames,
+                'carreras' => $careers->toArray(),
                 'tipos' => $types,
             ],
             'filters' => $request->only(['query', 'year', 'career', 'type']),
@@ -357,11 +353,11 @@ class PageController
         $query = Thesis::with(['user', 'category', 'assignedEvaluator', 'tutor', 'evaluations.evaluator']);
 
         if ($request->filled('title')) {
-            $query->where('title', 'like', '%' . $request->title . '%');
+            $query->where('title', 'ilike', '%' . $request->title . '%');
         }
 
         if ($request->filled('author')) {
-            $query->whereHas('user', fn($q) => $q->where('full_name', 'like', '%' . $request->author . '%'));
+            $query->whereHas('user', fn($q) => $q->where('full_name', 'ilike', '%' . $request->author . '%'));
         }
 
         if ($request->filled('career')) {
@@ -369,7 +365,7 @@ class PageController
         }
 
         if ($request->filled('tutor')) {
-            $query->whereHas('tutor', fn($q) => $q->where('full_name', 'like', '%' . $request->tutor . '%'));
+            $query->whereHas('tutor', fn($q) => $q->where('full_name', 'ilike', '%' . $request->tutor . '%'));
         }
 
         if ($request->filled('status')) {
@@ -411,9 +407,9 @@ class PageController
         if ($request->filled('query')) {
             $s = $request->query;
             $query->where(function ($q) use ($s) {
-                $q->where('full_name', 'like', '%' . $s . '%')
-                    ->orWhere('email', 'like', '%' . $s . '%')
-                    ->orWhere('ci', 'like', '%' . $s . '%');
+                $q->where('full_name', 'ilike', '%' . $s . '%')
+                    ->orWhere('email', 'ilike', '%' . $s . '%')
+                    ->orWhere('ci', 'ilike', '%' . $s . '%');
             });
         }
 
@@ -588,6 +584,21 @@ class PageController
         $token = auth('api')->login($user);
 
         return Inertia::render('AdminReports', [
+            'jwt_token' => $token,
+        ]);
+    }
+
+    public function adminTrash()
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->user_type, ['vicedecano', 'director', 'admin'])) {
+            abort(403);
+        }
+
+        $token = auth('api')->login($user);
+
+        return Inertia::render('AdminTrash', [
             'jwt_token' => $token,
         ]);
     }

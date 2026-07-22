@@ -109,11 +109,71 @@ class ThesisController extends Controller
 
     public function destroy(Thesis $thesis): JsonResponse
     {
-        $thesis->tags()->detach();
-        $thesis->files()->delete();
         $thesis->delete();
 
-        return response()->json(['message' => 'Tesis eliminada.']);
+        return response()->json(['message' => 'Tesis enviada a la papelera. Se eliminará definitivamente después de 30 días.']);
+    }
+
+    public function trash(Request $request): AnonymousResourceCollection
+    {
+        $query = Thesis::onlyTrashed()->with(['user', 'tutor', 'category', 'tags', 'files']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'ilike', '%' . $search . '%')
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('full_name', 'ilike', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $perPage = min((int) $request->input('per_page', 15), 100);
+        $theses = $query->latest('deleted_at')->paginate($perPage);
+
+        return ThesisResource::collection($theses);
+    }
+
+    public function restore(int $id): JsonResponse
+    {
+        $thesis = Thesis::onlyTrashed()->findOrFail($id);
+        $thesis->restore();
+
+        return response()->json(['message' => 'Tesis restaurada correctamente.']);
+    }
+
+    public function forceDelete(int $id): JsonResponse
+    {
+        $thesis = Thesis::onlyTrashed()->findOrFail($id);
+
+        $thesis->tags()->detach();
+
+        foreach ($thesis->files as $file) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($file->file_path);
+        }
+
+        $thesis->files()->delete();
+        $thesis->forceDelete();
+
+        return response()->json(['message' => 'Tesis eliminada permanentemente.']);
+    }
+
+    public function emptyTrash(): JsonResponse
+    {
+        $expired = Thesis::onlyTrashed()->where('deleted_at', '<', now()->subDays(30))->get();
+
+        foreach ($expired as $thesis) {
+            $thesis->tags()->detach();
+
+            foreach ($thesis->files as $file) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($file->file_path);
+            }
+
+            $thesis->files()->delete();
+            $thesis->forceDelete();
+        }
+
+        return response()->json(['message' => 'Papelera vaciada. Se eliminaron ' . $expired->count() . ' tesis.']);
     }
 
     public function assignTutor(Request $request, Thesis $thesis): JsonResponse
@@ -283,13 +343,13 @@ class ThesisController extends Controller
             $search = $request->input('query');
 
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('abstract', 'like', '%' . $search . '%')
+                $q->where('title', 'ilike', '%' . $search . '%')
+                    ->orWhere('abstract', 'ilike', '%' . $search . '%')
                     ->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('full_name', 'like', '%' . $search . '%');
+                        $q2->where('full_name', 'ilike', '%' . $search . '%');
                     })
                     ->orWhereHas('category', function ($q2) use ($search) {
-                        $q2->where('name', 'like', '%' . $search . '%');
+                        $q2->where('name', 'ilike', '%' . $search . '%');
                     });
             });
         }
@@ -300,7 +360,7 @@ class ThesisController extends Controller
 
         if ($request->filled('career')) {
             $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->career . '%');
+                $q->where('name', 'ilike', '%' . $request->career . '%');
             });
         }
 

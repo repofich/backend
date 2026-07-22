@@ -22,9 +22,9 @@ class UserController extends Controller
             ->when($request->filled('query'), function ($q) use ($request) {
                 $s = $request->query;
                 $q->where(function ($q2) use ($s) {
-                    $q2->where('full_name', 'like', '%' . $s . '%')
-                        ->orWhere('email', 'like', '%' . $s . '%')
-                        ->orWhere('ci', 'like', '%' . $s . '%');
+                    $q2->where('full_name', 'ilike', '%' . $s . '%')
+                        ->orWhere('email', 'ilike', '%' . $s . '%')
+                        ->orWhere('ci', 'ilike', '%' . $s . '%');
                 });
             })
             ->when($request->filled('user_type'), fn($q, $type) => $q->where('user_type', $type))

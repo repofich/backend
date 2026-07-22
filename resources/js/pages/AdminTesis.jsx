@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { FiSearch, FiEye, FiX } from 'react-icons/fi';
+import { FiSearch, FiEye, FiX, FiTrash2 } from 'react-icons/fi';
 import BackButton from '../components/BackButton';
 import Table from '../components/Table';
 
@@ -197,6 +197,27 @@ export default function AdminTesis({
     }
   };
 
+  const handleDelete = async (thesisId) => {
+    if (!confirm('¿Enviar esta tesis a la papelera?')) return;
+    try {
+      const res = await fetch('/api/thesis/' + thesisId, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + jwt_token,
+        },
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || 'Error al eliminar');
+      } else {
+        router.reload();
+      }
+    } catch {
+      alert('Error de conexión');
+    }
+  };
+
   const columns = [
     {
       key: 'title',
@@ -352,6 +373,15 @@ export default function AdminTesis({
             >
               <FiEye className="size-3" />
               Ver
+            </button>
+
+            {/* Eliminar */}
+            <button
+              onClick={() => handleDelete(row.id)}
+              className="bg-red-600 text-white border-none px-3 h-[32px] rounded-[8px] text-[11px] font-[600] cursor-pointer hover:bg-red-700 transition-colors font-card-meta inline-flex items-center justify-center gap-1"
+            >
+              <FiTrash2 className="size-3" />
+              Eliminar
             </button>
           </div>
         );

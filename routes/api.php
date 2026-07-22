@@ -98,6 +98,12 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/thesis/{thesis}/tutor/history', [ThesisController::class, 'tutorHistory']);
         Route::post('/thesis/{thesis}/evaluator', [EvaluationController::class, 'assignEvaluator']);
         Route::delete('/thesis/{thesis}/evaluator', [EvaluationController::class, 'removeEvaluator']);
+
+        // Trash (papelera)
+        Route::get('/trash/theses', [ThesisController::class, 'trash']);
+        Route::post('/trash/theses/{id}/restore', [ThesisController::class, 'restore']);
+        Route::delete('/trash/theses/{id}/force', [ThesisController::class, 'forceDelete']);
+        Route::post('/trash/theses/empty', [ThesisController::class, 'emptyTrash']);
     });
 
     // Evaluaciones (tribunal, director)

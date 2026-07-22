@@ -106,6 +106,12 @@ export default function GlobalMenu({ appearance }) {
 									</div>
 								)}
 
+								{['vicedecano', 'director', 'admin'].includes(user?.user_type) && (
+									<div onClick={() => nav('/admin/papelera')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+										Papelera
+									</div>
+								)}
+
 								{user?.user_type === 'admin' && (
 									<div onClick={() => nav('/admin/usuarios')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 										Administrar Usuarios
