@@ -18,8 +18,6 @@
     @endif
     <script>
         window.__INERTIA_STRIPE_KEY = "{{ config('stripe.key') }}";
-        console.log('__INERTIA_STRIPE_KEY:', window.__INERTIA_STRIPE_KEY);
-        console.log('typeof:', typeof window.__INERTIA_STRIPE_KEY);
     </script>
     @vite('resources/js/app.jsx')
     @inertiaHead

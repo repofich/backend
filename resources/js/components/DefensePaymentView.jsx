@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -15,7 +15,16 @@ const CARD_OPTIONS = {
   },
 };
 
-function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, onComplete }) {
+function CardSection({ useNewCard }) {
+  if (!useNewCard) return null;
+  return (
+    <div className="p-4 bg-white rounded-xl border border-gray-200">
+      <CardElement options={CARD_OPTIONS} />
+    </div>
+  );
+}
+
+function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods }) {
   const stripe = useStripe();
   const elements = useElements();
   const [paymentType, setPaymentType] = useState('contado');
@@ -24,15 +33,16 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
   const [useNewCard, setUseNewCard] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState('select');
+  const [successPaymentId, setSuccessPaymentId] = useState(null);
   const [message, setMessage] = useState(null);
-  const [clientSecret, setClientSecret] = useState(null);
-  const [resultPayment, setResultPayment] = useState(null);
 
   const firstAmount = paymentType === 'credito'
     ? Math.floor(defenseFee / installments)
     : defenseFee;
 
   const handlePay = async () => {
+    if (!stripe || !elements) return;
+
     setLoading(true);
     setMessage(null);
 
@@ -40,6 +50,9 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
       let paymentMethodId = null;
 
       if (useNewCard) {
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) throw new Error('Elemento de tarjeta no disponible');
+
         const resSetup = await fetch('/api/payments/setup-intent', {
           method: 'POST',
           headers: {
@@ -51,13 +64,11 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
         const setupData = await resSetup.json();
         if (!resSetup.ok) throw new Error(setupData.message || 'Error al preparar registro de tarjeta');
 
-        const stripeLib = await loadStripe(stripe._stripeKey);
-        const { error: setupError, setupIntent } = await stripeLib.confirmCardSetup(setupData.client_secret, {
-          payment_method: { card: elements.getElement(CardElement) },
+        const { error: setupError, setupIntent } = await stripe.confirmCardSetup(setupData.client_secret, {
+          payment_method: { card: cardElement },
         });
 
         if (setupError) throw new Error(setupError.message);
-
         paymentMethodId = setupIntent.payment_method;
       }
 
@@ -72,16 +83,16 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
           thesis_id: thesis.id,
           payment_type: paymentType,
           installments: paymentType === 'credito' ? installments : undefined,
-          payment_method_id: paymentMethodId || selectedMethodId,
+          payment_method_id: paymentMethodId || selectedMethodId || undefined,
         }),
       });
 
       const defenseData = await resDefense.json();
       if (!resDefense.ok) throw new Error(defenseData.message || 'Error al crear pago');
+      const pid = defenseData.payment?.id;
 
-      if (useNewCard) {
+      if (paymentMethodId || selectedMethodId) {
         const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(defenseData.client_secret);
-
         if (confirmError) throw new Error(confirmError.message);
 
         const resConfirm = await fetch('/api/payments/confirm', {
@@ -96,27 +107,6 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
 
         const confirmData = await resConfirm.json();
         if (!resConfirm.ok) throw new Error(confirmData.message || 'Error al confirmar pago');
-
-        setResultPayment(confirmData.payment);
-      } else if (selectedMethodId && defenseData.client_secret) {
-        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(defenseData.client_secret);
-
-        if (confirmError) throw new Error(confirmError.message);
-
-        const resConfirm = await fetch('/api/payments/confirm', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${jwtToken}`,
-          },
-          body: JSON.stringify({ stripe_payment_intent_id: paymentIntent.id }),
-        });
-
-        const confirmData = await resConfirm.json();
-        if (!resConfirm.ok) throw new Error(confirmData.message || 'Error al confirmar pago');
-
-        setResultPayment(confirmData.payment);
       } else {
         const resConfirm = await fetch('/api/payments/confirm', {
           method: 'POST',
@@ -130,11 +120,10 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
 
         const confirmData = await resConfirm.json();
         if (!resConfirm.ok) throw new Error(confirmData.message || 'Error al confirmar pago');
-
-        setResultPayment(confirmData.payment);
       }
 
       setStep('success');
+      setSuccessPaymentId(pid);
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
     } finally {
@@ -145,56 +134,26 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
   if (step === 'success') {
     return (
       <div className="text-center py-8">
-        <div className="text-5xl mb-4">✅</div>
+        <svg className="w-14 h-14 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         <h3 className="text-xl font-bold text-card-heading mb-2">Defensa de Tesis Pagada</h3>
-        <p className="text-card-value mb-2">
-          <strong>{thesis.title}</strong>
-        </p>
+        <p className="text-card-value mb-2"><strong>{thesis.title}</strong></p>
         <p className="text-card-label text-sm mb-6">
           {(defenseFee / 100).toFixed(2)} Bs. - {paymentType === 'credito' ? `Crédito (${installments} cuotas)` : 'Contado'}
         </p>
-        <button
-          onClick={() => router.reload()}
-          className="bg-primary text-text-on-primary px-6 py-3 rounded-xl cursor-pointer hover:bg-primary-light transition-colors"
-        >
-          Volver a Pagos
-        </button>
-      </div>
-    );
-  }
-
-  if (useNewCard && step === 'card') {
-    return (
-      <div className="space-y-6">
-        {message && (
-          <div className={`p-4 rounded-xl text-sm ${
-            message.type === 'error'
-              ? 'bg-red-50 text-red-700'
-              : 'bg-green-50 text-green-700'
-          }`}>
-            {message.text}
-          </div>
-        )}
-        <p className="text-card-label text-sm text-center">
-          Ingresa los datos de tu tarjeta para pagar la defensa de tesis
-        </p>
-        <div className="p-4 bg-white rounded-xl border border-gray-200">
-          <CardElement options={CARD_OPTIONS} />
-        </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 justify-center">
           <button
-            onClick={() => { setUseNewCard(false); setStep('select'); setMessage(null); }}
-            disabled={loading}
-            className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl text-base cursor-pointer hover:bg-gray-300 transition-colors disabled:opacity-60"
+            onClick={() => window.open(`/pagos/${successPaymentId}/recibo`, '_blank')}
+            className="bg-green-600 text-white px-6 py-3 rounded-xl cursor-pointer hover:bg-green-700 transition-colors text-sm"
           >
-            Cancelar
+            Ver Recibo
           </button>
           <button
-            onClick={handlePay}
-            disabled={loading || !stripe}
-            className="flex-1 bg-primary text-white py-4 rounded-xl text-base font-bold cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60"
+            onClick={() => router.reload()}
+            className="bg-primary text-text-on-primary px-6 py-3 rounded-xl cursor-pointer hover:bg-primary-light transition-colors text-sm"
           >
-            {loading ? 'Procesando...' : `Pagar ${(firstAmount / 100).toFixed(2)} Bs.`}
+            Volver a Pagos
           </button>
         </div>
       </div>
@@ -275,7 +234,7 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
                 <span className="text-card-value text-sm">
                   {pm.brand === 'visa' ? 'Visa' : pm.brand === 'mastercard' ? 'Mastercard' : pm.brand}
                   {' '}**** {pm.last4}
-                  {' '}— Exp. {String(pm.exp_month).padStart(2, '0')}/{pm.exp_year}
+                  {' — '}Exp. {String(pm.exp_month).padStart(2, '0')}/{pm.exp_year}
                 </span>
               </label>
             ))}
@@ -284,9 +243,7 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
 
         <label
           className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
-            useNewCard
-              ? 'border-primary bg-primary/5'
-              : 'border-gray-200 hover:border-gray-300'
+            useNewCard ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'
           }`}
         >
           <input
@@ -304,33 +261,22 @@ function DefensePaymentContent({ thesis, defenseFee, jwtToken, paymentMethods, o
         </label>
       </div>
 
-      {useNewCard && (
-        <div className="p-4 bg-white rounded-xl border border-gray-200">
-          <CardElement options={CARD_OPTIONS} />
-        </div>
-      )}
+      <CardSection useNewCard={useNewCard} />
 
       <button
-        onClick={() => {
-          if (useNewCard) {
-            setStep('card');
-          } else {
-            handlePay();
-          }
-        }}
-        disabled={loading || (!selectedMethodId && !useNewCard)}
+        onClick={handlePay}
+        disabled={loading || !stripe || !elements || (!selectedMethodId && !useNewCard)}
         className="w-full bg-primary text-white py-4 rounded-xl text-lg font-bold cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {loading
-          ? 'Procesando...'
-          : `Pagar ${(firstAmount / 100).toFixed(2)} Bs.`}
+        {loading ? 'Procesando...' : `Pagar ${(firstAmount / 100).toFixed(2)} Bs.`}
       </button>
     </div>
   );
 }
 
-export default function DefensePaymentView({ thesis, defenseFee, stripeKey, jwtToken, paymentMethods, onComplete }) {
-  const stripePromise = useMemo(() => loadStripe(stripeKey), [stripeKey]);
+export default function DefensePaymentView({ thesis, defenseFee, stripeKey, jwtToken, paymentMethods }) {
+  const effectiveKey = stripeKey || window.__INERTIA_STRIPE_KEY;
+  const stripePromise = useMemo(() => loadStripe(effectiveKey), [effectiveKey]);
 
   return (
     <Elements stripe={stripePromise}>
@@ -339,7 +285,6 @@ export default function DefensePaymentView({ thesis, defenseFee, stripeKey, jwtT
         defenseFee={defenseFee}
         jwtToken={jwtToken}
         paymentMethods={paymentMethods}
-        onComplete={onComplete}
       />
     </Elements>
   );

@@ -27,6 +27,7 @@ Route::post('/tesis/{thesis}/archivos', [ThesisController::class, 'uploadFile'])
 Route::delete('/tesis/{thesis}/archivos/{file}', [ThesisController::class, 'deleteFile'])->middleware('auth');
 
 Route::get('/pagos', [PageController::class, 'payments'])->middleware('auth');
+Route::get('/pagos/{payment}/recibo', [PageController::class, 'receipt'])->middleware('auth');
 
 Route::get('/perfil', [PageController::class, 'profile'])->middleware('auth');
 Route::post('/perfil', [App\Http\Controllers\Inertia\ProfileController::class, 'update'])->middleware('auth');

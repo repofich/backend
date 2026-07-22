@@ -4,15 +4,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import BackButton from '../components/BackButton';
 
-const statusLabels = {
-  borrador: 'Borrador',
-  en_revision: 'En Revisión',
-  observado: 'Observado',
-  aprobado: 'Aprobado',
-  rechazado: 'Rechazado',
-  publicado: 'Publicado',
-};
-
 const CARD_OPTIONS = {
   style: {
     base: {
@@ -25,39 +16,15 @@ const CARD_OPTIONS = {
   },
 };
 
-function CardForm({ loading, onPay, onCancel }) {
-  return (
-    <div className="space-y-4">
-      <div className="p-4 bg-white dark:bg-[#333] rounded-xl border border-gray-200 dark:border-[#555]">
-        <CardElement options={CARD_OPTIONS} />
-      </div>
-      <div className="flex gap-3">
-        <button
-          onClick={onCancel}
-          disabled={loading}
-          className="flex-1 bg-gray-200 dark:bg-[#444] text-gray-700 dark:text-gray-200 py-4 rounded-xl text-base cursor-pointer hover:bg-gray-300 transition-colors disabled:opacity-60"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={onPay}
-          disabled={loading}
-          className="flex-1 bg-primary text-white py-4 rounded-xl text-base font-bold cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60"
-        >
-          {loading ? 'Procesando...' : 'Confirmar Pago'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function ThesisPaymentForm({ thesis, defenseFee, stripe, jwtToken, paymentMethods, onSuccess }) {
+function ThesisPaymentForm({ thesis, defenseFee, stripe: stripePromise, jwtToken, paymentMethods, onSuccess }) {
+  const stripeInstance = useStripe();
   const elements = useElements();
   const [paymentType, setPaymentType] = useState('contado');
   const [installments, setInstallments] = useState(2);
   const [selectedMethodId, setSelectedMethodId] = useState(null);
   const [useNewCard, setUseNewCard] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [successPaymentId, setSuccessPaymentId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
@@ -84,8 +51,7 @@ function ThesisPaymentForm({ thesis, defenseFee, stripe, jwtToken, paymentMethod
         const setupData = await resSetup.json();
         if (!resSetup.ok) throw new Error(setupData.message || 'Error al preparar registro de tarjeta');
 
-        const stripeLib = await loadStripe(stripe._stripeKey);
-        const { error: setupError, setupIntent } = await stripeLib.confirmCardSetup(setupData.client_secret, {
+        const { error: setupError, setupIntent } = await stripeInstance.confirmCardSetup(setupData.client_secret, {
           payment_method: { card: elements.getElement(CardElement) },
         });
 
@@ -110,9 +76,10 @@ function ThesisPaymentForm({ thesis, defenseFee, stripe, jwtToken, paymentMethod
 
       const defenseData = await resDefense.json();
       if (!resDefense.ok) throw new Error(defenseData.message || 'Error al crear pago');
+      const pid = defenseData.payment?.id;
 
       if (defenseData.client_secret) {
-        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(defenseData.client_secret);
+        const { error: confirmError, paymentIntent } = await stripeInstance.confirmCardPayment(defenseData.client_secret);
         if (confirmError) throw new Error(confirmError.message);
 
         const resConfirm = await fetch('/api/payments/confirm', {
@@ -143,6 +110,7 @@ function ThesisPaymentForm({ thesis, defenseFee, stripe, jwtToken, paymentMethod
       }
 
       setSuccess(true);
+      setSuccessPaymentId(pid);
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
     } finally {
@@ -153,18 +121,28 @@ function ThesisPaymentForm({ thesis, defenseFee, stripe, jwtToken, paymentMethod
   if (success) {
     return (
       <div className="text-center py-8">
-        <div className="text-5xl mb-4">✅</div>
+        <svg className="w-14 h-14 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         <h3 className="text-xl font-bold text-card-heading mb-2">Defensa de Tesis Pagada</h3>
         <p className="text-card-value mb-2"><strong>{thesis.title}</strong></p>
         <p className="text-card-label text-sm mb-6">
           {(defenseFee / 100).toFixed(2)} Bs. - {paymentType === 'credito' ? `Crédito (${installments} cuotas)` : 'Contado'}
         </p>
-        <button
-          onClick={() => onSuccess()}
-          className="bg-primary text-text-on-primary px-6 py-3 rounded-xl cursor-pointer hover:bg-primary-light transition-colors"
-        >
-          Volver a Pagos
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => window.open(`/pagos/${successPaymentId}/recibo`, '_blank')}
+            className="bg-green-600 text-white px-6 py-3 rounded-xl cursor-pointer hover:bg-green-700 transition-colors text-sm"
+          >
+            Ver Recibo
+          </button>
+          <button
+            onClick={() => onSuccess()}
+            className="bg-primary text-text-on-primary px-6 py-3 rounded-xl cursor-pointer hover:bg-primary-light transition-colors text-sm"
+          >
+            Volver a Pagos
+          </button>
+        </div>
       </div>
     );
   }
@@ -264,7 +242,7 @@ function ThesisPaymentForm({ thesis, defenseFee, stripe, jwtToken, paymentMethod
 
       <button
         onClick={handlePay}
-        disabled={loading || (!selectedMethodId && !useNewCard)}
+        disabled={loading || !stripeInstance || (!selectedMethodId && !useNewCard)}
         className="w-full bg-primary text-white py-4 rounded-xl text-lg font-bold cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {loading ? 'Procesando...' : `Pagar ${(firstAmount / 100).toFixed(2)} Bs.`}
@@ -273,180 +251,9 @@ function ThesisPaymentForm({ thesis, defenseFee, stripe, jwtToken, paymentMethod
   );
 }
 
-function GenericPaymentForm({ stripeKey, jwtToken, onBack }) {
-  const [amount, setAmount] = useState('');
-  const [paymentType, setPaymentType] = useState('contado');
-  const [concept, setConcept] = useState('');
-  const [step, setStep] = useState('form');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [clientSecret, setClientSecret] = useState(null);
-  const [paymentId, setPaymentId] = useState(null);
 
-  const stripe = useStripe();
-  const elements = useElements();
-
-  const handleGenerate = async () => {
-    const centavos = Math.round(parseFloat(amount) * 100);
-    if (!centavos || centavos <= 0) return;
-
-    setLoading(true);
-    setMessage(null);
-
-    try {
-      const res = await fetch('/api/payments/intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify({ amount: centavos, payment_type: paymentType, concept }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Error al generar pago');
-
-      setClientSecret(data.client_secret);
-      setPaymentId(data.payment.id);
-      setStep('card');
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePay = async () => {
-    if (!stripe || !elements) return;
-    setLoading(true);
-    setMessage(null);
-
-    try {
-      const cardElement = elements.getElement(CardElement);
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardElement },
-      });
-
-      if (error) throw new Error(error.message);
-
-      const res = await fetch('/api/payments/confirm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify({ stripe_payment_intent_id: paymentIntent.id }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Error al confirmar pago');
-
-      setStep('success');
-      setMessage({ type: 'success', text: 'Pago exitoso!' });
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (step === 'success') {
-    return (
-      <div className="text-center py-8">
-        <div className="text-5xl mb-4">✅</div>
-        <h3 className="text-xl font-bold text-card-heading mb-2">Pago Exitoso</h3>
-        <p className="text-card-value mb-6">
-          {amount ? (Math.round(parseFloat(amount) * 100) / 100).toFixed(2) : '0.00'} Bs.
-          {concept && <> — {concept}</>}
-        </p>
-        <button onClick={onBack} className="bg-primary text-white px-6 py-3 rounded-xl cursor-pointer hover:bg-primary-light transition-colors">
-          Volver a Pagos
-        </button>
-      </div>
-    );
-  }
-
-  if (step === 'card') {
-    return (
-      <div className="space-y-6">
-        {message && (
-          <div className={`p-4 rounded-xl text-sm ${message.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-            {message.text}
-          </div>
-        )}
-        <p className="text-center text-card-label text-sm">
-          Total a pagar: {amount ? (Math.round(parseFloat(amount) * 100) / 100).toFixed(2) : '0.00'} Bs.
-        </p>
-        <CardForm
-          loading={loading}
-          onPay={handlePay}
-          onCancel={() => setStep('form')}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-5">
-      {message && (
-        <div className={`p-4 rounded-xl text-sm ${message.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-          {message.text}
-        </div>
-      )}
-
-      <div>
-        <label className="block text-card-label text-sm mb-1.5">Monto (Bs.)</label>
-        <input
-          type="number" step="0.01" min="1"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="0.00"
-          className="w-full h-[48px] rounded-[12px] border-none outline-none px-4 text-base bg-input-bg text-input-text placeholder:text-input-placeholder"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block text-card-label text-sm mb-1.5">Tipo de Pago</label>
-        <select
-          value={paymentType}
-          onChange={(e) => setPaymentType(e.target.value)}
-          className="w-full h-[48px] rounded-[12px] border-none outline-none px-4 text-base bg-input-bg text-input-text"
-        >
-          <option value="contado">Contado</option>
-          <option value="credito">Crédito (2 cuotas)</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-card-label text-sm mb-1.5">Concepto (opcional)</label>
-        <input
-          type="text"
-          value={concept}
-          onChange={(e) => setConcept(e.target.value)}
-          placeholder="Ej: Inscripción tesis"
-          className="w-full h-[48px] rounded-[12px] border-none outline-none px-4 text-base bg-input-bg text-input-text placeholder:text-input-placeholder"
-        />
-      </div>
-
-      <button
-        onClick={handleGenerate}
-        disabled={loading || !amount || parseFloat(amount) <= 0}
-        className="w-full bg-primary text-white py-4 rounded-xl text-lg font-bold cursor-pointer hover:bg-primary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {loading ? 'Generando...' : 'Ir a Pagar'}
-      </button>
-    </div>
-  );
-}
-
-export default function Payments({ stripe_key, jwt_token, pending_theses, defense_fee, payment_methods }) {
-  console.log('Payments props:', { stripe_key, jwt_token, pending_theses, defense_fee, payment_methods });
-  console.log('window.__INERTIA_STRIPE_KEY:', window.__INERTIA_STRIPE_KEY);
+export default function Payments({ stripe_key, jwt_token, pending_theses, defense_fee, payment_methods, completed_payments }) {
   const [selectedThesis, setSelectedThesis] = useState(null);
-  const [showGenericForm, setShowGenericForm] = useState(false);
   const resolvedKey = stripe_key || window.__INERTIA_STRIPE_KEY;
 
   if (!resolvedKey) {
@@ -481,29 +288,6 @@ export default function Payments({ stripe_key, jwt_token, pending_theses, defens
               jwtToken={jwt_token}
               paymentMethods={payment_methods}
               onSuccess={() => setSelectedThesis(null)}
-            />
-          </div>
-        </div>
-      </Elements>
-    );
-  }
-
-  if (showGenericForm) {
-    return (
-      <Elements stripe={stripePromise}>
-        <div className="max-w-lg mx-auto px-4 py-10">
-          <button
-            onClick={() => setShowGenericForm(false)}
-            className="mb-4 bg-primary text-text-on-primary border-none px-5 h-[40px] rounded-[10px] text-sm cursor-pointer hover:bg-primary-light transition-colors"
-          >
-            Volver
-          </button>
-          <div className="bg-card-bg rounded-[20px] p-8">
-            <h2 className="text-card-heading text-2xl font-bold text-center mb-8">Otro Pago</h2>
-            <GenericPaymentForm
-              stripeKey={stripe_key}
-              jwtToken={jwt_token}
-              onBack={() => setShowGenericForm(false)}
             />
           </div>
         </div>
@@ -565,14 +349,49 @@ export default function Payments({ stripe_key, jwt_token, pending_theses, defens
         </div>
       )}
 
-      <div className="bg-card-bg rounded-[16px] p-4 sm:p-6">
-        <button
-          onClick={() => setShowGenericForm(true)}
-          className="w-full bg-transparent border-none cursor-pointer text-card-heading text-lg font-bold text-left"
-        >
-          Otros Pagos →
-        </button>
-      </div>
+      {completed_payments?.length > 0 && (
+        <div className="bg-card-bg rounded-[16px] p-4 sm:p-6 mb-6">
+          <h2 className="text-card-heading text-lg font-bold mb-4">Pagos Realizados</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse font-card-meta">
+              <thead>
+                <tr className="bg-primary text-text-on-primary">
+                  <th className="text-left px-4 py-3 text-[13px] font-[600]">Fecha</th>
+                  <th className="text-left px-4 py-3 text-[13px] font-[600]">Concepto</th>
+                  <th className="text-left px-4 py-3 text-[13px] font-[600]">Tipo</th>
+                  <th className="text-left px-4 py-3 text-[13px] font-[600]">Monto</th>
+                  <th className="text-center px-4 py-3 text-[13px] font-[600]">Recibo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {completed_payments.map((p) => (
+                  <tr key={p.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 text-[13px] text-card-value">{p.paid_at}</td>
+                    <td className="px-4 py-3 text-[13px] text-card-value max-w-[200px] truncate">
+                      {p.thesis_title ? p.thesis_title : (p.concept || '—')}
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-card-value">
+                      {p.payment_type === 'credito' ? 'Crédito' : 'Contado'}
+                      {p.total_installments > 1 && ` (${p.installment_number ?? 1}/${p.total_installments})`}
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-card-value font-bold">
+                      {(p.amount / 100).toFixed(2)} Bs.
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => window.open(`/pagos/${p.id}/recibo`, '_blank')}
+                        className="bg-green-600 text-white border-none px-3 py-1.5 rounded-[8px] text-xs cursor-pointer hover:bg-green-700 transition-colors"
+                      >
+                        Recibo
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

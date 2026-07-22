@@ -108,18 +108,28 @@ function PaymentFormContent({ jwtToken, amount, paymentType, concept, onSuccess,
   if (step === 'success') {
     return (
       <div className="text-center py-8">
-        <div className="text-5xl mb-4">✅</div>
+        <svg className="w-14 h-14 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pago Exitoso</h3>
         <p className="text-gray-600 dark:text-gray-300 mb-4">
           {(amount / 100).toFixed(2)} Bs. - {paymentType === 'credito' ? 'Crédito' : 'Contado'}
         </p>
         {concept && <p className="text-sm text-gray-500 mb-6">{concept}</p>}
-        <button
-          onClick={reset}
-          className="bg-primary text-white px-6 py-3 rounded-xl cursor-pointer hover:bg-primary-light transition-colors"
-        >
-          Nuevo Pago
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => window.open(`/pagos/${paymentId}/recibo`, '_blank')}
+            className="bg-green-600 text-white px-6 py-3 rounded-xl cursor-pointer hover:bg-green-700 transition-colors text-sm"
+          >
+            Ver Recibo
+          </button>
+          <button
+            onClick={reset}
+            className="bg-primary text-white px-6 py-3 rounded-xl cursor-pointer hover:bg-primary-light transition-colors text-sm"
+          >
+            Nuevo Pago
+          </button>
+        </div>
       </div>
     );
   }
@@ -175,7 +185,8 @@ function PaymentFormContent({ jwtToken, amount, paymentType, concept, onSuccess,
 }
 
 export default function PaymentForm({ stripeKey, jwtToken, amount, paymentType, concept, onSuccess, onError }) {
-  const stripePromise = useMemo(() => loadStripe(stripeKey), [stripeKey]);
+  const effectiveKey = stripeKey || window.__INERTIA_STRIPE_KEY;
+  const stripePromise = useMemo(() => loadStripe(effectiveKey), [effectiveKey]);
 
   return (
     <Elements stripe={stripePromise}>

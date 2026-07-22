@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Career;
 use App\Models\Category;
 use App\Models\PageVisit;
+use App\Models\Payment;
 use App\Models\PaymentConcept;
 use App\Models\Tag;
 use App\Models\Thesis;
@@ -240,6 +241,36 @@ class PageController
             'pending_theses' => $pendingTheses,
             'defense_fee' => $defenseFee,
             'payment_methods' => $paymentMethods,
+            'completed_payments' => $user
+                ? Payment::with('thesis')
+                    ->where('user_id', $user->id)
+                    ->where('status', 'succeeded')
+                    ->latest('paid_at')
+                    ->get()
+                    ->map(fn ($p) => [
+                        'id' => $p->id,
+                        'amount' => $p->amount,
+                        'concept' => $p->concept,
+                        'payment_type' => $p->payment_type,
+                        'installment_number' => $p->installment_number,
+                        'total_installments' => $p->total_installments,
+                        'paid_at' => $p->paid_at?->format('d/m/Y H:i'),
+                        'thesis_title' => $p->thesis?->title,
+                    ])
+                : [],
+        ]);
+    }
+
+    public function receipt(Payment $payment)
+    {
+        abort_if($payment->user_id !== auth()->id(), 403);
+
+        $payment->load(['user', 'thesis.career']);
+
+        return view('receipt', [
+            'payment' => $payment,
+            'user' => $payment->user,
+            'thesis' => $payment->thesis,
         ]);
     }
 
