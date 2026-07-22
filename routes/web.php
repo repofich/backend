@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Inertia\AuthController;
+use App\Http\Controllers\Inertia\NotificationController;
 use App\Http\Controllers\Inertia\PageController;
 use App\Http\Controllers\Inertia\ThesisController;
 use Illuminate\Support\Facades\Route;
@@ -46,3 +47,10 @@ Route::get('/admin/reportes', [PageController::class, 'adminReports'])->middlewa
 Route::get('/tesis/{thesis}', [PageController::class, 'thesisDetail']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Notifications
+Route::middleware('auth')->group(function () {
+    Route::get('/notificaciones', [NotificationController::class, 'index']);
+    Route::post('/notificaciones/{notification}/read', [NotificationController::class, 'markRead']);
+    Route::post('/notificaciones/read-all', [NotificationController::class, 'markAllRead']);
+});

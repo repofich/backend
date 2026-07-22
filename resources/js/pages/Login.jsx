@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import BackButton from '../components/BackButton';
 
 export default function Login() {
+	const [showPassword, setShowPassword] = useState(false);
 	const { data, setData, post, processing, errors, setError } = useForm({
 		ci: '',
 		password: '',
@@ -49,13 +52,24 @@ export default function Login() {
 							<label className="text-card-label text-[13px] sm:text-[14px] font-card-meta">
 								Contraseña
 							</label>
-							<input
-								type="password"
-								value={data.password}
-								onInput={(e) => setData('password', e.target.value)}
-								placeholder="••••••••"
-								className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
-							/>
+							<div className="relative">
+								<input
+									type={showPassword ? 'text' : 'password'}
+									value={data.password}
+									onInput={(e) => setData('password', e.target.value)}
+									placeholder="••••••••"
+									className="w-full h-[48px] sm:h-[54px] rounded-[12px] border-none outline-none px-4 pr-12 text-[15px] sm:text-[16px] bg-input-bg text-input-text font-card-meta placeholder:text-input-placeholder transition-shadow duration-200 focus:shadow-[0_0_0_2px_var(--color-primary)]"
+								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword((v) => !v)}
+									tabIndex={-1}
+									className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none text-card-label cursor-pointer hover:text-card-heading transition-colors p-1 flex items-center"
+									aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+								>
+									{showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+								</button>
+							</div>
 							{errors.password && (
 								<span className="text-error text-[11px] font-card-meta">{errors.password}</span>
 							)}

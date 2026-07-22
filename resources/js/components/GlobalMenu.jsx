@@ -124,6 +124,10 @@ export default function GlobalMenu({ appearance }) {
 									</div>
 								)}
 
+								<div onClick={() => nav('/notificaciones')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
+									Notificaciones
+								</div>
+
 								<div onClick={() => nav('/perfil')} className="px-4 py-2 text-card-label text-[13px] font-card-meta hover:bg-gray-50 dark:hover:bg-[#333] cursor-pointer">
 									Perfil
 								</div>

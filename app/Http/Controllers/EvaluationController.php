@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\NotificationsHelper;
 use App\Http\Requests\StoreEvaluationRequest;
 use App\Http\Requests\UpdateEvaluationRequest;
 use App\Http\Resources\EvaluationResource;
@@ -52,6 +53,17 @@ class EvaluationController extends Controller
         $this->updateThesisStatus($thesis, $request->recommendation);
 
         $evaluation->load('evaluator');
+
+        $director = $thesis->career?->director;
+        if ($director) {
+            NotificationsHelper::notify(
+                $director->id,
+                'evaluation_submitted',
+                'Nueva evaluación de tesis',
+                'Se ha registrado una evaluación para "' . $thesis->title . '" con recomendación: ' . ($request->recommendation ?? ''),
+                ['thesis_id' => $thesis->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Evaluación registrada.',
@@ -106,6 +118,14 @@ class EvaluationController extends Controller
 
         $thesis->update(['assigned_evaluator_id' => $user->id]);
         $thesis->load(['user', 'tutor', 'assignedEvaluator', 'category', 'tags', 'files']);
+
+        NotificationsHelper::notify(
+            $user->id,
+            'evaluator_assigned',
+            'Nueva evaluación asignada',
+            'Has sido asignado como evaluador de la tesis "' . $thesis->title . '".',
+            ['thesis_id' => $thesis->id]
+        );
 
         return response()->json([
             'message' => 'Evaluador asignado.',

@@ -2,6 +2,7 @@ import { router, usePage } from '@inertiajs/react';
 import { FaMoon, FaSun } from 'react-icons/fa';
 import Header from './Header';
 import GlobalMenu from './GlobalMenu';
+import NotificationBell from './NotificationBell';
 import Footer from './Footer';
 import { useAppearance } from '../hooks/useAppearance';
 
@@ -15,7 +16,10 @@ export default function AppLayout({ children }) {
 		<div className="min-h-screen bg-bg-page font-[Georgia,serif] flex flex-col">
 			<Header>
 				{auth?.user ? (
-					<GlobalMenu appearance={appearance} />
+					<div className="flex items-center gap-2">
+						<NotificationBell />
+						<GlobalMenu appearance={appearance} />
+					</div>
 				) : (
 					<div className="flex items-center gap-2 sm:gap-3">
 						<button

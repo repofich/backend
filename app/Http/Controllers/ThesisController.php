@@ -14,6 +14,7 @@ use App\Models\Thesis;
 use App\Models\TutorAssignmentLog;
 use App\Models\TutorObservation;
 use App\Models\User;
+use App\Helpers\NotificationsHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -149,6 +150,14 @@ class ThesisController extends Controller
 
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
+        NotificationsHelper::notify(
+            $user->id,
+            'tutor_assigned',
+            'Nueva tutoría asignada',
+            'Has sido asignado como tutor de "' . $thesis->title . '". Por favor, acepta o rechaza la solicitud.',
+            ['thesis_id' => $thesis->id]
+        );
+
         return response()->json([
             'message' => 'Tutor sugerido. Queda pendiente de aceptación.',
             'thesis' => new ThesisResource($thesis),
@@ -181,6 +190,21 @@ class ThesisController extends Controller
         ]);
 
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        if ($thesis->user_id) {
+            $action = $request->response === 'accepted' ? 'tutor_accepted' : 'tutor_rejected';
+            $msg = $request->response === 'accepted'
+                ? 'El tutor ha aceptado la tutoría de tu tesis.'
+                : 'El tutor ha rechazado la tutoría de tu tesis.';
+
+            NotificationsHelper::notify(
+                $thesis->user_id,
+                $action,
+                'Respuesta de tutoría: ' . $thesis->title,
+                $msg,
+                ['thesis_id' => $thesis->id]
+            );
+        }
 
         return response()->json([
             'message' => $request->response === 'accepted'
@@ -321,6 +345,24 @@ class ThesisController extends Controller
         $thesis->update($data);
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
 
+        if ($thesis->user_id) {
+            $label = match ($request->status) {
+                'aprobado' => 'Aprobada',
+                'publicado' => 'Publicada',
+                'observado' => 'Observada',
+                'rechazado' => 'Rechazada',
+                default => $request->status,
+            };
+
+            NotificationsHelper::notify(
+                $thesis->user_id,
+                'status_changed',
+                'Tesis ' . $label,
+                'Tu tesis "' . $thesis->title . '" ha cambiado al estado: ' . $label . '.',
+                ['thesis_id' => $thesis->id]
+            );
+        }
+
         return response()->json([
             'message' => 'Estado de la tesis actualizado a ' . $request->status . '.',
             'thesis' => new ThesisResource($thesis),
@@ -355,6 +397,17 @@ class ThesisController extends Controller
 
         $thesis->update(['status' => $allowed[$thesis->status]]);
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        if ($thesis->tutor_id) {
+            $action = $thesis->status === 'en_revision' ? 'thesis_submitted' : 'resubmitted';
+            NotificationsHelper::notify(
+                $thesis->tutor_id,
+                $action,
+                'Tesis enviada: ' . $thesis->title,
+                'El estudiante ' . ($thesis->user->full_name ?? '') . ' ha enviado la tesis para revisión.',
+                ['thesis_id' => $thesis->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Tesis enviada a revisión.',
@@ -419,6 +472,16 @@ class ThesisController extends Controller
 
         $observation->load('tutor');
 
+        if ($thesis->user_id) {
+            NotificationsHelper::notify(
+                $thesis->user_id,
+                'observation_added',
+                'Nueva observación del tutor',
+                auth()->user()->full_name . ' ha dejado una observación en tu tesis "' . $thesis->title . '".',
+                ['thesis_id' => $thesis->id]
+            );
+        }
+
         return response()->json([
             'message' => 'Observación registrada.',
             'observation' => new TutorObservationResource($observation),
@@ -450,6 +513,26 @@ class ThesisController extends Controller
         }
 
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        if ($thesis->user_id) {
+            NotificationsHelper::notify(
+                $thesis->user_id,
+                'tutor_approved',
+                'Tesis aprobada por el tutor',
+                'Tu tesis "' . $thesis->title . '" ha sido aprobada por el tutor.',
+                ['thesis_id' => $thesis->id]
+            );
+        }
+
+        if ($thesis->career && $thesis->career->director_id) {
+            NotificationsHelper::notify(
+                $thesis->career->director_id,
+                'tutor_approved',
+                'Tesis aprobada por el tutor',
+                'El tutor ha aprobado la tesis "' . $thesis->title . '" de ' . ($thesis->user->full_name ?? ''),
+                ['thesis_id' => $thesis->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Tesis aprobada.',
@@ -485,6 +568,16 @@ class ThesisController extends Controller
         ]);
 
         $thesis->load(['user', 'tutor', 'category', 'tags', 'files']);
+
+        if ($thesis->user_id) {
+            NotificationsHelper::notify(
+                $thesis->user_id,
+                'changes_requested',
+                'Cambios solicitados en tu tesis',
+                'El tutor ha solicitado cambios en "' . $thesis->title . '": ' . $request->comment,
+                ['thesis_id' => $thesis->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Cambios solicitados al estudiante.',
